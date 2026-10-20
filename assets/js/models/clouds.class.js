@@ -13,6 +13,6 @@ class Clouds extends MoveableObect {
   animation() {
     setInterval(() => {
       this.x -= 0.15;
-    }, 1000 / 60);
+    }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
   }
 }
