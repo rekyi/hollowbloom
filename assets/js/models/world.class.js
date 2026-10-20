@@ -1,6 +1,7 @@
 class World {
   character = new Character();
   enemies = [new Chicken(), new Chicken(), new Chicken()];
+  clouds = [new Clouds()];
   canvas;
   ctx;
   constructor(canvas) {
@@ -14,7 +15,9 @@ class World {
     this.enemies.forEach((enemy) => {
       this.ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.width, enemy.height);
     });
-
+    this.clouds.forEach((cloud) => {
+      this.ctx.drawImage(cloud.img, cloud.x, cloud.y, cloud.width, cloud.height);
+    });
     requestAnimationFrame(() => this.draw());
   }
 }
