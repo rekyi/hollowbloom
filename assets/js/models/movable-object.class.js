@@ -11,6 +11,7 @@ class MoveableObject {
   speedY = 0;
   acceleration = 2;
   groundLevel = 440;
+  hp = 100;
 
   loadImage(path) {
     this.img = new Image();
@@ -41,6 +42,15 @@ class MoveableObject {
 
   isColliding(obj) {
     return this.x < obj.x + obj.width && this.x + this.width > obj.x && this.y < obj.y + obj.height && this.y + this.height > obj.y;
+  }
+
+  hit() {
+    this.hp -= 50;
+    if (this.hp < 0) this.hp = 0;
+  }
+
+  isDead() {
+    return this.hp == 0;
   }
 
   playAnimation(images) {
