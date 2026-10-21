@@ -39,6 +39,10 @@ class MoveableObject {
     }
   }
 
+  isColliding(obj) {
+    return this.x < obj.x + obj.width && this.x + this.width > obj.x && this.y < obj.y + obj.height && this.y + this.height > obj.y;
+  }
+
   playAnimation(images) {
     const i = this.currentImage % images.length;
     const path = images[i];

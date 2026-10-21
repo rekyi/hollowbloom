@@ -11,6 +11,7 @@ class World {
     this.keyboard = keyboard;
     this.draw();
     this.setWorld();
+    this.checkCollisions();
   }
 
   setWorld() {
@@ -31,6 +32,16 @@ class World {
     this.ctx.translate(-this.camera_x, 0);
 
     requestAnimationFrame(() => this.draw());
+  }
+
+  checkCollisions() {
+    setInterval(() => {
+      this.level.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy)) {
+          console.log("Collision with enemy!");
+        }
+      });
+    }, 1000);
   }
 
   addObjectsToMap(objects) {
