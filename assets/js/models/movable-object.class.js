@@ -7,6 +7,7 @@ class MoveableObject {
   imageCache = {};
   currentImage = 0;
   speed = 0.15;
+  oppositeDirection = false;
 
   loadImage(path) {
     this.img = new Image();

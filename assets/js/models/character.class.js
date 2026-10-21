@@ -24,9 +24,11 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.world.keyboard.RIGHT) {
         this.x += this.speed;
+        this.oppositeDirection = false;
       }
       if (this.world.keyboard.LEFT) {
         this.x -= this.speed;
+        this.oppositeDirection = true;
       }
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
