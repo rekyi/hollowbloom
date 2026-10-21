@@ -25,6 +25,18 @@ class MoveableObject {
     });
   }
 
+  draw(ctx) {
+    ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+  }
+
+  drawFrame(ctx) {
+    ctx.beginPath();
+    ctx.lineWidth = "3";
+    ctx.strokeStyle = "white";
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.stroke();
+  }
+
   playAnimation(images) {
     const i = this.currentImage % images.length;
     const path = images[i];
