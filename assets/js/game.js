@@ -22,7 +22,11 @@ window.addEventListener("keydown", (event) => {
     keyboard.DOWN = true;
   }
   if (event.code === "Space") {
+    event.preventDefault();
     keyboard.SPACE = true;
+    if (!event.repeat) {
+      world.character.jump();
+    }
   }
 });
 

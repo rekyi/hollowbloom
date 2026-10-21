@@ -23,7 +23,6 @@ class Character extends MoveableObject {
     "assets/images/2_character_pepe/3_jump/J-38.png",
     "assets/images/2_character_pepe/3_jump/J-39.png",
   ];
-
   world;
 
   constructor() {
@@ -45,6 +44,7 @@ class Character extends MoveableObject {
         this.x -= this.speed;
         this.oppositeDirection = true + 100;
       }
+
       this.world.camera_x = -this.x;
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
@@ -59,5 +59,9 @@ class Character extends MoveableObject {
     }, 25);
   }
 
-  jump() {}
+  jump() {
+    if (!this.isAboveGround()) {
+      this.speedY = 30;
+    }
+  }
 }
