@@ -10,7 +10,6 @@ class Character extends MoveableObect {
     "assets/images/2_character_pepe/2_walk/W-25.png",
     "assets/images/2_character_pepe/2_walk/W-26.png",
   ];
-  currentImage = 0;
 
   constructor() {
     super();

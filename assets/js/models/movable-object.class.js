@@ -2,9 +2,10 @@ class MoveableObect {
   img;
   x = 120;
   y = 280;
-  width = 80;
+  width = 70;
   height = 60;
   imageCache = {};
+  currentImage = 0;
 
   loadImage(path) {
     this.img = new Image();
