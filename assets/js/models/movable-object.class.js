@@ -6,6 +6,7 @@ class MoveableObect {
   height = 60;
   imageCache = {};
   currentImage = 0;
+  speed = 0.15;
 
   loadImage(path) {
     this.img = new Image();
@@ -25,6 +26,8 @@ class MoveableObect {
   }
 
   moveLeft() {
-    console.log("moving left");
+    setInterval(() => {
+      this.x -= this.speed;
+    }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
   }
 }
