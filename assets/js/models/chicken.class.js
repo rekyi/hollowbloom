@@ -1,4 +1,4 @@
-class Chicken extends MoveableObect {
+class Chicken extends MoveableObject {
   y = 365;
   IMAGES_WALKING = [
     "assets/images/3_enemies_chicken/chicken_normal/1_walk/1_w.png",
