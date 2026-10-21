@@ -30,6 +30,7 @@ class Character extends MoveableObject {
         this.x -= this.speed;
         this.oppositeDirection = true;
       }
+      this.world.camera_x = -this.x;
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
     setInterval(() => {
