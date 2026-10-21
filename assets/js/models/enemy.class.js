@@ -10,12 +10,15 @@ class Chicken extends MoveableObject {
     this.loadImage("assets/images/3_enemies_chicken/chicken_normal/1_walk/1_w.png");
     this.loadImages(this.IMAGES_WALKING);
     this.x = 250 + Math.random() * 350;
-    this.animation();
     this.speed = 0.15 + Math.random() * 0.25;
+    this.animation();
   }
 
   animation() {
-    this.moveLeft();
+    setInterval(() => {
+      this.x -= this.speed;
+    }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
+
     setInterval(() => {
       this.playAnimation(this.IMAGES_WALKING);
     }, 200);

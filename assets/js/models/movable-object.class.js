@@ -33,13 +33,19 @@ class MoveableObject {
   }
 
   moveRight() {
-    console.log("moving right");
+    this.x += this.speed;
+    this.oppositeDirection = false;
   }
 
   moveLeft() {
-    setInterval(() => {
-      this.x -= this.speed;
-    }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
+    this.x -= this.speed;
+    this.oppositeDirection = true;
+  }
+
+  jump() {
+    if (!this.isAboveGround()) {
+      this.speedY = 25;
+    }
   }
 
   gravity() {
