@@ -12,6 +12,7 @@ class MoveableObject {
   acceleration = 2;
   groundLevel = 440;
   hp = 100;
+  lastHit = 0;
 
   loadImage(path) {
     this.img = new Image();
@@ -45,8 +46,17 @@ class MoveableObject {
   }
 
   hit() {
-    this.hp -= 50;
+    this.hp -= 10;
     if (this.hp < 0) this.hp = 0;
+    else {
+      this.lastHit = new Date().getTime();
+    }
+  }
+
+  isHurt() {
+    let timeSinceLastHit = new Date().getTime() - this.lastHit;
+    timeSinceLastHit = timeSinceLastHit / 1000;
+    return timeSinceLastHit < 1;
   }
 
   isDead() {

@@ -24,6 +24,8 @@ class Character extends MoveableObject {
     "assets/images/2_character_pepe/3_jump/J-39.png",
   ];
 
+  IMAGES_HURT = ["assets/images/2_character_pepe/4_hurt/H-41.png", "assets/images/2_character_pepe/4_hurt/H-42.png", "assets/images/2_character_pepe/4_hurt/H-43.png"];
+
   IMAGES_DEAD = [
     "assets/images/2_character_pepe/5_dead/D-51.png",
     "assets/images/2_character_pepe/5_dead/D-52.png",
@@ -42,6 +44,7 @@ class Character extends MoveableObject {
     this.loadImages(this.IMAGES_WALKING);
     this.loadImages(this.IMAGES_JUMPING);
     this.loadImages(this.IMAGES_DEAD);
+    this.loadImages(this.IMAGES_HURT);
     this.animation();
     this.gravity();
   }
@@ -63,7 +66,9 @@ class Character extends MoveableObject {
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
     setInterval(() => {
-      if (this.isDead()) {
+      if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_HURT);
+      } else if (this.isDead()) {
         this.playAnimation(this.IMAGES_DEAD);
       } else if (this.isAboveGround()) {
         this.playAnimation(this.IMAGES_JUMPING);
