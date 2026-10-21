@@ -30,11 +30,13 @@ class MoveableObject {
   }
 
   drawFrame(ctx) {
-    ctx.beginPath();
-    ctx.lineWidth = "3";
-    ctx.strokeStyle = "white";
-    ctx.rect(this.x, this.y, this.width, this.height);
-    ctx.stroke();
+    if (this instanceof Character || this instanceof Chicken) {
+      ctx.beginPath();
+      ctx.lineWidth = "3";
+      ctx.strokeStyle = "white";
+      ctx.rect(this.x, this.y, this.width, this.height);
+      ctx.stroke();
+    }
   }
 
   playAnimation(images) {
