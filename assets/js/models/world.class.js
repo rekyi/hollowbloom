@@ -1,9 +1,8 @@
 class World {
   character = new Character();
-  enemies = [new Chicken(), new Chicken(), new Chicken()];
-  clouds = [new Clouds()];
-  background = [];
-  backgroundTileIndices = new Set();
+  enemies = level1.enemies;
+  clouds = level1.clouds;
+  background = level1.background;
   canvas;
   ctx;
   keyboard;
@@ -12,29 +11,8 @@ class World {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
-    this.updateBackground();
     this.draw();
     this.setWorld();
-  }
-
-  updateBackground() {
-    const tileWidth = 720;
-    const firstTile = Math.floor(-this.camera_x / tileWidth);
-    const lastTile = Math.floor((-this.camera_x + this.canvas.width) / tileWidth);
-
-    for (let tileIndex = firstTile; tileIndex <= lastTile; tileIndex++) {
-      if (this.backgroundTileIndices.has(tileIndex)) continue;
-
-      const imageSet = Math.abs(tileIndex % 2) + 1;
-      const x = tileIndex * tileWidth;
-      this.background.push(
-        new Background("assets/images/5_background/layers/air.png", x),
-        new Background(`assets/images/5_background/layers/3_third_layer/${imageSet}.png`, x),
-        new Background(`assets/images/5_background/layers/2_second_layer/${imageSet}.png`, x),
-        new Background(`assets/images/5_background/layers/1_first_layer/${imageSet}.png`, x),
-      );
-      this.backgroundTileIndices.add(tileIndex);
-    }
   }
 
   setWorld() {
@@ -42,7 +20,7 @@ class World {
   }
 
   draw() {
-    this.updateBackground();
+    level1.updateBackground(this.camera_x, this.canvas.width);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.translate(this.camera_x, 0);
