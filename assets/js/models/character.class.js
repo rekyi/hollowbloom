@@ -11,12 +11,26 @@ class Character extends MoveableObject {
     "assets/images/2_character_pepe/2_walk/W-25.png",
     "assets/images/2_character_pepe/2_walk/W-26.png",
   ];
+
+  IMAGES_JUMPING = [
+    "assets/images/2_character_pepe/3_jump/J-31.png",
+    "assets/images/2_character_pepe/3_jump/J-32.png",
+    "assets/images/2_character_pepe/3_jump/J-33.png",
+    "assets/images/2_character_pepe/3_jump/J-34.png",
+    "assets/images/2_character_pepe/3_jump/J-35.png",
+    "assets/images/2_character_pepe/3_jump/J-36.png",
+    "assets/images/2_character_pepe/3_jump/J-37.png",
+    "assets/images/2_character_pepe/3_jump/J-38.png",
+    "assets/images/2_character_pepe/3_jump/J-39.png",
+  ];
+
   world;
 
   constructor() {
     super();
     this.loadImage("assets/images/2_character_pepe/2_walk/W-21.png");
     this.loadImages(this.IMAGES_WALKING);
+    this.loadImages(this.IMAGES_JUMPING);
     this.animation();
     this.gravity();
   }
@@ -35,8 +49,12 @@ class Character extends MoveableObject {
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
     setInterval(() => {
-      if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-        this.playAnimation(this.IMAGES_WALKING);
+      if (this.isAboveGround()) {
+        this.playAnimation(this.IMAGES_JUMPING);
+      } else {
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+          this.playAnimation(this.IMAGES_WALKING);
+        }
       }
     }, 25);
   }
