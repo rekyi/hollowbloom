@@ -8,6 +8,9 @@ class MoveableObject {
   currentImage = 0;
   speed = 0.15;
   oppositeDirection = false;
+  speedY = 0;
+  acceleration = 2;
+  groundLevel = 440;
 
   loadImage(path) {
     this.img = new Image();
@@ -37,5 +40,25 @@ class MoveableObject {
     setInterval(() => {
       this.x -= this.speed;
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
+  }
+
+  gravity() {
+    setInterval(() => {
+      const groundY = this.groundLevel - this.height;
+      const nextYPosition = this.y - this.speedY;
+
+      if (nextYPosition >= groundY) {
+        this.y = groundY;
+        this.speedY = 0;
+        return;
+      }
+
+      this.y = nextYPosition;
+      this.speedY -= this.acceleration;
+    }, 1000 / 25);
+  }
+
+  isAboveGround() {
+    return this.y + this.height < this.groundLevel;
   }
 }
