@@ -21,7 +21,7 @@ class MoveableObject extends DrawableObject {
 
   gettingHit() {
     let timeSinceLastHit = new Date().getTime() - this.lastHit;
-    timeSinceLastHit = timeSinceLastHit / 1000;
+    timeSinceLastHit = timeSinceLastHit / 500;
     return timeSinceLastHit < 1;
   }
 

@@ -1,4 +1,8 @@
-const level1 = new Level([new Chicken(), new Chicken(), new Chicken(), new FinalBoss()], [new Clouds()], []);
+const level1 = new Level(
+  [new Rat(), new Bat(), new Slime(), new Mimic(), new FinalBoss()],
+  [new Clouds()],
+  [],
+);
 
 const backgroundTileIndices = new Set();
 

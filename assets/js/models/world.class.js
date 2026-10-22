@@ -41,15 +41,36 @@ class World {
     setInterval(() => {
       this.checkCollision();
     }, 1000);
+    setInterval(() => {
+      this.checkThrowableCollision();
+    }, 1000 / 25);
   }
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
-      if (this.character.isColliding(enemy)) {
+      if (!(enemy instanceof Enemy && enemy.isDead()) && this.character.isColliding(enemy)) {
         this.character.hit();
         this.statusBar.setHearts(this.character.hp);
       }
     });
+  }
+
+  checkThrowableCollision() {
+    this.throwableObject = this.throwableObject.filter((throwable) => {
+      const enemy = this.level.enemies.find(
+        (candidate) =>
+          candidate instanceof Enemy &&
+          !candidate.isDead() &&
+          throwable.isColliding(candidate),
+      );
+      if (!enemy) return true;
+
+      enemy.hit();
+      return false;
+    });
+    this.level.enemies = this.level.enemies.filter(
+      (enemy) => !(enemy instanceof Enemy && enemy.deathAnimationFinished),
+    );
   }
 
   throwBottle() {

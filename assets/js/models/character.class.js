@@ -5,7 +5,7 @@ class Character extends MoveableObject {
   offset = { top: 80, right: 75, bottom: 0, left: 50 };
   speed = 7;
   walkSpeed = 7;
-  runSpeedFactor = 1.5;
+  runSpeedFactor = 2;
   IMAGES_WALKING;
   IMAGES_RUNNING;
   IMAGES_JUMPING;
