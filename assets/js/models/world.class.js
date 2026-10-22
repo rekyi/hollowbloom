@@ -24,13 +24,14 @@ class World {
   draw() {
     level1.updateBackground(this.camera_x, this.canvas.width);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.translate(this.camera_x, 0);
+    const cameraX = Math.round(this.camera_x);
+    this.ctx.translate(cameraX, 0);
     this.addObjectsToMap(this.level.background);
     this.addObjectsToMap(this.throwableObject);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.clouds);
-    this.ctx.translate(-this.camera_x, 0);
+    this.ctx.translate(-cameraX, 0);
     this.statusBar.draw(this.ctx);
 
     requestAnimationFrame(() => this.draw());

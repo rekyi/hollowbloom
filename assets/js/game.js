@@ -9,6 +9,9 @@ function init() {
 init();
 
 window.addEventListener("keydown", (event) => {
+  if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
+    keyboard.SHIFT = true;
+  }
   if (event.code === "ArrowRight" || event.code === "KeyD") {
     keyboard.RIGHT = true;
   }
@@ -30,7 +33,7 @@ window.addEventListener("keydown", (event) => {
   if (event.code === "ArrowUp" || event.code === "Space") {
     event.preventDefault();
     keyboard.SPACE = true;
-    if (!event.repeat) {
+    if (!event.repeat && !world.character.isDead()) {
       world.character.jump();
     }
   }
@@ -40,6 +43,9 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+  if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
+    keyboard.SHIFT = false;
+  }
   if (event.code === "ArrowRight" || event.code === "KeyD") {
     keyboard.RIGHT = false;
   }

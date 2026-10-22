@@ -1,10 +1,21 @@
-const level1 = new Level(
-  [new Chicken(), new Chicken(), new Chicken(), new FinalBoss()],
-  [new Clouds()],
-  [],
-);
+const level1 = new Level([new Chicken(), new Chicken(), new Chicken(), new FinalBoss()], [new Clouds()], []);
 
 const backgroundTileIndices = new Set();
+
+const backgroundLayers = [
+  "Layer_0011_0",
+  "Layer_0010_1",
+  "Layer_0009_2",
+  "Layer_0008_3",
+  "Layer_0007_Lights",
+  "Layer_0006_4",
+  "Layer_0005_5",
+  "Layer_0004_Lights",
+  "Layer_0003_6",
+  "Layer_0002_7",
+  "Layer_0001_8",
+  "Layer_0000_9",
+];
 
 level1.updateBackground = function (cameraX, viewportWidth) {
   const tileWidth = 720;
@@ -14,14 +25,8 @@ level1.updateBackground = function (cameraX, viewportWidth) {
   for (let tileIndex = firstTile; tileIndex <= lastTile; tileIndex++) {
     if (backgroundTileIndices.has(tileIndex)) continue;
 
-    const imageSet = Math.abs(tileIndex % 2) + 1;
     const x = tileIndex * tileWidth;
-    this.background.push(
-      new Background("assets/images/5_background/layers/air.png", x),
-      new Background(`assets/images/5_background/layers/3_third_layer/${imageSet}.png`, x),
-      new Background(`assets/images/5_background/layers/2_second_layer/${imageSet}.png`, x),
-      new Background(`assets/images/5_background/layers/1_first_layer/${imageSet}.png`, x),
-    );
+    this.background.push(...backgroundLayers.map((layer) => new Background(`assets/images/background/level1/${layer}.png`, x)));
     backgroundTileIndices.add(tileIndex);
   }
 };

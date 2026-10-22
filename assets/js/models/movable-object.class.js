@@ -8,7 +8,9 @@ class MoveableObject extends DrawableObject {
   lastHit = 0;
 
   isColliding(obj) {
-    return this.x < obj.x + obj.width && this.x + this.width > obj.x && this.y < obj.y + obj.height && this.y + this.height > obj.y;
+    const a = this.getHitbox();
+    const b = obj.getHitbox();
+    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
   }
 
   hit() {
@@ -48,7 +50,7 @@ class MoveableObject extends DrawableObject {
 
   jump() {
     if (!this.isAboveGround()) {
-      this.speedY = 25;
+      this.speedY = 20;
     }
   }
 
