@@ -17,6 +17,9 @@ class Character extends MoveableObject {
   IMAGES_ATTACK;
   attacking = false;
   attackTick = 0;
+  attackTicksPerFrame = 2;
+  legsImg = null;
+  legsArea = { x: 30, y: 98, w: 52, h: 30 };
   attackDamageFrame = 5;
   attackReach = 20;
   IMAGES_HURT;
@@ -48,19 +51,19 @@ class Character extends MoveableObject {
     setInterval(() => {
       if (this.isDead()) return;
       this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
-      const k = this.world.keyboard;
-      if (k.LEFT || k.RIGHT || k.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
+      const key = this.world.keyboard;
+      if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
         this.idleSince = Date.now();
         this.idleLongFrame = 0;
       }
-      if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+      if (key.RIGHT && this.x < this.world.level.level_end_x) {
         this.moveRight();
       }
-      if (this.world.keyboard.LEFT && this.x > 0) {
+      if (key.LEFT && this.x > 0) {
         this.moveLeft();
       }
 
-      if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+      if (key.SPACE && !this.isAboveGround()) {
         this.jump();
       }
 
@@ -69,6 +72,7 @@ class Character extends MoveableObject {
 
     setInterval(() => {
       this.showBubble = false;
+      this.legsImg = null;
       if (this.isDead()) {
         if (!this.deathStarted) {
           this.deathStarted = true;
@@ -80,6 +84,7 @@ class Character extends MoveableObject {
         }
       } else if (this.attacking) {
         this.playAttack();
+        this.playLegsWhileAttacking();
       } else if (this.gettingHit()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
@@ -108,14 +113,25 @@ class Character extends MoveableObject {
     this.attackTick = 0;
   }
 
+  playLegsWhileAttacking() {
+    const key = this.world.keyboard;
+    const moving = key.LEFT || key.RIGHT;
+    if (!moving && !this.isAboveGround()) return;
+    const attackImg = this.img;
+    if (this.isAboveGround()) this.playJump();
+    else this.playAnimation(key.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
+    this.legsImg = this.img;
+    this.img = attackImg;
+  }
+
   playAttack() {
-    const frame = Math.floor(this.attackTick / 2);
+    const frame = Math.floor(this.attackTick / this.attackTicksPerFrame);
     if (frame >= this.IMAGES_ATTACK.length) {
       this.attacking = false;
       return;
     }
     this.img = this.imageCache[this.IMAGES_ATTACK[frame]];
-    if (this.attackTick === this.attackDamageFrame * 2) this.damageEnemiesInReach();
+    if (this.attackTick === this.attackDamageFrame * this.attackTicksPerFrame) this.damageEnemiesInReach();
     this.attackTick++;
   }
 
@@ -143,7 +159,24 @@ class Character extends MoveableObject {
   }
 
   draw(ctx) {
-    super.draw(ctx);
+    if (this.legsImg) {
+      const s = this.width / 128;
+      const { x, y, w, h } = this.legsArea;
+      const lx = this.x + x * s,
+        ly = this.y + y * s,
+        lw = w * s,
+        lh = h * s;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(this.x - 500, this.y - 500, this.width + 1000, this.height + 1000);
+      ctx.rect(lx, ly, lw, lh);
+      ctx.clip("evenodd");
+      super.draw(ctx);
+      ctx.restore();
+      ctx.drawImage(this.legsImg, x, y, w, h, lx, ly, lw, lh);
+    } else {
+      super.draw(ctx);
+    }
     if (this.showBubble) {
       const frame = Math.floor(Date.now() / 500) % this.IMAGES_BUBBLE.length;
       const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
