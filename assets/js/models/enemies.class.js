@@ -114,9 +114,30 @@ class Bat extends Enemy {
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "fly.png", 11, 87);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
+    this.IMAGES_FALL = this.loadSpriteSheet(base + "fall.png", 5, 87);
     this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
     this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
+    this.groundY = 382;
+    this.fallSpeed = 4;
     this.start();
+    setInterval(() => {
+      if (this.isDead() && this.y < this.groundY) {
+        this.y = Math.min(this.groundY, this.y + this.fallSpeed);
+      }
+    }, 1000 / 60);
+  }
+
+  playDeathAnimation() {
+    if (this.y < this.groundY) {
+      if (this.currentAnimation !== "falling") {
+        this.currentAnimation = "falling";
+        this.currentImage = 0;
+        this.isMoving = false;
+      }
+      this.playAnimation(this.IMAGES_FALL);
+      return;
+    }
+    super.playDeathAnimation();
   }
 }
 
