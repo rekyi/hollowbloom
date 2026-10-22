@@ -4,7 +4,7 @@ class MoveableObject extends DrawableObject {
   speedY = 0;
   acceleration = 2;
   groundLevel = 440;
-  hp = 100;
+  hp = 3;
   lastHit = 0;
 
   isColliding(obj) {
@@ -14,11 +14,9 @@ class MoveableObject extends DrawableObject {
   }
 
   hit() {
-    this.hp -= 10;
-    if (this.hp < 0) this.hp = 0;
-    else {
-      this.lastHit = new Date().getTime();
-    }
+    if (this.isDead()) return;
+    this.hp--;
+    this.lastHit = new Date().getTime();
   }
 
   gettingHit() {
@@ -28,7 +26,7 @@ class MoveableObject extends DrawableObject {
   }
 
   isDead() {
-    return this.hp == 0;
+    return this.hp <= 0;
   }
 
   playAnimation(images) {

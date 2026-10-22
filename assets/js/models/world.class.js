@@ -47,7 +47,7 @@ class World {
     this.level.enemies.forEach((enemy) => {
       if (this.character.isColliding(enemy)) {
         this.character.hit();
-        this.statusBar.setPercentage(this.character.hp);
+        this.statusBar.setHearts(this.character.hp);
       }
     });
   }

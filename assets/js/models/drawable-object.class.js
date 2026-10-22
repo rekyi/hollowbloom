@@ -41,7 +41,7 @@ class DrawableObject {
   }
 
   draw(ctx) {
-    if (!this.img || !this.img.complete || this.img.naturalWidth === 0) return;
+    if (!this.img || (this.img instanceof HTMLImageElement && (!this.img.complete || this.img.naturalWidth === 0))) return;
     ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
   }
 
