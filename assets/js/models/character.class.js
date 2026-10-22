@@ -1,8 +1,8 @@
 class Character extends MoveableObject {
   width = 200;
   height = 200;
-  y = 15;
-  offset = { top: 80, right: 75, bottom: 0, left: 50 };
+  y = 240;
+  offset = { top: 80, right: 55, bottom: 0, left: 52 };
   speed = 7;
   walkSpeed = 7;
   runSpeedFactor = 1.5;
@@ -14,6 +14,11 @@ class Character extends MoveableObject {
   lastIdleFrame = 0;
   idleLongFrame = 0;
   IMAGES_JUMPING;
+  IMAGES_ATTACK;
+  attacking = false;
+  attackTick = 0;
+  attackDamageFrame = 5;
+  attackReach = 20;
   IMAGES_HURT;
   IMAGES_DEAD;
 
@@ -29,6 +34,7 @@ class Character extends MoveableObject {
     this.IMAGES_RUNNING = this.loadSpriteSheet(base + "Run.png", 8);
     this.IMAGES_IDLE = this.loadSpriteSheet(base + "Idle.png", 6);
     this.IMAGES_IDLE_LONG = this.loadSpriteSheet(base + "Idle_long.png", 5);
+    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "Attack_1.png", 10);
     this.IMAGES_JUMPING = this.loadSpriteSheet(base + "Jump.png", 11);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "Hurt.png", 4);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "Dead.png", 4);
@@ -43,7 +49,7 @@ class Character extends MoveableObject {
       if (this.isDead()) return;
       this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
       const k = this.world.keyboard;
-      if (k.LEFT || k.RIGHT || k.SPACE || this.isAboveGround() || this.gettingHit()) {
+      if (k.LEFT || k.RIGHT || k.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
         this.idleSince = Date.now();
         this.idleLongFrame = 0;
       }
@@ -72,6 +78,8 @@ class Character extends MoveableObject {
           this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
           this.currentImage++;
         }
+      } else if (this.attacking) {
+        this.playAttack();
       } else if (this.gettingHit()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isAboveGround()) {
@@ -94,6 +102,40 @@ class Character extends MoveableObject {
     }, 25);
   }
 
+  attack() {
+    if (this.attacking || this.isDead()) return;
+    this.attacking = true;
+    this.attackTick = 0;
+  }
+
+  playAttack() {
+    const frame = Math.floor(this.attackTick / 2);
+    if (frame >= this.IMAGES_ATTACK.length) {
+      this.attacking = false;
+      return;
+    }
+    this.img = this.imageCache[this.IMAGES_ATTACK[frame]];
+    if (this.attackTick === this.attackDamageFrame * 2) this.damageEnemiesInReach();
+    this.attackTick++;
+  }
+
+  damageEnemiesInReach() {
+    const box = this.getHitbox();
+    const reach = {
+      x: this.oppositeDirection ? box.x - this.attackReach : box.x + box.width,
+      y: box.y,
+      width: this.attackReach,
+      height: box.height,
+    };
+    this.world.level.enemies.forEach((enemy) => {
+      if (enemy.isDead()) return;
+      const e = enemy.getHitbox();
+      if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
+        enemy.hit();
+      }
+    });
+  }
+
   playJump() {
     const progress = (20 - this.speedY) / 40;
     const frame = Math.floor(progress * this.IMAGES_JUMPING.length);
@@ -103,7 +145,7 @@ class Character extends MoveableObject {
   draw(ctx) {
     super.draw(ctx);
     if (this.showBubble) {
-      const frame = Math.floor(Date.now() / 400) % this.IMAGES_BUBBLE.length;
+      const frame = Math.floor(Date.now() / 500) % this.IMAGES_BUBBLE.length;
       const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
       const cx = this.x + this.width / 2;
       ctx.save();

@@ -101,6 +101,7 @@ class Rat extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 70);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "rat-death.png", 6, 70);
     this.setPosition(650, 382, 90, 90, 1.5, 550, 1000);
+    this.offset = { top: 32, right: 10, bottom: 32, left: 5 };
     this.start();
   }
 }
@@ -114,6 +115,7 @@ class Bat extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
     this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
+    this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
     this.start();
   }
 }
@@ -127,6 +129,7 @@ class Slime extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 156);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 11, 156);
     this.setPosition(1450, 330, 200, 200, 1, 1350, 1750);
+    this.offset = { top: 86, right: 72, bottom: 88, left: 69 };
     this.start();
   }
 }
@@ -140,6 +143,7 @@ class Mimic extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 146);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 6, 146);
     this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
+    this.offset = { top: 84, right: 75, bottom: 108, left: 94 };
     this.start();
   }
 }

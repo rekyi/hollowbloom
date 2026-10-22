@@ -5,6 +5,8 @@ class FinalBoss extends MoveableObject {
   baseY = 60;
   floatAmplitude = 15;
   floatSpeed = 0.002;
+  hp = 10;
+  offset = { top: 30, right: 5, bottom: 40, left: 10 };
 
   constructor() {
     super();

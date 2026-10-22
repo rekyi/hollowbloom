@@ -6,7 +6,6 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
-  throwableObject = [];
 
   constructor(canvas, keyboard) {
     this.canvas = canvas;
@@ -27,7 +26,6 @@ class World {
     const cameraX = Math.round(this.camera_x);
     this.ctx.translate(cameraX, 0);
     this.addObjectsToMap(this.level.background);
-    this.addObjectsToMap(this.throwableObject);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.clouds);
@@ -42,40 +40,22 @@ class World {
       this.checkCollision();
     }, 1000);
     setInterval(() => {
-      this.checkThrowableCollision();
+      this.removeDeadEnemies();
     }, 1000 / 25);
   }
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
-      if (!(enemy instanceof Enemy && enemy.isDead()) && this.character.isColliding(enemy)) {
+      if (!enemy.isDead() && this.character.isColliding(enemy)) {
         this.character.hit();
         this.statusBar.setHearts(this.character.hp);
       }
     });
   }
 
-  checkThrowableCollision() {
-    this.throwableObject = this.throwableObject.filter((throwable) => {
-      const enemy = this.level.enemies.find(
-        (candidate) =>
-          candidate instanceof Enemy &&
-          !candidate.isDead() &&
-          throwable.isColliding(candidate),
-      );
-      if (!enemy) return true;
-
-      enemy.hit();
-      return false;
-    });
+  removeDeadEnemies() {
     this.level.enemies = this.level.enemies.filter(
-      (enemy) => !(enemy instanceof Enemy && enemy.deathAnimationFinished),
-    );
-  }
-
-  throwBottle() {
-    this.throwableObject.push(
-      new ThrowableObject(this.character.x + 50, this.character.y + 100),
+      (enemy) => !(enemy instanceof Enemy ? enemy.deathAnimationFinished : enemy.isDead()),
     );
   }
 

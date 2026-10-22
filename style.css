@@ -7,6 +7,14 @@ body {
 
 
 canvas {
+    visibility: hidden;
+}
+
+canvas.ready {
+    visibility: visible;
+}
+
+canvas {
     @media screen and (max-width: 720px) {
         width: 100%;
     }

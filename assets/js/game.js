@@ -8,6 +8,8 @@ function init() {
 }
 init();
 
+window.addEventListener("load", () => canvas.classList.add("ready"));
+
 window.addEventListener("keydown", (event) => {
   if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
     keyboard.SHIFT = true;
@@ -25,9 +27,8 @@ window.addEventListener("keydown", (event) => {
     keyboard.DOWN = true;
   }
   if (event.code === "KeyF") {
-    keyboard.THROW = true;
     if (!event.repeat) {
-      world.throwBottle();
+      world.character.attack();
     }
   }
   if (event.code === "ArrowUp" || event.code === "Space") {
@@ -36,9 +37,6 @@ window.addEventListener("keydown", (event) => {
     if (!event.repeat && !world.character.isDead()) {
       world.character.jump();
     }
-  }
-  if (event.code === "KeyF") {
-    keyboard.THROW = true;
   }
 });
 
@@ -58,16 +56,10 @@ window.addEventListener("keyup", (event) => {
   if (event.code === "ArrowDown") {
     keyboard.DOWN = false;
   }
-  if (event.code === "KeyF") {
-    keyboard.THROW = false;
-  }
   if (event.code === "KeyW") {
     keyboard.UP = false;
   }
   if (event.code === "Space" || event.code === "ArrowUp") {
     keyboard.SPACE = false;
-  }
-  if (event.code === "KeyF") {
-    keyboard.THROW = false;
   }
 });
