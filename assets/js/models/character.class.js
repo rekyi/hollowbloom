@@ -2,7 +2,7 @@ class Character extends MoveableObject {
   width = 200;
   height = 200;
   y = 240;
-  offset = { top: 80, right: 55, bottom: 0, left: 52 };
+  offset = { top: 80, right: 80, bottom: 0, left: 52 };
   speed = 7;
   walkSpeed = 7;
   runSpeedFactor = 1.5;
@@ -56,10 +56,10 @@ class Character extends MoveableObject {
         this.idleSince = Date.now();
         this.idleLongFrame = 0;
       }
-      if (key.RIGHT && this.x < this.world.level.level_end_x) {
+      if (key.RIGHT && !key.LEFT && this.x < this.world.level.level_end_x) {
         this.moveRight();
       }
-      if (key.LEFT && this.x > 0) {
+      if (key.LEFT && !key.RIGHT && this.x > 0) {
         this.moveLeft();
       }
 
@@ -90,7 +90,7 @@ class Character extends MoveableObject {
       } else if (this.isAboveGround()) {
         this.playJump();
       } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+        if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
           this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
         } else {
           const idleTime = Date.now() - this.idleSince;
@@ -115,7 +115,7 @@ class Character extends MoveableObject {
 
   playLegsWhileAttacking() {
     const key = this.world.keyboard;
-    const moving = key.LEFT || key.RIGHT;
+    const moving = key.LEFT !== key.RIGHT;
     if (!moving && !this.isAboveGround()) return;
     const attackImg = this.img;
     if (this.isAboveGround()) this.playJump();
