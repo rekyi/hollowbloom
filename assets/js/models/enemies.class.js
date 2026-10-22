@@ -8,7 +8,7 @@ class Enemy extends MoveableObject {
     super();
     this.movementDirection = -1;
     this.oppositeDirection = true;
-    this.canMove = true; // auf true setzen, um die Patrouille zu aktivieren
+    this.canMove = false; // auf true setzen, um die Patrouille zu aktivieren
     this.isMoving = this.canMove;
     this.currentAnimation = "";
     this.deathAnimationFinished = false;
