@@ -66,7 +66,7 @@ class Character extends MoveableObject {
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
     setInterval(() => {
-      if (this.isHurt()) {
+      if (this.gettingHit()) {
         this.playAnimation(this.IMAGES_HURT);
       } else if (this.isDead()) {
         this.playAnimation(this.IMAGES_DEAD);
