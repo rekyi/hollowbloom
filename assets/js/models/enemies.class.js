@@ -92,32 +92,6 @@ class Enemy extends MoveableObject {
   }
 }
 
-class Bat extends Enemy {
-  constructor() {
-    super();
-    const base = "assets/images/3_enemies/Bat/";
-    this.IMAGES_IDLE = this.loadSpriteSheet(base + "fly.png", 11, 87);
-    this.IMAGES_MOVING = this.loadSpriteSheet(base + "fly.png", 11, 87);
-    this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
-    this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
-    this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
-    this.start();
-  }
-}
-
-class Mimic extends Enemy {
-  constructor() {
-    super();
-    const base = "assets/images/3_enemies/Mimic/";
-    this.IMAGES_IDLE = this.loadSpriteSheet(base + "idle_transformed.png", 9, 146);
-    this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 146);
-    this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 146);
-    this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 6, 146);
-    this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
-    this.start();
-  }
-}
-
 class Rat extends Enemy {
   constructor() {
     super();
@@ -131,6 +105,19 @@ class Rat extends Enemy {
   }
 }
 
+class Bat extends Enemy {
+  constructor() {
+    super();
+    const base = "assets/images/3_enemies/Bat/";
+    this.IMAGES_IDLE = this.loadSpriteSheet(base + "fly.png", 11, 87);
+    this.IMAGES_MOVING = this.loadSpriteSheet(base + "fly.png", 11, 87);
+    this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
+    this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
+    this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
+    this.start();
+  }
+}
+
 class Slime extends Enemy {
   constructor() {
     super();
@@ -140,6 +127,19 @@ class Slime extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 156);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 11, 156);
     this.setPosition(1450, 330, 200, 200, 1, 1350, 1750);
+    this.start();
+  }
+}
+
+class Mimic extends Enemy {
+  constructor() {
+    super();
+    const base = "assets/images/3_enemies/Mimic/";
+    this.IMAGES_IDLE = this.loadSpriteSheet(base + "idle_transformed.png", 9, 146);
+    this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 146);
+    this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 146);
+    this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 6, 146);
+    this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
     this.start();
   }
 }

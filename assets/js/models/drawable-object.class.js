@@ -20,20 +20,20 @@ class DrawableObject {
     });
   }
 
-  loadSpriteSheet(path, frameCount, frameSize = 128) {
+  loadSpriteSheet(path, frameCount,   frameSize = 128, frameHeight = frameSize) {
     const sheet = new Image();
     const keys = [];
     for (let i = 0; i < frameCount; i++) {
       const canvas = document.createElement("canvas");
       canvas.width = frameSize;
-      canvas.height = frameSize;
+        canvas.height = frameHeight;
       const key = `${path}#${i}`;
       this.imageCache[key] = canvas;
       keys.push(key);
     }
     sheet.onload = () => {
       keys.forEach((key, i) => {
-        this.imageCache[key].getContext("2d").drawImage(sheet, i * frameSize, 0, frameSize, frameSize, 0, 0, frameSize, frameSize);
+        this.imageCache[key].getContext("2d").drawImage(sheet, i * frameSize, 0, frameSize, frameHeight, 0, 0, frameSize, frameHeight);
       });
     };
     sheet.src = path;
