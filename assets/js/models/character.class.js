@@ -19,6 +19,8 @@ class Character extends MoveableObject {
 
   world;
   deathStarted = false;
+  IMAGES_BUBBLE;
+  showBubble = false;
 
   constructor() {
     super();
@@ -30,6 +32,7 @@ class Character extends MoveableObject {
     this.IMAGES_JUMPING = this.loadSpriteSheet(base + "Jump.png", 11);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "Hurt.png", 4);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "Dead.png", 4);
+    this.IMAGES_BUBBLE = this.loadSpriteSheet(base + "idle_long_bubble.png", 2, 15, 16);
     this.img = this.imageCache[this.IMAGES_JUMPING[0]];
     this.animation();
     this.gravity();
@@ -59,6 +62,7 @@ class Character extends MoveableObject {
     }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
 
     setInterval(() => {
+      this.showBubble = false;
       if (this.isDead()) {
         if (!this.deathStarted) {
           this.deathStarted = true;
@@ -96,7 +100,22 @@ class Character extends MoveableObject {
     this.img = this.imageCache[this.IMAGES_JUMPING[Math.max(0, Math.min(frame, this.IMAGES_JUMPING.length - 1))]];
   }
 
+  draw(ctx) {
+    super.draw(ctx);
+    if (this.showBubble) {
+      const frame = Math.floor(Date.now() / 400) % this.IMAGES_BUBBLE.length;
+      const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
+      const cx = this.x + this.width / 2;
+      ctx.save();
+      ctx.translate(cx, 0);
+      if (this.oppositeDirection) ctx.scale(-1, 1);
+      ctx.drawImage(bubble, 20, this.y + 35, 40, 45);
+      ctx.restore();
+    }
+  }
+
   playIdleLong() {
+    this.showBubble = true;
     this.img = this.imageCache[this.IMAGES_IDLE_LONG[this.idleLongFrame]];
     if (Date.now() - this.lastIdleFrame < 150) return;
     this.lastIdleFrame = Date.now();

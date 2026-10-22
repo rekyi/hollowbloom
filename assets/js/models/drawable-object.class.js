@@ -20,13 +20,13 @@ class DrawableObject {
     });
   }
 
-  loadSpriteSheet(path, frameCount,   frameSize = 128, frameHeight = frameSize) {
+  loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize) {
     const sheet = new Image();
     const keys = [];
     for (let i = 0; i < frameCount; i++) {
       const canvas = document.createElement("canvas");
       canvas.width = frameSize;
-        canvas.height = frameHeight;
+      canvas.height = frameHeight;
       const key = `${path}#${i}`;
       this.imageCache[key] = canvas;
       keys.push(key);
@@ -61,7 +61,7 @@ class DrawableObject {
       const box = this.getHitbox();
       ctx.beginPath();
       ctx.lineWidth = "3";
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "transparent";
       ctx.rect(box.x, box.y, box.width, box.height);
       ctx.stroke();
     }
