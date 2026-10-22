@@ -8,7 +8,7 @@ class Enemy extends MoveableObject {
     super();
     this.movementDirection = -1;
     this.oppositeDirection = true;
-    this.canMove = false; // auf true setzen, um die Patrouille zu aktivieren
+    this.canMove = false;
     this.isMoving = this.canMove;
     this.currentAnimation = "";
     this.deathAnimationFinished = false;
@@ -114,14 +114,16 @@ class Bat extends Enemy {
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "fly.png", 11, 87);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
+    this.IMAGES_FLY_TO_FALL = this.loadSpriteSheet(base + "fly_to_fall.png", 3, 87);
     this.IMAGES_FALL = this.loadSpriteSheet(base + "fall.png", 5, 87);
     this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
     this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
     this.groundY = 382;
     this.fallSpeed = 4;
+    this.transitionDone = false;
     this.start();
     setInterval(() => {
-      if (this.isDead() && this.y < this.groundY) {
+      if (this.isDead() && this.transitionDone && this.y < this.groundY) {
         this.y = Math.min(this.groundY, this.y + this.fallSpeed);
       }
     }, 1000 / 60);
@@ -134,6 +136,12 @@ class Bat extends Enemy {
         this.currentImage = 0;
         this.isMoving = false;
       }
+      if (this.currentImage < this.IMAGES_FLY_TO_FALL.length) {
+        this.img = this.imageCache[this.IMAGES_FLY_TO_FALL[this.currentImage]];
+        this.currentImage++;
+        return;
+      }
+      this.transitionDone = true;
       this.playAnimation(this.IMAGES_FALL);
       return;
     }
