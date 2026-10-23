@@ -27,6 +27,7 @@ class Character extends MoveableObject {
   IMAGES_DEAD;
   knockbackDirection = 0;
   knockbackFrames = 0;
+  invulnerableUntil = 0;
 
   world;
   deathStarted = false;
@@ -118,13 +119,18 @@ class Character extends MoveableObject {
   }
 
   hitByEnemy(enemy) {
-    if (this.isDead() || gameLoop.now() - this.lastHit < 1000) return false;
+    if (this.isDead() || this.isInvulnerable()) return false;
+    this.invulnerableUntil = gameLoop.now() + 1000;
     this.hit();
     this.attacking = false;
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
     this.knockbackFrames = 10;
     this.speedY = 12;
     return true;
+  }
+
+  isInvulnerable() {
+    return gameLoop.now() < this.invulnerableUntil;
   }
 
   playLegsWhileAttacking() {
@@ -184,23 +190,26 @@ class Character extends MoveableObject {
   }
 
   draw(ctx) {
-    if (this.legsImg) {
-      const s = this.width / 128;
-      const { x, y, w, h } = this.legsArea;
-      const lx = this.x + x * s,
-        ly = this.y + y * s,
-        lw = w * s,
-        lh = h * s;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(this.x - 500, this.y - 500, this.width + 1000, this.height + 1000);
-      ctx.rect(lx, ly, lw, lh);
-      ctx.clip("evenodd");
-      super.draw(ctx);
-      ctx.restore();
-      ctx.drawImage(this.legsImg, x, y, w, h, lx, ly, lw, lh);
-    } else {
-      super.draw(ctx);
+    const blink = this.isInvulnerable() && Math.floor(gameLoop.now() / 100) % 2 === 0;
+    if (!blink) {
+      if (this.legsImg) {
+        const s = this.width / 128;
+        const { x, y, w, h } = this.legsArea;
+        const lx = this.x + x * s,
+          ly = this.y + y * s,
+          lw = w * s,
+          lh = h * s;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(this.x - 500, this.y - 500, this.width + 1000, this.height + 1000);
+        ctx.rect(lx, ly, lw, lh);
+        ctx.clip("evenodd");
+        super.draw(ctx);
+        ctx.restore();
+        ctx.drawImage(this.legsImg, x, y, w, h, lx, ly, lw, lh);
+      } else {
+        super.draw(ctx);
+      }
     }
     if (this.showBubble) {
       const frame = Math.floor(gameLoop.now() / 500) % this.IMAGES_BUBBLE.length;
