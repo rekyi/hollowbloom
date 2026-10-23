@@ -68,10 +68,11 @@ class Character extends MoveableObject {
       }
 
       if (this.knockbackFrames > 0) {
-        this.x = Math.max(0, this.x + this.knockbackDirection * 2.5);
+        this.x += this.knockbackDirection * 2.5;
         this.knockbackFrames--;
       }
 
+      this.x = Math.max(0, Math.min(this.world.level.level_end_x, this.x));
       this.world.camera_x = -this.x;
     });
 
