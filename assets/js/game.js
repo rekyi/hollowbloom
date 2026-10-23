@@ -1,6 +1,7 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+const pressedKeys = new Set();
 
 function init() {
   canvas = document.getElementById("canvas");
@@ -17,15 +18,8 @@ window.addEventListener("keydown", (event) => {
   }
   if (gameLoop.isPaused) return;
 
-  if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
-    keyboard.SHIFT = true;
-  }
-  if (event.code === "ArrowRight" || event.code === "KeyD") {
-    keyboard.RIGHT = true;
-  }
-  if (event.code === "ArrowLeft" || event.code === "KeyA") {
-    keyboard.LEFT = true;
-  }
+  pressedKeys.add(event.code);
+  updateKeyboardState();
   if (event.code === "KeyF" || event.code === "KeyJ") {
     if (!event.repeat) {
       world.character.attack();
@@ -33,7 +27,6 @@ window.addEventListener("keydown", (event) => {
   }
   if (event.code === "ArrowUp" || event.code === "Space") {
     event.preventDefault();
-    keyboard.SPACE = true;
     if (!event.repeat && !world.character.isDead()) {
       world.character.jump();
     }
@@ -41,27 +34,22 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
-  if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
-    keyboard.SHIFT = false;
-  }
-  if (event.code === "ArrowRight" || event.code === "KeyD") {
-    keyboard.RIGHT = false;
-  }
-  if (event.code === "ArrowLeft" || event.code === "KeyA") {
-    keyboard.LEFT = false;
-  }
-  if (event.code === "Space" || event.code === "ArrowUp") {
-    keyboard.SPACE = false;
-  }
+  pressedKeys.delete(event.code);
+  updateKeyboardState();
 });
 
+function updateKeyboardState() {
+  keyboard.RIGHT = pressedKeys.has("ArrowRight") || pressedKeys.has("KeyD");
+  keyboard.LEFT = pressedKeys.has("ArrowLeft") || pressedKeys.has("KeyA");
+  keyboard.SPACE = pressedKeys.has("ArrowUp") || pressedKeys.has("Space");
+  keyboard.SHIFT = pressedKeys.has("ShiftLeft") || pressedKeys.has("ShiftRight");
+}
+
 function resetKeyboard() {
-  keyboard.RIGHT = false;
-  keyboard.LEFT = false;
+  pressedKeys.clear();
+  updateKeyboardState();
   keyboard.UP = false;
   keyboard.DOWN = false;
-  keyboard.SPACE = false;
-  keyboard.SHIFT = false;
 }
 
 window.addEventListener("blur", resetKeyboard);
