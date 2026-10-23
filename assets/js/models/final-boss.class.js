@@ -20,8 +20,8 @@ class FinalBoss extends MoveableObject {
   attackRange = 300;
   normalAttackFrameDuration = 115;
   enragedAttackFrameDuration = 95;
-  attackStartedAt = 0;
-  hurtStartedAt = 0;
+  attackStartedAt = Number.NEGATIVE_INFINITY;
+  hurtStartedAt = Number.NEGATIVE_INFINITY;
   hurtFrameDuration = 100;
   lastIdleFrameAt = 0;
   currentImage = 0;
@@ -41,14 +41,14 @@ class FinalBoss extends MoveableObject {
       this.updateEnragePhase();
 
       if (this.gettingHit() && !this.isDead()) {
-        const frame = Math.min(Math.floor((Date.now() - this.hurtStartedAt) / this.hurtFrameDuration), this.IMAGES_HURT.length - 1);
+        const frame = Math.min(Math.floor((gameLoop.now() - this.hurtStartedAt) / this.hurtFrameDuration), this.IMAGES_HURT.length - 1);
         this.currentImage = frame;
         this.img = this.imageCache[this.IMAGES_HURT[frame]];
         return;
       }
 
       if (this.isAttacking) {
-        const frame = Math.floor((Date.now() - this.attackStartedAt) / this.getAttackFrameDuration());
+        const frame = Math.floor((gameLoop.now() - this.attackStartedAt) / this.getAttackFrameDuration());
         if (frame >= this.IMAGES_ATTACK.length) {
           this.isAttacking = false;
           this.currentImage = 0;
@@ -60,15 +60,15 @@ class FinalBoss extends MoveableObject {
         return;
       }
 
-      if (Date.now() - this.lastIdleFrameAt >= 200) {
+      if (gameLoop.now() - this.lastIdleFrameAt >= 200) {
         this.currentImage = (this.currentImage + 1) % this.IMAGES_IDLE.length;
         this.img = this.imageCache[this.IMAGES_IDLE[this.currentImage]];
-        this.lastIdleFrameAt = Date.now();
+        this.lastIdleFrameAt = gameLoop.now();
       }
       if (this.isDead() || !this.target || this.target.x >= this.x) return;
 
       const distance = this.x - (this.target.x + this.target.width);
-      if (distance <= this.attackRange && Date.now() - this.attackStartedAt >= this.getAttackCooldown()) {
+      if (distance <= this.attackRange && gameLoop.now() - this.attackStartedAt >= this.getAttackCooldown()) {
         this.startAttack();
       }
     });
@@ -97,7 +97,7 @@ class FinalBoss extends MoveableObject {
     if (this.isDead()) return;
     super.hit();
     this.isAttacking = false;
-    this.hurtStartedAt = Date.now();
+    this.hurtStartedAt = gameLoop.now();
     this.currentImage = 0;
     if (!this.isDead()) this.img = this.imageCache[this.IMAGES_HURT[0]];
   }
@@ -105,7 +105,7 @@ class FinalBoss extends MoveableObject {
   startAttack() {
     this.isAttacking = true;
     this.attackHitRegistered = false;
-    this.attackStartedAt = Date.now();
+    this.attackStartedAt = gameLoop.now();
     this.currentImage = 0;
     this.img = this.imageCache[this.IMAGES_ATTACK[0]];
   }
@@ -140,6 +140,6 @@ class FinalBoss extends MoveableObject {
   }
 
   float() {
-    this.y = this.baseY + Math.sin(Date.now() * this.floatSpeed) * this.floatAmplitude;
+    this.y = this.baseY + Math.sin(gameLoop.now() * this.floatSpeed) * this.floatAmplitude;
   }
 }

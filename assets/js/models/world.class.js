@@ -33,12 +33,30 @@ class World {
     this.addObjectsToMap(this.level.clouds);
     this.ctx.translate(-cameraX, 0);
     this.statusBar.draw(this.ctx);
+    if (gameLoop.isPaused) this.drawPauseOverlay();
   }
 
   run() {
-    gameLoop.runEvery(1000 / 60, () => this.checkCollision());
     gameLoop.runEvery(1000 / 25, () => this.removeDeadEnemies());
-    gameLoop.start(() => this.draw());
+    gameLoop.start((dt) => this.update(dt), () => this.draw());
+  }
+
+  update() {
+    this.checkCollision();
+  }
+
+  drawPauseOverlay() {
+    this.ctx.save();
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "bold 36px sans-serif";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.fillText("PAUSE", this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.font = "16px sans-serif";
+    this.ctx.fillText("Esc zum Fortsetzen", this.canvas.width / 2, this.canvas.height / 2 + 36);
+    this.ctx.restore();
   }
 
   checkCollision() {

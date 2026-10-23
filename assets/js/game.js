@@ -11,6 +11,12 @@ init();
 window.addEventListener("load", () => canvas.classList.add("ready"));
 
 window.addEventListener("keydown", (event) => {
+  if (event.code === "Escape") {
+    if (!event.repeat) gameLoop.togglePause();
+    return;
+  }
+  if (gameLoop.isPaused) return;
+
   if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
     keyboard.SHIFT = true;
   }

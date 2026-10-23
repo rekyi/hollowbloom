@@ -11,7 +11,7 @@ class Character extends MoveableObject {
   IMAGES_RUNNING;
   IMAGES_IDLE;
   IMAGES_IDLE_LONG;
-  idleSince = Date.now();
+  idleSince = gameLoop.now();
   lastIdleFrame = 0;
   idleLongFrame = 0;
   IMAGES_JUMPING;
@@ -56,7 +56,7 @@ class Character extends MoveableObject {
       this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
       const key = this.world.keyboard;
       if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
-        this.idleSince = Date.now();
+        this.idleSince = gameLoop.now();
         this.idleLongFrame = 0;
       }
       if (key.RIGHT && !key.LEFT && this.x < this.world.level.level_end_x) {
@@ -101,7 +101,7 @@ class Character extends MoveableObject {
         if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
           this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
         } else {
-          const idleTime = Date.now() - this.idleSince;
+          const idleTime = gameLoop.now() - this.idleSince;
           if (idleTime >= 10000) {
             this.playIdleLong();
           } else if (idleTime >= 3000) {
@@ -122,7 +122,7 @@ class Character extends MoveableObject {
   }
 
   hitByEnemy(enemy) {
-    if (this.isDead() || Date.now() - this.lastHit < 1000) return false;
+    if (this.isDead() || gameLoop.now() - this.lastHit < 1000) return false;
     this.hit();
     this.attacking = false;
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
@@ -207,7 +207,7 @@ class Character extends MoveableObject {
       super.draw(ctx);
     }
     if (this.showBubble) {
-      const frame = Math.floor(Date.now() / 500) % this.IMAGES_BUBBLE.length;
+      const frame = Math.floor(gameLoop.now() / 500) % this.IMAGES_BUBBLE.length;
       const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
       const cx = this.x + this.width / 2;
       ctx.save();
@@ -221,14 +221,14 @@ class Character extends MoveableObject {
   playIdleLong() {
     this.showBubble = true;
     this.img = this.imageCache[this.IMAGES_IDLE_LONG[this.idleLongFrame]];
-    if (Date.now() - this.lastIdleFrame < 150) return;
-    this.lastIdleFrame = Date.now();
+    if (gameLoop.now() - this.lastIdleFrame < 150) return;
+    this.lastIdleFrame = gameLoop.now();
     if (this.idleLongFrame < this.IMAGES_IDLE_LONG.length - 1) this.idleLongFrame++;
   }
 
   playIdle(images) {
-    if (Date.now() - this.lastIdleFrame < 150) return;
-    this.lastIdleFrame = Date.now();
+    if (gameLoop.now() - this.lastIdleFrame < 150) return;
+    this.lastIdleFrame = gameLoop.now();
     this.playAnimation(images);
   }
 }

@@ -5,7 +5,7 @@ class MoveableObject extends DrawableObject {
   acceleration = 2;
   groundLevel = 440;
   hp = 3;
-  lastHit = 0;
+  lastHit = Number.NEGATIVE_INFINITY;
 
   isColliding(obj) {
     const a = this.getHitbox();
@@ -16,11 +16,11 @@ class MoveableObject extends DrawableObject {
   hit() {
     if (this.isDead()) return;
     this.hp--;
-    this.lastHit = new Date().getTime();
+    this.lastHit = gameLoop.now();
   }
 
   gettingHit() {
-    let timeSinceLastHit = new Date().getTime() - this.lastHit;
+    let timeSinceLastHit = gameLoop.now() - this.lastHit;
     timeSinceLastHit = timeSinceLastHit / 500;
     return timeSinceLastHit < 1;
   }
