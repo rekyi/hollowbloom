@@ -15,8 +15,10 @@ class Enemy extends MoveableObject {
     this.deathAnimationFinished = false;
     this.isAttacking = false;
     this.attackHitRegistered = false;
-    this.attackCooldown = 2000;
+    this.attackCooldown = 3000;
     this.attackOffset = this.offset;
+    this.attackReach = 0;
+    this.attackHitFrame = 0;
     this.isAggro = false;
     this.isReturning = false;
     this.aggroRange = 300;
@@ -68,13 +70,32 @@ class Enemy extends MoveableObject {
   }
 
   getHitbox() {
-    const offset = this.isAttacking ? this.attackOffset : this.offset;
+    const offset = this.offset;
+    const left = this.oppositeDirection ? offset.right : offset.left;
+    const right = this.oppositeDirection ? offset.left : offset.right;
     return {
-      x: this.x + offset.left,
+      x: this.x + left,
       y: this.y + offset.top,
-      width: this.width - offset.left - offset.right,
+      width: this.width - left - right,
       height: this.height - offset.top - offset.bottom,
     };
+  }
+
+  getAttackHitbox() {
+    if (this.currentImage < this.attackHitFrame) return this.getHitbox();
+
+    const left = this.oppositeDirection ? this.attackOffset.right : this.attackOffset.left;
+    const right = this.oppositeDirection ? this.attackOffset.left : this.attackOffset.right;
+    const hitbox = {
+      x: this.x + left,
+      y: this.y + this.attackOffset.top,
+      width: this.width - left - right,
+      height: this.height - this.attackOffset.top - this.attackOffset.bottom,
+    };
+    if (this.oppositeDirection) {
+      return { ...hitbox, x: hitbox.x - this.attackReach, width: hitbox.width + this.attackReach };
+    }
+    return { ...hitbox, width: hitbox.width + this.attackReach };
   }
 
   startAttackCycle() {
@@ -253,9 +274,10 @@ class Slime extends Enemy {
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 156);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 11, 156);
     this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack.png", 19, 156);
-    this.setPosition(1450, 330, 200, 200, 1, 1350, 1750);
-    this.offset = { top: 86, right: 72, bottom: 88, left: 69 };
+    this.setPosition(1350, 230, 400, 400, 1, 1350, 1750);
+    this.offset = { top: 86, right: 120, bottom: 88, left: 110 };
     this.attackOffset = { top: 60, right: 40, bottom: 80, left: 50 };
+    this.attackHitFrame = this.IMAGES_ATTACK.length - 8;
     this.start();
   }
 }
@@ -271,7 +293,8 @@ class Mimic extends Enemy {
     this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack_2.png", 13, 146);
     this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
     this.offset = { top: 84, right: 75, bottom: 108, left: 94 };
-    this.attackOffset = { top: 60, right: 50, bottom: 90, left: 70 };
+    this.attackOffset = this.offset;
+    this.attackReach = 65;
     this.start();
   }
 }

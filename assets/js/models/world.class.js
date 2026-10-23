@@ -50,7 +50,8 @@ class World {
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
       const characterHitbox = this.character.getHitbox();
-      const enemyHitbox = enemy instanceof FinalBoss && enemy.isAttacking ? enemy.getAttackHitbox() : enemy.getHitbox();
+      const enemyHitbox =
+        enemy.isAttacking && (enemy instanceof FinalBoss || enemy instanceof Enemy) ? enemy.getAttackHitbox() : enemy.getHitbox();
       if (enemy.isDead() || !this.hitboxesOverlap(characterHitbox, enemyHitbox)) return;
       const isEnemyAttack = enemy.isAttacking && !enemy.attackHitRegistered;
       if (this.character.hitByEnemy(enemy)) {

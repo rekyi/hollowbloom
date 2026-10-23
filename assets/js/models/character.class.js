@@ -3,6 +3,7 @@ class Character extends MoveableObject {
   height = 200;
   y = 240;
   offset = { top: 80, right: 80, bottom: 0, left: 52 };
+  hp = 1000;
   speed = 7;
   walkSpeed = 7;
   runSpeedFactor = 1.5;
@@ -171,20 +172,10 @@ class Character extends MoveableObject {
           y: box.y - 140,
           height: box.height + 140,
         };
-        if (
-          bossReach.x < e.x + e.width &&
-          bossReach.x + bossReach.width > e.x &&
-          bossReach.y < e.y + e.height &&
-          bossReach.y + bossReach.height > e.y
-        ) {
+        if (bossReach.x < e.x + e.width && bossReach.x + bossReach.width > e.x && bossReach.y < e.y + e.height && bossReach.y + bossReach.height > e.y) {
           enemy.hit();
         }
-      } else if (
-        reach.x < e.x + e.width &&
-        reach.x + reach.width > e.x &&
-        reach.y < e.y + e.height &&
-        reach.y + reach.height > e.y
-      ) {
+      } else if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
         enemy.hit();
       }
     });
