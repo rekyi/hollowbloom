@@ -48,10 +48,12 @@ class DrawableObject {
   offset = { top: 0, right: 0, bottom: 0, left: 0 };
 
   getHitbox() {
+    const left = this.oppositeDirection ? this.offset.right : this.offset.left;
+    const right = this.oppositeDirection ? this.offset.left : this.offset.right;
     return {
-      x: this.x + this.offset.left,
+      x: this.x + left,
       y: this.y + this.offset.top,
-      width: this.width - this.offset.left - this.offset.right,
+      width: this.width - left - right,
       height: this.height - this.offset.top - this.offset.bottom,
     };
   }

@@ -69,18 +69,6 @@ class Enemy extends MoveableObject {
     this.y += (dy / distance) * this.speed;
   }
 
-  getHitbox() {
-    const offset = this.offset;
-    const left = this.oppositeDirection ? offset.right : offset.left;
-    const right = this.oppositeDirection ? offset.left : offset.right;
-    return {
-      x: this.x + left,
-      y: this.y + offset.top,
-      width: this.width - left - right,
-      height: this.height - offset.top - offset.bottom,
-    };
-  }
-
   getAttackHitbox() {
     if (this.currentImage < this.attackHitFrame) return this.getHitbox();
 

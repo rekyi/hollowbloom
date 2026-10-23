@@ -110,15 +110,6 @@ class FinalBoss extends MoveableObject {
     this.img = this.imageCache[this.IMAGES_ATTACK[0]];
   }
 
-  getHitbox() {
-    return {
-      x: this.x + this.offset.left,
-      y: this.y + this.offset.top,
-      width: this.width - this.offset.left - this.offset.right,
-      height: this.height - this.offset.top - this.offset.bottom,
-    };
-  }
-
   getAttackHitbox() {
     const hitbox = this.getHitbox();
     const fireExpansion = this.getFireExpansion();
