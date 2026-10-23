@@ -18,6 +18,9 @@ class World {
 
   setWorld() {
     this.character.world = this;
+    this.level.enemies.forEach((enemy) => {
+      if (enemy instanceof Enemy || enemy instanceof FinalBoss) enemy.target = this.character;
+    });
   }
 
   draw() {
@@ -38,7 +41,7 @@ class World {
   run() {
     setInterval(() => {
       this.checkCollision();
-    }, 1000);
+    }, 1000 / 60);
     setInterval(() => {
       this.removeDeadEnemies();
     }, 1000 / 25);
@@ -46,11 +49,19 @@ class World {
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
-      if (!enemy.isDead() && this.character.isColliding(enemy)) {
-        this.character.hit();
+      const characterHitbox = this.character.getHitbox();
+      const enemyHitbox = enemy instanceof FinalBoss && enemy.isAttacking ? enemy.getAttackHitbox() : enemy.getHitbox();
+      if (enemy.isDead() || !this.hitboxesOverlap(characterHitbox, enemyHitbox)) return;
+      const isEnemyAttack = enemy.isAttacking && !enemy.attackHitRegistered;
+      if (this.character.hitByEnemy(enemy)) {
         this.statusBar.setHearts(this.character.hp);
+        if (isEnemyAttack) enemy.attackHitRegistered = true;
       }
     });
+  }
+
+  hitboxesOverlap(a, b) {
+    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
   }
 
   removeDeadEnemies() {

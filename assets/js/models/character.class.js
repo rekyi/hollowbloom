@@ -21,9 +21,11 @@ class Character extends MoveableObject {
   legsImg = null;
   legsArea = { x: 30, y: 98, w: 52, h: 30 };
   attackDamageFrame = 5;
-  attackReach = 20;
+  attackReach = 60;
   IMAGES_HURT;
   IMAGES_DEAD;
+  knockbackDirection = 0;
+  knockbackFrames = 0;
 
   world;
   deathStarted = false;
@@ -61,6 +63,11 @@ class Character extends MoveableObject {
       }
       if (key.LEFT && !key.RIGHT && this.x > 0) {
         this.moveLeft();
+      }
+
+      if (this.knockbackFrames > 0) {
+        this.x = Math.max(0, this.x + this.knockbackDirection * 2.5);
+        this.knockbackFrames--;
       }
 
       if (key.SPACE && !this.isAboveGround()) {
@@ -113,6 +120,16 @@ class Character extends MoveableObject {
     this.attackTick = 0;
   }
 
+  hitByEnemy(enemy) {
+    if (this.isDead() || Date.now() - this.lastHit < 1000) return false;
+    this.hit();
+    this.attacking = false;
+    this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
+    this.knockbackFrames = 10;
+    this.speedY = 12;
+    return true;
+  }
+
   playLegsWhileAttacking() {
     const key = this.world.keyboard;
     const moving = key.LEFT !== key.RIGHT;
@@ -146,7 +163,28 @@ class Character extends MoveableObject {
     this.world.level.enemies.forEach((enemy) => {
       if (enemy.isDead()) return;
       const e = enemy.getHitbox();
-      if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
+      if (enemy instanceof FinalBoss) {
+        const bossReach = {
+          ...reach,
+          x: this.oppositeDirection ? box.x - 120 : box.x + box.width,
+          width: 120,
+          y: box.y - 140,
+          height: box.height + 140,
+        };
+        if (
+          bossReach.x < e.x + e.width &&
+          bossReach.x + bossReach.width > e.x &&
+          bossReach.y < e.y + e.height &&
+          bossReach.y + bossReach.height > e.y
+        ) {
+          enemy.hit();
+        }
+      } else if (
+        reach.x < e.x + e.width &&
+        reach.x + reach.width > e.x &&
+        reach.y < e.y + e.height &&
+        reach.y + reach.height > e.y
+      ) {
         enemy.hit();
       }
     });

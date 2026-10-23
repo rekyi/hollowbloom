@@ -3,18 +3,91 @@ class Enemy extends MoveableObject {
   IMAGES_MOVING = [];
   IMAGES_HURT = [];
   IMAGES_DEAD = [];
+  IMAGES_ATTACK = [];
 
   constructor() {
     super();
     this.movementDirection = -1;
     this.oppositeDirection = true;
-    this.canMove = false;
+    this.canMove = true;
     this.isMoving = this.canMove;
     this.currentAnimation = "";
     this.deathAnimationFinished = false;
+    this.isAttacking = false;
+    this.attackHitRegistered = false;
+    this.attackCooldown = 2000;
+    this.attackOffset = this.offset;
+    this.isAggro = false;
+    this.isReturning = false;
+    this.aggroRange = 300;
+    this.target = null;
+  }
+
+  updateAggro() {
+    if (!this.target || this.isDead()) return;
+    const dx = this.target.x + this.target.width / 2 - (this.x + this.width / 2);
+    const dy = this.target.y + this.target.height / 2 - (this.y + this.height / 2);
+    const distance = Math.hypot(dx, dy);
+    if (!this.isAggro && distance <= this.aggroRange) {
+      this.isAggro = true;
+      this.isReturning = false;
+    } else if (this.isAggro && distance > this.aggroRange) {
+      this.resetToSpawn();
+    }
+  }
+
+  chase() {
+    const dx = this.target.x - this.x;
+    this.isMoving = Math.abs(dx) > this.speed;
+    if (!this.isMoving) return;
+    this.oppositeDirection = dx < 0;
+    this.x += Math.sign(dx) * this.speed;
+  }
+
+  resetToSpawn() {
+    this.isAggro = false;
+    this.isAttacking = false;
+    this.isReturning = true;
+  }
+
+  returnToSpawn() {
+    const [spawnX, spawnY] = this.spawnArgs;
+    const dx = spawnX - this.x;
+    const dy = spawnY - this.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance <= this.speed) {
+      this.setPosition(...this.spawnArgs);
+      this.isReturning = false;
+      this.isMoving = this.canMove;
+      return;
+    }
+    this.isMoving = true;
+    this.oppositeDirection = dx < 0;
+    this.x += (dx / distance) * this.speed;
+    this.y += (dy / distance) * this.speed;
+  }
+
+  getHitbox() {
+    const offset = this.isAttacking ? this.attackOffset : this.offset;
+    return {
+      x: this.x + offset.left,
+      y: this.y + offset.top,
+      width: this.width - offset.left - offset.right,
+      height: this.height - offset.top - offset.bottom,
+    };
+  }
+
+  startAttackCycle() {
+    setInterval(() => {
+      if (this.isAggro && !this.isDead() && !this.isAttacking && !this.gettingHit() && this.IMAGES_ATTACK.length) {
+        this.isAttacking = true;
+        this.attackHitRegistered = false;
+      }
+    }, this.attackCooldown);
   }
 
   setPosition(x, y, width, height, speed, minX, maxX) {
+    if (!this.spawnArgs) this.spawnArgs = [x, y, width, height, speed, minX, maxX];
     this.x = x;
     this.y = y;
     this.width = width;
@@ -27,10 +100,20 @@ class Enemy extends MoveableObject {
   start() {
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animation();
+    this.startAttackCycle();
   }
   animation() {
     setInterval(() => {
-      if (this.canMove && this.isMoving && !this.isDead()) {
+      this.updateAggro();
+      if (this.isAggro && !this.isDead()) {
+        if (!this.isAttacking && !this.gettingHit()) this.chase();
+        return;
+      }
+      if (this.isReturning && !this.isDead()) {
+        this.returnToSpawn();
+        return;
+      }
+      if (this.canMove && this.isMoving && !this.isDead() && !this.isAttacking) {
         this.x += this.speed * this.movementDirection;
         this.oppositeDirection = this.movementDirection < 0;
 
@@ -38,7 +121,7 @@ class Enemy extends MoveableObject {
           this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
           this.isMoving = false;
           setTimeout(() => {
-            if (this.isDead()) return;
+            if (this.isDead() || this.isAggro || this.isReturning) return;
             this.movementDirection *= -1;
             this.isMoving = true;
           }, 500);
@@ -52,12 +135,20 @@ class Enemy extends MoveableObject {
         return;
       }
 
+      if (this.isAttacking && this.currentAnimation === "attack" && this.currentImage >= this.IMAGES_ATTACK.length) {
+        this.isAttacking = false;
+      }
+
       let state = "idle";
       let images = this.IMAGES_IDLE;
 
       if (this.gettingHit() && this.IMAGES_HURT.length) {
+        this.isAttacking = false;
         state = "hurt";
         images = this.IMAGES_HURT;
+      } else if (this.isAttacking) {
+        state = "attack";
+        images = this.IMAGES_ATTACK;
       } else if (this.isMoving) {
         state = "moving";
         images = this.IMAGES_MOVING;
@@ -100,8 +191,10 @@ class Rat extends Enemy {
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "run.png", 8, 70);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 70);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "rat-death.png", 6, 70);
+    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack_bite.png", 12, 70);
     this.setPosition(650, 382, 90, 90, 1.5, 550, 1000);
     this.offset = { top: 32, right: 10, bottom: 32, left: 5 };
+    this.attackOffset = { top: 20, right: 0, bottom: 20, left: 0 };
     this.start();
   }
 }
@@ -116,8 +209,10 @@ class Bat extends Enemy {
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 4, 87);
     this.IMAGES_FLY_TO_FALL = this.loadSpriteSheet(base + "fly_to_fall.png", 3, 87);
     this.IMAGES_FALL = this.loadSpriteSheet(base + "fall.png", 5, 87);
+    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack.png", 11, 87);
     this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
     this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
+    this.attackOffset = { top: 10, right: 0, bottom: 10, left: 8 };
     this.groundY = 382;
     this.fallSpeed = 4;
     this.transitionDone = false;
@@ -157,8 +252,10 @@ class Slime extends Enemy {
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 156);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 156);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 11, 156);
+    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack.png", 19, 156);
     this.setPosition(1450, 330, 200, 200, 1, 1350, 1750);
     this.offset = { top: 86, right: 72, bottom: 88, left: 69 };
+    this.attackOffset = { top: 60, right: 40, bottom: 80, left: 50 };
     this.start();
   }
 }
@@ -171,8 +268,10 @@ class Mimic extends Enemy {
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 146);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 146);
     this.IMAGES_DEAD = this.loadSpriteSheet(base + "death.png", 6, 146);
+    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack_2.png", 13, 146);
     this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
     this.offset = { top: 84, right: 75, bottom: 108, left: 94 };
+    this.attackOffset = { top: 60, right: 50, bottom: 90, left: 70 };
     this.start();
   }
 }
