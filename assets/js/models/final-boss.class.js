@@ -12,8 +12,8 @@ class FinalBoss extends MoveableObject {
   maxHp = 10;
   offset = { top: 95, right: 105, bottom: 65, left: 95 };
   target = null;
-  isAttacking = false;
-  attackHitRegistered = false;
+  attackHitStartFrame = 6;
+  attackHitEndFrame = 10;
   phase = "normal";
   normalAttackCooldown = 3000;
   enragedAttackCooldown = 2500;

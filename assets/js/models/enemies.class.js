@@ -13,12 +13,10 @@ class Enemy extends MoveableObject {
     this.isMoving = this.canMove;
     this.currentAnimation = "";
     this.deathAnimationFinished = false;
-    this.isAttacking = false;
-    this.attackHitRegistered = false;
     this.attackCooldown = 3000;
+    this.nextAttackAt = Number.NEGATIVE_INFINITY;
     this.attackOffset = this.offset;
     this.attackReach = 0;
-    this.attackHitFrame = 0;
     this.isAggro = false;
     this.isReturning = false;
     this.aggroRange = 300;
@@ -39,11 +37,29 @@ class Enemy extends MoveableObject {
   }
 
   chase() {
-    const dx = this.target.x - this.x;
-    this.isMoving = Math.abs(dx) > this.speed;
-    if (!this.isMoving) return;
-    this.oppositeDirection = dx < 0;
-    this.x += Math.sign(dx) * this.speed;
+    this.faceTarget();
+    const targetHitbox = this.target.getHitbox();
+    const attackHitbox = this.getAttackHitbox();
+    if (this.hitboxesOverlap(targetHitbox, attackHitbox)) {
+      this.isMoving = false;
+      return;
+    }
+
+    const direction = this.oppositeDirection ? -1 : 1;
+    const distance = direction < 0 ? attackHitbox.x - (targetHitbox.x + targetHitbox.width) : targetHitbox.x - (attackHitbox.x + attackHitbox.width);
+    const movement = Math.min(this.speed, Math.max(0, distance) + 1);
+    this.isMoving = movement > 0;
+    this.x += direction * movement;
+  }
+
+  faceTarget() {
+    const enemyCenter = this.x + this.width / 2;
+    const targetCenter = this.target.x + this.target.width / 2;
+    this.oppositeDirection = targetCenter < enemyCenter;
+  }
+
+  hitboxesOverlap(a, b) {
+    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
   }
 
   resetToSpawn() {
@@ -70,8 +86,6 @@ class Enemy extends MoveableObject {
   }
 
   getAttackHitbox() {
-    if (this.currentImage < this.attackHitFrame) return this.getHitbox();
-
     const left = this.oppositeDirection ? this.attackOffset.right : this.attackOffset.left;
     const right = this.oppositeDirection ? this.attackOffset.left : this.attackOffset.right;
     const hitbox = {
@@ -87,11 +101,15 @@ class Enemy extends MoveableObject {
   }
 
   startAttackCycle() {
-    gameLoop.runEvery(this.attackCooldown, () => {
-      if (this.isAggro && !this.isDead() && !this.isAttacking && !this.gettingHit() && this.IMAGES_ATTACK.length) {
-        this.isAttacking = true;
-        this.attackHitRegistered = false;
-      }
+    gameLoop.runEvery(1000 / 60, () => {
+      if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || !this.IMAGES_ATTACK.length) return;
+      this.faceTarget();
+      if (!this.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
+      if (gameLoop.now() < this.nextAttackAt) return;
+      this.isAttacking = true;
+      this.attackHitRegistered = false;
+      this.currentImage = 0;
+      this.nextAttackAt = gameLoop.now() + this.attackCooldown;
     });
   }
 
@@ -107,6 +125,7 @@ class Enemy extends MoveableObject {
   }
 
   start() {
+    this.attackHitEndFrame = this.IMAGES_ATTACK.length - 1;
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animation();
     this.startAttackCycle();
@@ -204,6 +223,7 @@ class Rat extends Enemy {
     this.setPosition(650, 382, 90, 90, 1.5, 550, 1000);
     this.offset = { top: 32, right: 10, bottom: 32, left: 5 };
     this.attackOffset = { top: 20, right: 0, bottom: 20, left: 0 };
+    this.attackHitStartFrame = 8;
     this.start();
   }
 }
@@ -222,6 +242,7 @@ class Bat extends Enemy {
     this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
     this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
     this.attackOffset = { top: 10, right: 0, bottom: 10, left: 8 };
+    this.attackHitStartFrame = 8;
     this.groundY = 382;
     this.fallSpeed = 4;
     this.transitionDone = false;
@@ -265,7 +286,8 @@ class Slime extends Enemy {
     this.setPosition(1350, 230, 400, 400, 1, 1350, 1750);
     this.offset = { top: 86, right: 120, bottom: 88, left: 110 };
     this.attackOffset = { top: 60, right: 40, bottom: 80, left: 50 };
-    this.attackHitFrame = this.IMAGES_ATTACK.length - 8;
+    this.attackHitStartFrame = this.IMAGES_ATTACK.length - 8;
+    this.attackHitEndFrame = this.IMAGES_ATTACK.length - 1;
     this.start();
   }
 }

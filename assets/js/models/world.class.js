@@ -61,14 +61,13 @@ class World {
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => {
+      if (enemy.isDead() || !enemy.isAttackFrameActive() || enemy.attackHitRegistered) return;
       const characterHitbox = this.character.getHitbox();
-      const enemyHitbox =
-        enemy.isAttacking && (enemy instanceof FinalBoss || enemy instanceof Enemy) ? enemy.getAttackHitbox() : enemy.getHitbox();
-      if (enemy.isDead() || !this.hitboxesOverlap(characterHitbox, enemyHitbox)) return;
-      const isEnemyAttack = enemy.isAttacking && !enemy.attackHitRegistered;
+      const enemyHitbox = enemy.getAttackHitbox();
+      if (!this.hitboxesOverlap(characterHitbox, enemyHitbox)) return;
       if (this.character.hitByEnemy(enemy)) {
         this.statusBar.setHearts(this.character.hp);
-        if (isEnemyAttack) enemy.attackHitRegistered = true;
+        enemy.attackHitRegistered = true;
       }
     });
   }

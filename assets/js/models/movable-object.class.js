@@ -6,6 +6,18 @@ class MoveableObject extends DrawableObject {
   groundLevel = 440;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
+  isAttacking = false;
+  attackHitRegistered = false;
+  attackHitStartFrame = 2;
+  attackHitEndFrame = Number.POSITIVE_INFINITY;
+
+  isAttackFrameActive() {
+    return this.isAttacking && this.currentImage >= this.attackHitStartFrame && this.currentImage <= this.attackHitEndFrame;
+  }
+
+  getAttackHitbox() {
+    return this.getHitbox();
+  }
 
   isColliding(obj) {
     const a = this.getHitbox();
