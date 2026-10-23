@@ -51,7 +51,7 @@ class Character extends MoveableObject {
   }
 
   animation() {
-    setInterval(() => {
+    gameLoop.runEvery(1000 / 60, () => {
       if (this.isDead()) return;
       this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
       const key = this.world.keyboard;
@@ -76,9 +76,9 @@ class Character extends MoveableObject {
       }
 
       this.world.camera_x = -this.x;
-    }, 1000 / 60); // is it worth it to increase the fps in this case (120/144)?
+    });
 
-    setInterval(() => {
+    gameLoop.runEvery(25, () => {
       this.showBubble = false;
       this.legsImg = null;
       if (this.isDead()) {
@@ -112,7 +112,7 @@ class Character extends MoveableObject {
           }
         }
       }
-    }, 25);
+    });
   }
 
   attack() {

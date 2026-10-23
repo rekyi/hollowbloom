@@ -53,7 +53,7 @@ class MoveableObject extends DrawableObject {
   }
 
   gravity() {
-    setInterval(() => {
+    gameLoop.runEvery(1000 / 25, () => {
       const groundY = this.groundLevel - this.height;
       const nextYPosition = this.y - this.speedY;
 
@@ -65,7 +65,7 @@ class MoveableObject extends DrawableObject {
 
       this.y = nextYPosition;
       this.speedY -= this.acceleration;
-    }, 1000 / 25);
+    });
   }
 
   isAboveGround() {

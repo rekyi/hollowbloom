@@ -99,12 +99,12 @@ class Enemy extends MoveableObject {
   }
 
   startAttackCycle() {
-    setInterval(() => {
+    gameLoop.runEvery(this.attackCooldown, () => {
       if (this.isAggro && !this.isDead() && !this.isAttacking && !this.gettingHit() && this.IMAGES_ATTACK.length) {
         this.isAttacking = true;
         this.attackHitRegistered = false;
       }
-    }, this.attackCooldown);
+    });
   }
 
   setPosition(x, y, width, height, speed, minX, maxX) {
@@ -124,7 +124,7 @@ class Enemy extends MoveableObject {
     this.startAttackCycle();
   }
   animation() {
-    setInterval(() => {
+    gameLoop.runEvery(1000 / 60, () => {
       this.updateAggro();
       if (this.isAggro && !this.isDead()) {
         if (!this.isAttacking && !this.gettingHit()) this.chase();
@@ -141,16 +141,16 @@ class Enemy extends MoveableObject {
         if (this.x <= this.minX || this.x >= this.maxX) {
           this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
           this.isMoving = false;
-          setTimeout(() => {
+          gameLoop.runOnceAfter(500, () => {
             if (this.isDead() || this.isAggro || this.isReturning) return;
             this.movementDirection *= -1;
             this.isMoving = true;
-          }, 500);
+          });
         }
       }
-    }, 1000 / 60);
+    });
 
-    setInterval(() => {
+    gameLoop.runEvery(120, () => {
       if (this.isDead()) {
         this.playDeathAnimation();
         return;
@@ -181,7 +181,7 @@ class Enemy extends MoveableObject {
       }
       if (state === "idle") this.playIdle();
       else this.playAnimation(images);
-    }, 120);
+    });
   }
 
   playIdle() {
@@ -238,11 +238,11 @@ class Bat extends Enemy {
     this.fallSpeed = 4;
     this.transitionDone = false;
     this.start();
-    setInterval(() => {
+    gameLoop.runEvery(1000 / 60, () => {
       if (this.isDead() && this.transitionDone && this.y < this.groundY) {
         this.y = Math.min(this.groundY, this.y + this.fallSpeed);
       }
-    }, 1000 / 60);
+    });
   }
 
   playDeathAnimation() {

@@ -37,7 +37,7 @@ class FinalBoss extends MoveableObject {
   }
 
   animation() {
-    setInterval(() => {
+    gameLoop.runEvery(1000 / 60, () => {
       this.updateEnragePhase();
 
       if (this.gettingHit() && !this.isDead()) {
@@ -71,8 +71,8 @@ class FinalBoss extends MoveableObject {
       if (distance <= this.attackRange && Date.now() - this.attackStartedAt >= this.getAttackCooldown()) {
         this.startAttack();
       }
-    }, 1000 / 60);
-    setInterval(() => this.float(), 1000 / 60);
+    });
+    gameLoop.runEvery(1000 / 60, () => this.float());
   }
 
   updateEnragePhase() {

@@ -11,7 +11,6 @@ class World {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
-    this.draw();
     this.setWorld();
     this.run();
   }
@@ -34,17 +33,12 @@ class World {
     this.addObjectsToMap(this.level.clouds);
     this.ctx.translate(-cameraX, 0);
     this.statusBar.draw(this.ctx);
-
-    requestAnimationFrame(() => this.draw());
   }
 
   run() {
-    setInterval(() => {
-      this.checkCollision();
-    }, 1000 / 60);
-    setInterval(() => {
-      this.removeDeadEnemies();
-    }, 1000 / 25);
+    gameLoop.runEvery(1000 / 60, () => this.checkCollision());
+    gameLoop.runEvery(1000 / 25, () => this.removeDeadEnemies());
+    gameLoop.start(() => this.draw());
   }
 
   checkCollision() {
