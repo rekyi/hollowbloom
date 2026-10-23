@@ -1,6 +1,7 @@
 class FinalBoss extends MoveableObject {
   IMAGES_IDLE = [];
   IMAGES_ATTACK = [];
+  IMAGES_HURT = [];
   width = 350;
   height = 315;
   y = 90;
@@ -15,11 +16,13 @@ class FinalBoss extends MoveableObject {
   attackHitRegistered = false;
   phase = "normal";
   normalAttackCooldown = 3000;
-  enragedAttackCooldown = 2000;
+  enragedAttackCooldown = 2500;
   attackRange = 300;
   normalAttackFrameDuration = 115;
-  enragedAttackFrameDuration = 90;
+  enragedAttackFrameDuration = 95;
   attackStartedAt = 0;
+  hurtStartedAt = 0;
+  hurtFrameDuration = 100;
   lastIdleFrameAt = 0;
   currentImage = 0;
 
@@ -27,6 +30,7 @@ class FinalBoss extends MoveableObject {
     super();
     this.IMAGES_IDLE = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-idle.png", 6, 160, 144);
     this.IMAGES_ATTACK = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-attack.png", 11, 240, 192);
+    this.IMAGES_HURT = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-hurt.png", 8, 192, 176);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.x = 2500;
     this.animation();
@@ -35,6 +39,13 @@ class FinalBoss extends MoveableObject {
   animation() {
     setInterval(() => {
       this.updateEnragePhase();
+
+      if (this.gettingHit() && !this.isDead()) {
+        const frame = Math.min(Math.floor((Date.now() - this.hurtStartedAt) / this.hurtFrameDuration), this.IMAGES_HURT.length - 1);
+        this.currentImage = frame;
+        this.img = this.imageCache[this.IMAGES_HURT[frame]];
+        return;
+      }
 
       if (this.isAttacking) {
         const frame = Math.floor((Date.now() - this.attackStartedAt) / this.getAttackFrameDuration());
@@ -80,6 +91,15 @@ class FinalBoss extends MoveableObject {
 
   isEnraged() {
     return this.phase === "enraged";
+  }
+
+  hit() {
+    if (this.isDead()) return;
+    super.hit();
+    this.isAttacking = false;
+    this.hurtStartedAt = Date.now();
+    this.currentImage = 0;
+    if (!this.isDead()) this.img = this.imageCache[this.IMAGES_HURT[0]];
   }
 
   startAttack() {
