@@ -90,26 +90,16 @@ class World {
 
   addToMap(movableObject) {
     if (movableObject.oppositeDirection) {
-      this.flipImage(movableObject);
+      this.ctx.save();
+      this.ctx.translate(movableObject.x + movableObject.width / 2, 0);
+      this.ctx.scale(-1, 1);
+      this.ctx.translate(-(movableObject.x + movableObject.width / 2), 0);
+      movableObject.draw(this.ctx);
+      this.ctx.restore();
+    } else {
+      movableObject.draw(this.ctx);
     }
 
-    movableObject.draw(this.ctx);
     movableObject.drawFrame(this.ctx);
-
-    if (movableObject.oppositeDirection) {
-      this.flipImageBack(movableObject);
-    }
-  }
-
-  flipImage(movableObject) {
-    this.ctx.save();
-    this.ctx.translate(movableObject.width, 0);
-    this.ctx.scale(-1, 1);
-    movableObject.x = movableObject.x * -1;
-  }
-
-  flipImageBack(movableObject) {
-    movableObject.x = movableObject.x * -1;
-    this.ctx.restore();
   }
 }
