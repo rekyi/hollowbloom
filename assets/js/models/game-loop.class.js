@@ -11,6 +11,7 @@ class GameLoop {
   accumulatorMs = 0;
   gameTimeMs = 0;
   animationFrameId = 0;
+  hitStopUntilMs = 0;
 
   now() {
     return this.gameTimeMs;
@@ -45,6 +46,11 @@ class GameLoop {
     this.lastFrameTimeMs = performance.now();
   }
 
+  hitStop(durationMs = 60) {
+    this.hitStopUntilMs = Math.max(this.hitStopUntilMs, performance.now() + durationMs);
+    this.accumulatorMs = 0;
+  }
+
   stop() {
     this.isRunning = false;
     cancelAnimationFrame(this.animationFrameId);
@@ -55,12 +61,20 @@ class GameLoop {
     const frameDurationMs = Math.min(Math.max(currentTimeMs - this.lastFrameTimeMs, 0), this.maxFrameDurationMs);
     this.lastFrameTimeMs = currentTimeMs;
     if (!this.isPaused) {
-      this.accumulatorMs += frameDurationMs;
-      while (this.accumulatorMs >= this.fixedStepMs) {
-        this.gameTimeMs += this.fixedStepMs;
-        this.runScheduledTasks(this.fixedStepMs);
-        if (this.updateCallback) this.updateCallback(this.fixedStepSeconds);
-        this.accumulatorMs -= this.fixedStepMs;
+      if (currentTimeMs < this.hitStopUntilMs) {
+        this.accumulatorMs = 0;
+      } else {
+        this.accumulatorMs += frameDurationMs;
+        while (this.accumulatorMs >= this.fixedStepMs) {
+          this.gameTimeMs += this.fixedStepMs;
+          this.runScheduledTasks(this.fixedStepMs);
+          if (this.updateCallback) this.updateCallback(this.fixedStepSeconds);
+          this.accumulatorMs -= this.fixedStepMs;
+          if (currentTimeMs < this.hitStopUntilMs) {
+            this.accumulatorMs = 0;
+            break;
+          }
+        }
       }
     } else {
       this.accumulatorMs = 0;

@@ -6,6 +6,9 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
+  shakeStartedAt = Number.NEGATIVE_INFINITY;
+  shakeDurationMs = 180;
+  shakeMagnitude = 7;
 
   constructor(canvas, keyboard) {
     this.canvas = canvas;
@@ -23,22 +26,33 @@ class World {
   }
 
   draw() {
-    level1.updateBackground(this.camera_x, this.canvas.width);
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const shakeElapsed = performance.now() - this.shakeStartedAt;
+    const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < this.shakeDurationMs;
+    const shakeIntensity = isShaking ? 1 - shakeElapsed / this.shakeDurationMs : 0;
+    const shakeX = isShaking ? Math.round(Math.sin(shakeElapsed * 0.08) * this.shakeMagnitude * shakeIntensity) : 0;
+    const shakeY = isShaking ? Math.round(Math.cos(shakeElapsed * 0.11) * this.shakeMagnitude * 0.5 * shakeIntensity) : 0;
     const cameraX = Math.round(this.camera_x);
+    const backgroundMargin = this.shakeMagnitude + 1;
+    level1.updateBackground(cameraX + shakeX + backgroundMargin, this.canvas.width + backgroundMargin * 2);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.save();
+    this.ctx.translate(shakeX, shakeY);
     this.ctx.translate(cameraX, 0);
     this.addObjectsToMap(this.level.background);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.clouds);
-    this.ctx.translate(-cameraX, 0);
+    this.ctx.restore();
     this.statusBar.draw(this.ctx);
     if (gameLoop.isPaused) this.drawPauseOverlay();
   }
 
   run() {
     gameLoop.runEvery(1000 / 25, () => this.removeDeadEnemies());
-    gameLoop.start((dt) => this.update(dt), () => this.draw());
+    gameLoop.start(
+      (dt) => this.update(dt),
+      () => this.draw(),
+    );
   }
 
   update() {
@@ -68,8 +82,14 @@ class World {
       if (this.character.hitByEnemy(enemy)) {
         this.statusBar.setHearts(this.character.hp);
         enemy.attackHitRegistered = true;
+        this.triggerHitFeedback();
       }
     });
+  }
+
+  triggerHitFeedback() {
+    gameLoop.hitStop(60);
+    this.shakeStartedAt = performance.now();
   }
 
   hitboxesOverlap(a, b) {
@@ -77,9 +97,7 @@ class World {
   }
 
   removeDeadEnemies() {
-    this.level.enemies = this.level.enemies.filter(
-      (enemy) => !(enemy instanceof Enemy ? enemy.deathAnimationFinished : enemy.isDead()),
-    );
+    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy ? enemy.deathAnimationFinished : enemy.isDead()));
   }
 
   addObjectsToMap(objects) {

@@ -10,6 +10,7 @@ class MoveableObject extends DrawableObject {
   attackHitRegistered = false;
   attackHitStartFrame = 2;
   attackHitEndFrame = Number.POSITIVE_INFINITY;
+  hitFlashUntil = Number.NEGATIVE_INFINITY;
 
   isAttackFrameActive() {
     return this.isAttacking && this.currentImage >= this.attackHitStartFrame && this.currentImage <= this.attackHitEndFrame;
@@ -26,9 +27,11 @@ class MoveableObject extends DrawableObject {
   }
 
   hit() {
-    if (this.isDead()) return;
+    if (this.isDead()) return false;
     this.hp--;
     this.lastHit = gameLoop.now();
+    this.hitFlashUntil = gameLoop.now() + 120;
+    return true;
   }
 
   gettingHit() {
@@ -82,5 +85,12 @@ class MoveableObject extends DrawableObject {
 
   isAboveGround() {
     return this.y + this.height < this.groundLevel;
+  }
+
+  draw(ctx) {
+    ctx.save();
+    if (gameLoop.now() < this.hitFlashUntil) ctx.filter = "brightness(0) invert(1)";
+    super.draw(ctx);
+    ctx.restore();
   }
 }

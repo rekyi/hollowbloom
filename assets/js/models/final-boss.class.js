@@ -94,12 +94,12 @@ class FinalBoss extends MoveableObject {
   }
 
   hit() {
-    if (this.isDead()) return;
-    super.hit();
+    if (!super.hit()) return false;
     this.isAttacking = false;
     this.hurtStartedAt = gameLoop.now();
     this.currentImage = 0;
     if (!this.isDead()) this.img = this.imageCache[this.IMAGES_HURT[0]];
+    return true;
   }
 
   startAttack() {

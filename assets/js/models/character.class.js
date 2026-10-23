@@ -176,10 +176,10 @@ class Character extends MoveableObject {
           height: box.height + 140,
         };
         if (bossReach.x < e.x + e.width && bossReach.x + bossReach.width > e.x && bossReach.y < e.y + e.height && bossReach.y + bossReach.height > e.y) {
-          enemy.hit();
+          if (enemy.hit()) this.world.triggerHitFeedback();
         }
       } else if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
-        enemy.hit();
+        if (enemy.hit()) this.world.triggerHitFeedback();
       }
     });
   }

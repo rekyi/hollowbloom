@@ -52,6 +52,14 @@ class Enemy extends MoveableObject {
     this.x += direction * movement;
   }
 
+  hit() {
+    if (!super.hit()) return false;
+    const targetCenter = this.target ? this.target.x + this.target.width / 2 : this.x;
+    this.knockbackDirection = this.x + this.width / 2 < targetCenter ? -1 : 1;
+    this.knockbackFrames = 6;
+    return true;
+  }
+
   faceTarget() {
     const enemyCenter = this.x + this.width / 2;
     const targetCenter = this.target.x + this.target.width / 2;
@@ -133,6 +141,12 @@ class Enemy extends MoveableObject {
   animation() {
     gameLoop.runEvery(1000 / 60, () => {
       this.updateAggro();
+      if (this.knockbackFrames > 0) {
+        this.x += this.knockbackDirection * 4.5;
+        this.knockbackFrames--;
+        this.isMoving = false;
+        return;
+      }
       if (this.isAggro && !this.isDead()) {
         if (!this.isAttacking && !this.gettingHit()) this.chase();
         return;
