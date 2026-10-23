@@ -54,3 +54,17 @@ window.addEventListener("keyup", (event) => {
     keyboard.SPACE = false;
   }
 });
+
+function resetKeyboard() {
+  keyboard.RIGHT = false;
+  keyboard.LEFT = false;
+  keyboard.UP = false;
+  keyboard.DOWN = false;
+  keyboard.SPACE = false;
+  keyboard.SHIFT = false;
+}
+
+window.addEventListener("blur", resetKeyboard);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) resetKeyboard();
+});
