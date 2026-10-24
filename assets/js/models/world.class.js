@@ -9,6 +9,8 @@ class World {
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;
   shakeMagnitude = 7;
+  timerStartMs = null;
+  timerStopMs = null;
 
   constructor(canvas, keyboard) {
     this.canvas = canvas;
@@ -44,6 +46,7 @@ class World {
     this.addObjectsToMap(this.level.clouds);
     this.ctx.restore();
     this.statusBar.draw(this.ctx);
+    this.drawTimer();
     if (gameLoop.isPaused) this.drawPauseOverlay();
   }
 
@@ -57,6 +60,36 @@ class World {
 
   update() {
     this.checkCollision();
+    this.checkTimerStop();
+  }
+
+  startTimer() {
+    if (this.timerStartMs === null) this.timerStartMs = gameLoop.now();
+  }
+
+  checkTimerStop() {
+    if (this.timerStartMs === null || this.timerStopMs !== null) return;
+    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
+    if (boss && boss.isDead()) this.timerStopMs = gameLoop.now();
+  }
+
+  drawTimer() {
+    const elapsedMs = this.timerStartMs === null ? 0 : (this.timerStopMs ?? gameLoop.now()) - this.timerStartMs;
+    const totalSeconds = Math.floor(elapsedMs / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    const millis = String(Math.floor(elapsedMs % 1000)).padStart(3, "0");
+    const text = `${minutes}:${seconds}:${millis}`;
+    this.ctx.save();
+    this.ctx.fillStyle = "white";
+    this.ctx.strokeStyle = "black";
+    this.ctx.lineWidth = 3;
+    this.ctx.font = "bold 24px monospace";
+    this.ctx.textAlign = "right";
+    this.ctx.textBaseline = "top";
+    this.ctx.strokeText(text, this.canvas.width - 20, 16);
+    this.ctx.fillText(text, this.canvas.width - 20, 16);
+    this.ctx.restore();
   }
 
   drawPauseOverlay() {
