@@ -42,6 +42,10 @@ body {
     transform: none;
 }
 
+#imprint-button {
+    bottom: 24%;
+}
+
 .settings-overlay {
     position: absolute;
     inset: 0;
@@ -102,6 +106,41 @@ body {
 }
 
 .credits-panel button {
+    padding: 10px 20px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: #b52b13;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.imprint-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    text-align: center;
+}
+
+.imprint-overlay[hidden] {
+    display: none;
+}
+
+.imprint-panel {
+    max-width: 100%;
+    padding: 24px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.imprint-panel button {
     padding: 10px 20px;
     border: 2px solid #fff;
     border-radius: 8px;

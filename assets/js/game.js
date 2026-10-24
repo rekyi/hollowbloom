@@ -80,6 +80,23 @@ function initCredits() {
 }
 initCredits();
 
+function initImprint() {
+  const imprintButton = document.getElementById("imprint-button");
+  const imprintOverlay = document.getElementById("imprint-overlay");
+  const imprintTitle = document.getElementById("imprint-title");
+
+  imprintButton.addEventListener("click", () => {
+    imprintOverlay.hidden = false;
+    imprintTitle.focus();
+  });
+
+  document.getElementById("imprint-back-button").addEventListener("click", () => {
+    imprintOverlay.hidden = true;
+    imprintButton.focus();
+  });
+}
+initImprint();
+
 function initSettings() {
   const settingsButton = document.getElementById("settings-button");
   const settingsOverlay = document.getElementById("settings-overlay");
