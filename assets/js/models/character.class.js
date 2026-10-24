@@ -18,6 +18,7 @@ class Character extends MoveableObject {
   IMAGES_JUMPING;
   IMAGES_ATTACK;
   attacking = false;
+  charges = 3;
   attackTick = 0;
   attackTicksPerFrame = 2;
   legsImg = null;
@@ -165,7 +166,8 @@ class Character extends MoveableObject {
 
   attack() {
     this.updateState();
-    if (!this.canPerformAction("attack")) return;
+    if (!this.canPerformAction("attack") || this.charges <= 0) return;
+    this.charges--;
     this.attacking = true;
     this.attackTick = 0;
     this.updateState();
@@ -236,7 +238,10 @@ class Character extends MoveableObject {
           height: box.height + 140,
         };
         if (bossReach.x < e.x + e.width && bossReach.x + bossReach.width > e.x && bossReach.y < e.y + e.height && bossReach.y + bossReach.height > e.y) {
-          if (enemy.hit()) this.world.triggerHitFeedback();
+          if (enemy.hit()) {
+            this.world.triggerHitFeedback();
+            if (!enemy.isDead() && Math.random() < 0.8) this.world.dropChargeItems(enemy.x + enemy.width / 2 - 30, 1);
+          }
         }
       } else if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
         if (enemy.hit()) this.world.triggerHitFeedback();

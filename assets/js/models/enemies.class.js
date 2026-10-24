@@ -4,6 +4,7 @@ class Enemy extends MoveableObject {
   IMAGES_HURT = [];
   IMAGES_DEAD = [];
   IMAGES_ATTACK = [];
+  hp = 2;
 
   constructor() {
     super();

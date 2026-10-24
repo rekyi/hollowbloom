@@ -9,8 +9,8 @@ class FinalBoss extends MoveableObject {
   baseY = 90;
   floatAmplitude = 15;
   floatSpeed = 0.002;
-  hp = 10;
-  maxHp = 10;
+  hp = 8;
+  maxHp = 8;
   offset = { top: 95, right: 105, bottom: 65, left: 95 };
   target = null;
   attackHitStartFrame = 6;
@@ -37,7 +37,7 @@ class FinalBoss extends MoveableObject {
     this.IMAGES_HURT = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-hurt.png", 8, 192, 176);
     this.IMAGES_DEAD = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-death.png", 8, 48);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
-    this.x = 2500;
+    this.x = 2800;
     this.animation();
   }
 
