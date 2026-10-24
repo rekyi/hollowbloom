@@ -318,6 +318,7 @@ class Mimic extends Enemy {
     this.setPosition(1850, 298, 250, 250, 1, 1750, 2150);
     this.offset = { top: 84, right: 75, bottom: 108, left: 94 };
     this.attackOffset = this.offset;
+    this.attackHitStartFrame = 10;
     this.attackReach = 65;
     this.start();
   }
