@@ -26,7 +26,7 @@ class World {
   }
 
   draw() {
-    const shakeElapsed = performance.now() - this.shakeStartedAt;
+    const shakeElapsed = gameLoop.now() - this.shakeStartedAt;
     const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < this.shakeDurationMs;
     const shakeIntensity = isShaking ? 1 - shakeElapsed / this.shakeDurationMs : 0;
     const shakeX = isShaking ? Math.round(Math.sin(shakeElapsed * 0.08) * this.shakeMagnitude * shakeIntensity) : 0;
@@ -89,7 +89,7 @@ class World {
 
   triggerHitFeedback() {
     gameLoop.hitStop(60);
-    this.shakeStartedAt = performance.now();
+    this.shakeStartedAt = gameLoop.now();
   }
 
   hitboxesOverlap(a, b) {
