@@ -6,6 +6,7 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
+  droppedItems = [];
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;
   shakeMagnitude = 7;
@@ -43,6 +44,7 @@ class World {
     this.addObjectsToMap(this.level.background);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.droppedItems);
     this.addObjectsToMap(this.level.clouds);
     this.ctx.restore();
     this.statusBar.draw(this.ctx);
@@ -59,8 +61,19 @@ class World {
   }
 
   update() {
+    this.checkEnemyDrops();
     this.checkCollision();
     this.checkTimerStop();
+  }
+
+  checkEnemyDrops() {
+    this.level.enemies.forEach((enemy) => {
+      if (!enemy.isDead() || enemy.chargeDropScheduled) return;
+      enemy.chargeDropScheduled = true;
+      const x = enemy.x + enemy.width / 2 + 8;
+      const y = 440 - 36;
+      gameLoop.runOnceAfter(1000, () => this.droppedItems.push(new ChargeItem(x, y)));
+    });
   }
 
   startTimer() {
