@@ -1,11 +1,3 @@
-const level1 = new Level(
-  [new Rat(), new Bat(), new Slime(), new Mimic(), new FinalBoss()],
-  [],
-  [],
-);
-
-const backgroundTileIndices = new Set();
-
 const backgroundLayers = [
   "Layer_0011_0",
   "Layer_0010_1",
@@ -21,16 +13,27 @@ const backgroundLayers = [
   "Layer_0000_9",
 ];
 
-level1.updateBackground = function (cameraX, viewportWidth) {
-  const tileWidth = 720;
-  const firstTile = Math.floor(-cameraX / tileWidth);
-  const lastTile = Math.floor((-cameraX + viewportWidth) / tileWidth);
+function createLevel1() {
+  const level = new Level(
+    [new Rat(), new Bat(), new Slime(), new Mimic(), new FinalBoss()],
+    [],
+    [],
+  );
+  const backgroundTileIndices = new Set();
 
-  for (let tileIndex = firstTile; tileIndex <= lastTile; tileIndex++) {
-    if (backgroundTileIndices.has(tileIndex)) continue;
+  level.updateBackground = function (cameraX, viewportWidth) {
+    const tileWidth = 720;
+    const firstTile = Math.floor(-cameraX / tileWidth);
+    const lastTile = Math.floor((-cameraX + viewportWidth) / tileWidth);
 
-    const x = tileIndex * tileWidth;
-    this.background.push(...backgroundLayers.map((layer) => new Background(`assets/images/background/level1/${layer}.png`, x)));
-    backgroundTileIndices.add(tileIndex);
-  }
-};
+    for (let tileIndex = firstTile; tileIndex <= lastTile; tileIndex++) {
+      if (backgroundTileIndices.has(tileIndex)) continue;
+
+      const x = tileIndex * tileWidth;
+      this.background.push(...backgroundLayers.map((layer) => new Background(`assets/images/background/level1/${layer}.png`, x)));
+      backgroundTileIndices.add(tileIndex);
+    }
+  };
+
+  return level;
+}

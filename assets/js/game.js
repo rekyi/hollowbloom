@@ -5,13 +5,14 @@ const pressedKeys = new Set();
 
 function init() {
   canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard);
+  world = new World(canvas, keyboard, showGameOver);
 }
 init();
 
 window.addEventListener("load", () => canvas.classList.add("ready"));
 
 window.addEventListener("keydown", (event) => {
+  if (!world || world.isGameOver) return;
   if (event.code === "Escape") {
     if (!event.repeat) gameLoop.togglePause();
     return;
@@ -54,6 +55,17 @@ function resetKeyboard() {
   keyboard.UP = false;
   keyboard.DOWN = false;
 }
+
+function showGameOver() {
+  document.getElementById("game-over").hidden = false;
+}
+
+document.getElementById("restart-button").addEventListener("click", () => {
+  resetKeyboard();
+  gameLoop.stop();
+  world = new World(canvas, keyboard, showGameOver);
+  document.getElementById("game-over").hidden = true;
+});
 
 window.addEventListener("blur", resetKeyboard);
 document.addEventListener("visibilitychange", () => {

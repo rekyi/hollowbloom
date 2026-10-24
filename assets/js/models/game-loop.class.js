@@ -54,6 +54,13 @@ class GameLoop {
   stop() {
     this.isRunning = false;
     cancelAnimationFrame(this.animationFrameId);
+    this.scheduledTasks = [];
+    this.updateCallback = null;
+    this.renderCallback = null;
+    this.isPaused = false;
+    this.accumulatorMs = 0;
+    this.gameTimeMs = 0;
+    this.hitStopUntilMs = 0;
   }
 
   onAnimationFrame(currentTimeMs) {
@@ -65,10 +72,11 @@ class GameLoop {
         this.accumulatorMs = 0;
       } else {
         this.accumulatorMs += frameDurationMs;
-        while (this.accumulatorMs >= this.fixedStepMs) {
+        while (this.isRunning && this.accumulatorMs >= this.fixedStepMs) {
           this.gameTimeMs += this.fixedStepMs;
           this.runScheduledTasks(this.fixedStepMs);
           if (this.updateCallback) this.updateCallback(this.fixedStepSeconds);
+          if (!this.isRunning) return;
           this.accumulatorMs -= this.fixedStepMs;
           if (currentTimeMs < this.hitStopUntilMs) {
             this.accumulatorMs = 0;
@@ -79,6 +87,7 @@ class GameLoop {
     } else {
       this.accumulatorMs = 0;
     }
+    if (!this.isRunning) return;
     if (this.renderCallback) this.renderCallback();
     this.animationFrameId = requestAnimationFrame((timeMs) => this.onAnimationFrame(timeMs));
   }

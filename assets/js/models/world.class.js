@@ -1,6 +1,6 @@
 class World {
   character = new Character();
-  level = level1;
+  level;
   canvas;
   ctx;
   keyboard;
@@ -14,11 +14,15 @@ class World {
   shakeMagnitude = 7;
   timerStartMs = null;
   timerStopMs = null;
+  isGameOver = false;
+  onGameOver;
 
-  constructor(canvas, keyboard) {
+  constructor(canvas, keyboard, onGameOver) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
+    this.level = createLevel1();
+    this.onGameOver = onGameOver;
     this.setWorld();
     this.run();
   }
@@ -38,7 +42,7 @@ class World {
     const shakeY = isShaking ? Math.round(Math.cos(shakeElapsed * 0.11) * this.shakeMagnitude * 0.5 * shakeIntensity) : 0;
     const cameraX = Math.round(this.camera_x);
     const backgroundMargin = this.shakeMagnitude + 1;
-    level1.updateBackground(cameraX + shakeX + backgroundMargin, this.canvas.width + backgroundMargin * 2);
+    this.level.updateBackground(cameraX + shakeX + backgroundMargin, this.canvas.width + backgroundMargin * 2);
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.save();
     this.ctx.translate(shakeX, shakeY);
@@ -68,6 +72,15 @@ class World {
     this.collectChargeItems();
     this.checkChargeFallback();
     this.checkTimerStop();
+    this.checkGameOver();
+  }
+
+  checkGameOver() {
+    if (this.isGameOver || !this.character.isDead()) return;
+    if (!this.character.deathStarted || this.character.currentImage < this.character.IMAGES_DEAD.length * 4) return;
+    this.isGameOver = true;
+    gameLoop.stop();
+    this.onGameOver();
   }
 
   checkChargeFallback() {

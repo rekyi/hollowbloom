@@ -3,7 +3,7 @@ class Character extends MoveableObject {
   height = 200;
   y = 240;
   offset = { top: 80, right: 80, bottom: 0, left: 52 };
-  hp = 1000;
+  hp = 3;
   speed = 7;
   walkSpeed = 7;
   runSpeedFactor = 1.5;
