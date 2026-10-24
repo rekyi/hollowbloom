@@ -63,6 +63,23 @@ document.getElementById("start-button").addEventListener("click", () => {
   world = new World(canvas, keyboard, showGameOver);
 });
 
+function initCredits() {
+  const creditsButton = document.getElementById("credits-button");
+  const creditsOverlay = document.getElementById("credits-overlay");
+  const creditsTitle = document.getElementById("credits-title");
+
+  creditsButton.addEventListener("click", () => {
+    creditsOverlay.hidden = false;
+    creditsTitle.focus();
+  });
+
+  document.getElementById("credits-back-button").addEventListener("click", () => {
+    creditsOverlay.hidden = true;
+    creditsButton.focus();
+  });
+}
+initCredits();
+
 document.getElementById("restart-button").addEventListener("click", () => {
   resetKeyboard();
   gameLoop.stop();

@@ -16,7 +16,7 @@ body {
     display: none;
 }
 
-.start-screen button {
+.start-screen > button {
     position: absolute;
     left: 50%;
     bottom: 12%;
@@ -27,6 +27,47 @@ body {
     background: #b52b13;
     color: #fff;
     font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#credits-button {
+    left: auto;
+    right: 8%;
+    transform: none;
+}
+
+.credits-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    text-align: center;
+}
+
+.credits-overlay[hidden] {
+    display: none;
+}
+
+.credits-panel {
+    max-width: 100%;
+    padding: 24px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.credits-panel button {
+    padding: 10px 20px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: #b52b13;
+    color: #fff;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
 }

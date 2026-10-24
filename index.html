@@ -12,6 +12,15 @@
   <body>
     <main id="start-screen" class="start-screen">
       <button id="start-button" type="button">Spiel starten</button>
+      <button id="credits-button" type="button">Credits</button>
+      <section id="credits-overlay" class="credits-overlay" role="dialog" aria-modal="true" aria-labelledby="credits-title" hidden>
+        <div class="credits-panel">
+          <h1 id="credits-title" tabindex="-1">Credits</h1>
+          <p>bla bla bla blub</p>
+          <p>bla bla bla blub</p>
+          <button id="credits-back-button" type="button">Zurück</button>
+        </div>
+      </section>
     </main>
     <canvas id="canvas" width="720" height="480"> </canvas>
     <div id="game-over" class="game-over" hidden>
