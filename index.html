@@ -12,7 +12,14 @@
   <body>
     <main id="start-screen" class="start-screen">
       <button id="start-button" type="button">Spiel starten</button>
+      <button id="settings-button" type="button">Einstellungen</button>
       <button id="credits-button" type="button">Credits</button>
+      <section id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+        <div class="settings-panel">
+          <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
+          <button id="settings-back-button" type="button">Zurück</button>
+        </div>
+      </section>
       <section id="credits-overlay" class="credits-overlay" role="dialog" aria-modal="true" aria-labelledby="credits-title" hidden>
         <div class="credits-panel">
           <h1 id="credits-title" tabindex="-1">Credits</h1>

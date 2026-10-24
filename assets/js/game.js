@@ -80,6 +80,23 @@ function initCredits() {
 }
 initCredits();
 
+function initSettings() {
+  const settingsButton = document.getElementById("settings-button");
+  const settingsOverlay = document.getElementById("settings-overlay");
+  const settingsTitle = document.getElementById("settings-title");
+
+  settingsButton.addEventListener("click", () => {
+    settingsOverlay.hidden = false;
+    settingsTitle.focus();
+  });
+
+  document.getElementById("settings-back-button").addEventListener("click", () => {
+    settingsOverlay.hidden = true;
+    settingsButton.focus();
+  });
+}
+initSettings();
+
 document.getElementById("restart-button").addEventListener("click", () => {
   resetKeyboard();
   gameLoop.stop();
