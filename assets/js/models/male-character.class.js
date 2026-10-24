@@ -1,12 +1,37 @@
-class Character extends MoveableObject {
-  width = 200;
-  height = 200;
-  y = 240;
-  offset = { top: 80, right: 80, bottom: 0, left: 52 };
-  hp = 3;
-  speed = 7;
-  walkSpeed = 7;
-  runSpeedFactor = 1.5;
+const MALE_CHARACTER_CONFIG = {
+  width: 200,
+  height: 200,
+  y: 240,
+  hp: 3,
+  walkSpeed: 7,
+  runSpeedFactor: 1.5,
+  attackReach: 60,
+  attackDamageFrame: 5,
+  attackTicksPerFrame: 2,
+  legsArea: { x: 30, y: 98, w: 52, h: 30 },
+  offset: { top: 80, right: 80, bottom: 0, left: 52 },
+  spritePath: "assets/images/character/male/",
+  sprites: {
+    walking: { file: "Walk.png", count: 7 },
+    running: { file: "Run.png", count: 8 },
+    idle: { file: "Idle.png", count: 6 },
+    idleLong: { file: "Idle_long.png", count: 5 },
+    attack: { file: "Attack_1.png", count: 10 },
+    jumping: { file: "Jump.png", count: 11 },
+    hurt: { file: "Hurt.png", count: 4 },
+    dead: { file: "Dead.png", count: 4 },
+    bubble: { file: "idle_long_bubble.png", count: 2, frameSize: 15, frameHeight: 16 },
+  },
+};
+
+class MaleCharacter extends MoveableObject {
+  width;
+  height;
+  y;
+  hp;
+  speed;
+  walkSpeed;
+  runSpeedFactor;
   IMAGES_WALKING;
   IMAGES_RUNNING;
   IMAGES_IDLE;
@@ -20,11 +45,11 @@ class Character extends MoveableObject {
   attacking = false;
   charges = 3;
   attackTick = 0;
-  attackTicksPerFrame = 2;
+  attackTicksPerFrame;
   legsImg = null;
-  legsArea = { x: 30, y: 98, w: 52, h: 30 };
-  attackDamageFrame = 5;
-  attackReach = 60;
+  legsArea;
+  attackDamageFrame;
+  attackReach;
   IMAGES_HURT;
   IMAGES_DEAD;
   state = "idle";
@@ -45,18 +70,42 @@ class Character extends MoveableObject {
   IMAGES_BUBBLE;
   showBubble = false;
 
-  constructor() {
+  constructor(config) {
     super();
-    const base = "assets/images/character/male/";
-    this.IMAGES_WALKING = this.loadSpriteSheet(base + "Walk.png", 7);
-    this.IMAGES_RUNNING = this.loadSpriteSheet(base + "Run.png", 8);
-    this.IMAGES_IDLE = this.loadSpriteSheet(base + "Idle.png", 6);
-    this.IMAGES_IDLE_LONG = this.loadSpriteSheet(base + "Idle_long.png", 5);
-    this.IMAGES_ATTACK = this.loadSpriteSheet(base + "Attack_1.png", 10);
-    this.IMAGES_JUMPING = this.loadSpriteSheet(base + "Jump.png", 11);
-    this.IMAGES_HURT = this.loadSpriteSheet(base + "Hurt.png", 4);
-    this.IMAGES_DEAD = this.loadSpriteSheet(base + "Dead.png", 4);
-    this.IMAGES_BUBBLE = this.loadSpriteSheet(base + "idle_long_bubble.png", 2, 15, 16);
+    config = config || {};
+    const settings = {
+      ...MALE_CHARACTER_CONFIG,
+      ...config,
+      offset: { ...MALE_CHARACTER_CONFIG.offset, ...config.offset },
+      legsArea: { ...MALE_CHARACTER_CONFIG.legsArea, ...config.legsArea },
+      sprites: { ...MALE_CHARACTER_CONFIG.sprites, ...config.sprites },
+    };
+    this.width = settings.width;
+    this.height = settings.height;
+    this.y = settings.y;
+    this.offset = settings.offset;
+    this.hp = settings.hp;
+    this.speed = settings.walkSpeed;
+    this.walkSpeed = settings.walkSpeed;
+    this.runSpeedFactor = settings.runSpeedFactor;
+    this.attackReach = settings.attackReach;
+    this.attackDamageFrame = settings.attackDamageFrame;
+    this.attackTicksPerFrame = settings.attackTicksPerFrame;
+    this.legsArea = settings.legsArea;
+
+    const loadSprites = (name) => {
+      const sprite = settings.sprites[name];
+      return sprite ? this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, sprite.frameSize, sprite.frameHeight) : [];
+    };
+    this.IMAGES_WALKING = loadSprites("walking");
+    this.IMAGES_RUNNING = loadSprites("running");
+    this.IMAGES_IDLE = loadSprites("idle");
+    this.IMAGES_IDLE_LONG = settings.sprites.idleLong ? loadSprites("idleLong") : this.IMAGES_IDLE;
+    this.IMAGES_ATTACK = loadSprites("attack");
+    this.IMAGES_JUMPING = loadSprites("jumping");
+    this.IMAGES_HURT = loadSprites("hurt");
+    this.IMAGES_DEAD = loadSprites("dead");
+    this.IMAGES_BUBBLE = loadSprites("bubble");
     this.img = this.imageCache[this.IMAGES_JUMPING[0]];
     this.animation();
     this.gravity();
@@ -277,7 +326,7 @@ class Character extends MoveableObject {
         super.draw(ctx);
       }
     }
-    if (this.showBubble) {
+    if (this.showBubble && this.IMAGES_BUBBLE.length > 0) {
       const frame = Math.floor(gameLoop.now() / 500) % this.IMAGES_BUBBLE.length;
       const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
       const cx = this.x + this.width / 2;
@@ -290,7 +339,7 @@ class Character extends MoveableObject {
   }
 
   playIdleLong() {
-    this.showBubble = true;
+    this.showBubble = this.IMAGES_BUBBLE.length > 0;
     this.img = this.imageCache[this.IMAGES_IDLE_LONG[this.idleLongFrame]];
     if (gameLoop.now() - this.lastIdleFrame < 150) return;
     this.lastIdleFrame = gameLoop.now();

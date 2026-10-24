@@ -1,5 +1,5 @@
 class World {
-  character = new Character();
+  character;
   level;
   canvas;
   ctx;
@@ -17,10 +17,11 @@ class World {
   isGameOver = false;
   onGameOver;
 
-  constructor(canvas, keyboard, onGameOver) {
+  constructor(canvas, keyboard, onGameOver, CharacterClass = FemaleCharacter) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.keyboard = keyboard;
+    this.character = new CharacterClass();
     this.level = createLevel1();
     this.onGameOver = onGameOver;
     this.setWorld();

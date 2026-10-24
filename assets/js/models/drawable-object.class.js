@@ -59,7 +59,7 @@ class DrawableObject {
   }
 
   drawFrame(ctx) {
-    if (this instanceof Character || this instanceof Enemy || this instanceof FinalBoss) {
+    if (this instanceof MaleCharacter || this instanceof Enemy || this instanceof FinalBoss) {
       const box = this.getHitbox();
       ctx.beginPath();
       ctx.lineWidth = "3";
