@@ -1,6 +1,7 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let selectedCharacterClass = FemaleCharacter;
 const pressedKeys = new Set();
 
 function init() {
@@ -57,10 +58,25 @@ function showGameOver() {
   document.getElementById("game-over").hidden = false;
 }
 
+function initCharacterSelection() {
+  const choices = document.querySelectorAll(".character-choice");
+  choices.forEach((choice) => {
+    choice.addEventListener("click", () => {
+      selectedCharacterClass = choice.dataset.character === "male" ? MaleCharacter : FemaleCharacter;
+      choices.forEach((option) => {
+        const isSelected = option === choice;
+        option.classList.toggle("selected", isSelected);
+        option.setAttribute("aria-pressed", String(isSelected));
+      });
+    });
+  });
+}
+initCharacterSelection();
+
 document.getElementById("start-button").addEventListener("click", () => {
   document.getElementById("start-screen").hidden = true;
   canvas.classList.add("ready");
-  world = new World(canvas, keyboard, showGameOver);
+  world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
 });
 
 function initCredits() {
@@ -117,7 +133,7 @@ initSettings();
 document.getElementById("restart-button").addEventListener("click", () => {
   resetKeyboard();
   gameLoop.stop();
-  world = new World(canvas, keyboard, showGameOver);
+  world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
   document.getElementById("game-over").hidden = true;
 });
 

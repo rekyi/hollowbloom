@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
+    <meta name="darkreader-lock" />
     <title>Document</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="assets/css/fonts.css" />
@@ -11,10 +13,20 @@
   </head>
   <body>
     <main id="start-screen" class="start-screen">
-      <button id="start-button" type="button">Spiel starten</button>
-      <button id="settings-button" type="button">Einstellungen</button>
-      <button id="credits-button" type="button">Credits</button>
-      <button id="imprint-button" type="button">Impressum</button>
+      <nav class="start-menu" aria-label="Hauptmenü">
+        <button id="start-button" type="button">Spiel starten</button>
+        <button id="settings-button" type="button">Einstellungen</button>
+        <button id="credits-button" type="button">Credits</button>
+        <button id="imprint-button" type="button">Impressum</button>
+      </nav>
+      <div class="character-choices" role="group" aria-label="Character auswählen">
+        <button class="character-choice character-choice--female selected" type="button" data-character="female" aria-pressed="true">
+          <span class="character-sprite character-sprite--female" aria-hidden="true"></span>
+        </button>
+        <button class="character-choice character-choice--male" type="button" data-character="male" aria-pressed="false">
+          <span class="character-sprite character-sprite--male" aria-hidden="true"></span>
+        </button>
+      </div>
       <section id="settings-overlay" class="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
         <div class="settings-panel">
           <h1 id="settings-title" tabindex="-1">Einstellungen</h1>

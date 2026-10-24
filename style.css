@@ -16,34 +16,114 @@ body {
     display: none;
 }
 
-.start-screen > button {
+.start-menu {
     position: absolute;
-    left: 50%;
-    bottom: 12%;
-    transform: translateX(-50%);
+    top: 50%;
+    left: 3%;
+    display: flex;
+    width: min(30%, 210px);
+    flex-direction: column;
+    gap: 8px;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.start-menu > button {
     padding: 12px 28px;
     border: 2px solid #fff;
     border-radius: 8px;
     background: #b52b13;
     color: #fff;
-    font-size: 20px;
+    font-size: clamp(14px, 2.5vw, 20px);
     font-weight: bold;
     cursor: pointer;
 }
 
-#credits-button {
-    left: auto;
-    right: 8%;
-    transform: none;
+.character-choices {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
 }
 
-#settings-button {
-    left: 8%;
-    transform: none;
+.character-choice {
+    position: absolute;
+    top: 49%;
+    display: flex;
+    width: clamp(112px, 20%, 168px);
+    align-items: center;
+    padding: 0;
+    transform: translateX(-50%);
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: transform 250ms ease, filter 250ms ease;
 }
 
-#imprint-button {
-    bottom: 24%;
+.character-choice--female {
+    left: 40%;
+}
+
+.character-choice--male {
+    left: 59%;
+}
+
+.character-choice.selected {
+    transform: translateX(-50%) translateY(-4%) scale(1.1);
+    filter: brightness(1.1) drop-shadow(0 0 5px #ffe27a) drop-shadow(0 0 20px rgba(236, 206, 95, 0.7));
+}
+
+@keyframes bounce-arrow {
+    from {
+        transform: translate(-50%, 0);
+    }
+
+    to {
+        transform: translate(-50%, -8px);
+    }
+}
+
+.character-choices:has(.character-choice.selected) .character-choice:not(.selected) {
+    transform: translateX(-50%) scale(0.95);
+    filter: brightness(0.55) saturate(0.7);
+}
+
+.character-sprite {
+    width: 100%;
+    aspect-ratio: 1;
+    background-repeat: no-repeat;
+}
+
+.character-sprite--female {
+    background-image: url("assets/images/character/female/Idle.png");
+    background-size: 500% 100%;
+    animation: female-idle 900ms steps(5, end) infinite;
+}
+
+.character-sprite--male {
+    background-image: url("assets/images/character/male/Idle.png");
+    background-size: 600% 100%;
+    animation: male-idle 900ms steps(6, end) infinite;
+}
+
+@keyframes female-idle {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 125% 0;
+    }
+}
+
+@keyframes male-idle {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 120% 0;
+    }
 }
 
 .settings-overlay {
