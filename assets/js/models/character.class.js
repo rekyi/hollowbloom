@@ -14,6 +14,7 @@ class Character extends MoveableObject {
   idleSince = gameLoop.now();
   lastIdleFrame = 0;
   idleLongFrame = 0;
+  animationElapsedMs = 0;
   IMAGES_JUMPING;
   IMAGES_ATTACK;
   attacking = false;
@@ -62,66 +63,84 @@ class Character extends MoveableObject {
 
   animation() {
     gameLoop.runEvery(1000 / 60, () => {
-      this.updateState();
-      if (this.state === "dead") return;
-      this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
-      const key = this.world.keyboard;
-      if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
-        this.idleSince = gameLoop.now();
-        this.idleLongFrame = 0;
-      }
-      if (key.RIGHT && !key.LEFT && this.x < this.world.level.level_end_x) {
-        this.moveRight();
-      }
-      if (key.LEFT && !key.RIGHT && this.x > 0) {
-        this.moveLeft();
-      }
-
-      if (this.knockbackFrames > 0) {
-        this.x += this.knockbackDirection * 2.5;
-        this.knockbackFrames--;
-      }
-
-      this.x = Math.max(0, Math.min(this.world.level.level_end_x, this.x));
-      this.world.camera_x = -this.x;
+      this.updateCharacter();
     });
+  }
 
-    gameLoop.runEvery(25, () => {
-      this.showBubble = false;
-      this.legsImg = null;
+  updateCharacter() {
+    if (this.isDead()) {
       this.updateState();
-      if (this.state === "dead") {
-        if (!this.deathStarted) {
-          this.deathStarted = true;
-          this.currentImage = 0;
-        }
-        if (this.currentImage < this.IMAGES_DEAD.length * 4) {
-          this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
-          this.currentImage++;
-        }
-      } else if (this.state === "attack") {
-        this.playAttack();
-        this.playLegsWhileAttacking();
-      } else if (this.state === "hurt") {
-        this.playAnimation(this.IMAGES_HURT);
-      } else if (this.state === "jump") {
-        this.playJump();
+    } else {
+      this.updateInput();
+      this.updatePhysics();
+      this.updateState();
+    }
+    this.animationElapsedMs += gameLoop.fixedStepMs;
+    if (this.animationElapsedMs >= 25) {
+      this.animationElapsedMs -= 25;
+      this.updateAnimation();
+    }
+  }
+
+  updateInput() {
+    const key = this.world.keyboard;
+    this.speed = key.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
+    if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
+      this.idleSince = gameLoop.now();
+      this.idleLongFrame = 0;
+    }
+  }
+
+  updatePhysics() {
+    const key = this.world.keyboard;
+    if (key.RIGHT && !key.LEFT && this.x < this.world.level.level_end_x) {
+      this.moveRight();
+    }
+    if (key.LEFT && !key.RIGHT && this.x > 0) {
+      this.moveLeft();
+    }
+
+    if (this.knockbackFrames > 0) {
+      this.x += this.knockbackDirection * 2.5;
+      this.knockbackFrames--;
+    }
+
+    this.x = Math.max(0, Math.min(this.world.level.level_end_x, this.x));
+    this.world.camera_x = -this.x;
+  }
+
+  updateAnimation() {
+    this.showBubble = false;
+    this.legsImg = null;
+    if (this.state === "dead") {
+      if (!this.deathStarted) {
+        this.deathStarted = true;
+        this.currentImage = 0;
+      }
+      if (this.currentImage < this.IMAGES_DEAD.length * 4) {
+        this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
+        this.currentImage++;
+      }
+    } else if (this.state === "attack") {
+      this.playAttack();
+      this.playLegsWhileAttacking();
+    } else if (this.state === "hurt") {
+      this.playAnimation(this.IMAGES_HURT);
+    } else if (this.state === "jump") {
+      this.playJump();
+    } else if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
+      this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
+    } else {
+      const idleTime = gameLoop.now() - this.idleSince;
+      if (idleTime >= 10000) {
+        this.playIdleLong();
+      } else if (idleTime >= 3000) {
+        this.playIdle(this.IMAGES_IDLE);
       } else {
-        if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
-          this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
-        } else {
-          const idleTime = gameLoop.now() - this.idleSince;
-          if (idleTime >= 10000) {
-            this.playIdleLong();
-          } else if (idleTime >= 3000) {
-            this.playIdle(this.IMAGES_IDLE);
-          } else {
-            this.img = this.imageCache[this.IMAGES_JUMPING[0]];
-            this.currentImage = 0;
-          }
-        }
+        this.img = this.imageCache[this.IMAGES_JUMPING[0]];
+        this.currentImage = 0;
       }
-    });
+    }
   }
 
   updateState() {
