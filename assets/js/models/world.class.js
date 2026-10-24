@@ -97,7 +97,7 @@ class World {
   }
 
   removeDeadEnemies() {
-    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy ? enemy.deathAnimationFinished : enemy.isDead()));
+    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.deathAnimationFinished : enemy.isDead()));
   }
 
   addObjectsToMap(objects) {
