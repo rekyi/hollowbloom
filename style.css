@@ -5,13 +5,38 @@ body {
     align-items: center;
 }
 
+.start-screen {
+    position: relative;
+    width: min(720px, 100vw);
+    aspect-ratio: 3 / 2;
+    background: url("assets/images/9_screens/start_screen.webp") center / 100% 100% no-repeat;
+}
+
+.start-screen[hidden] {
+    display: none;
+}
+
+.start-screen button {
+    position: absolute;
+    left: 50%;
+    bottom: 12%;
+    transform: translateX(-50%);
+    padding: 12px 28px;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: #b52b13;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
 canvas {
-    visibility: hidden;
+    display: none;
 }
 
 canvas.ready {
-    visibility: visible;
+    display: block;
 }
 
 canvas {

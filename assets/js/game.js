@@ -5,11 +5,8 @@ const pressedKeys = new Set();
 
 function init() {
   canvas = document.getElementById("canvas");
-  world = new World(canvas, keyboard, showGameOver);
 }
 init();
-
-window.addEventListener("load", () => canvas.classList.add("ready"));
 
 window.addEventListener("keydown", (event) => {
   if (!world || world.isGameOver) return;
@@ -59,6 +56,12 @@ function resetKeyboard() {
 function showGameOver() {
   document.getElementById("game-over").hidden = false;
 }
+
+document.getElementById("start-button").addEventListener("click", () => {
+  document.getElementById("start-screen").hidden = true;
+  canvas.classList.add("ready");
+  world = new World(canvas, keyboard, showGameOver);
+});
 
 document.getElementById("restart-button").addEventListener("click", () => {
   resetKeyboard();
