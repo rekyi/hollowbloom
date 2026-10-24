@@ -27,7 +27,7 @@ window.addEventListener("keydown", (event) => {
   }
   if (event.code === "ArrowUp" || event.code === "Space") {
     event.preventDefault();
-    if (!event.repeat && !world.character.isDead()) {
+    if (!event.repeat) {
       world.character.jump();
     }
   }

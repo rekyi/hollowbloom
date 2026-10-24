@@ -25,6 +25,15 @@ class Character extends MoveableObject {
   attackReach = 60;
   IMAGES_HURT;
   IMAGES_DEAD;
+  state = "idle";
+  stateActions = {
+    idle: ["move", "jump", "attack"],
+    run: ["move", "jump", "attack"],
+    jump: ["move", "attack"],
+    attack: ["move", "jump"],
+    hurt: ["move"],
+    dead: [],
+  };
   knockbackDirection = 0;
   knockbackFrames = 0;
   invulnerableUntil = 0;
@@ -53,7 +62,8 @@ class Character extends MoveableObject {
 
   animation() {
     gameLoop.runEvery(1000 / 60, () => {
-      if (this.isDead()) return;
+      this.updateState();
+      if (this.state === "dead") return;
       this.speed = this.world.keyboard.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
       const key = this.world.keyboard;
       if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
@@ -79,7 +89,8 @@ class Character extends MoveableObject {
     gameLoop.runEvery(25, () => {
       this.showBubble = false;
       this.legsImg = null;
-      if (this.isDead()) {
+      this.updateState();
+      if (this.state === "dead") {
         if (!this.deathStarted) {
           this.deathStarted = true;
           this.currentImage = 0;
@@ -88,12 +99,12 @@ class Character extends MoveableObject {
           this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
           this.currentImage++;
         }
-      } else if (this.attacking) {
+      } else if (this.state === "attack") {
         this.playAttack();
         this.playLegsWhileAttacking();
-      } else if (this.gettingHit()) {
+      } else if (this.state === "hurt") {
         this.playAnimation(this.IMAGES_HURT);
-      } else if (this.isAboveGround()) {
+      } else if (this.state === "jump") {
         this.playJump();
       } else {
         if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
@@ -113,10 +124,39 @@ class Character extends MoveableObject {
     });
   }
 
+  updateState() {
+    if (this.isDead()) {
+      this.state = "dead";
+    } else if (this.gettingHit()) {
+      this.state = "hurt";
+    } else if (this.attacking) {
+      this.state = "attack";
+    } else if (this.isAboveGround()) {
+      this.state = "jump";
+    } else if (this.world && this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
+      this.state = "run";
+    } else {
+      this.state = "idle";
+    }
+  }
+
+  canPerformAction(action) {
+    return this.stateActions[this.state].includes(action);
+  }
+
   attack() {
-    if (this.attacking || this.isDead()) return;
+    this.updateState();
+    if (!this.canPerformAction("attack")) return;
     this.attacking = true;
     this.attackTick = 0;
+    this.updateState();
+  }
+
+  jump() {
+    this.updateState();
+    if (!this.canPerformAction("jump")) return;
+    super.jump();
+    this.updateState();
   }
 
   hitByEnemy(enemy) {
@@ -127,6 +167,7 @@ class Character extends MoveableObject {
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
     this.knockbackFrames = 10;
     this.speedY = 12;
+    this.updateState();
     return true;
   }
 
