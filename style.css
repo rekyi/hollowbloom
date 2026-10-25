@@ -167,8 +167,62 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     text-align: center;
 }
 
+.settings-panel {
+    width: min(520px, calc(100vw - 32px));
+}
+
 .dialog-content {
     padding: 24px;
+}
+
+.settings-audio {
+    display: grid;
+    width: 100%;
+    gap: 16px;
+    margin: 0 0 24px;
+    padding: 16px;
+    border: 1px solid rgba(255, 226, 122, 0.6);
+    border-radius: 6px;
+    text-align: left;
+}
+
+.settings-audio legend {
+    padding: 0 8px;
+    color: #ffe27a;
+    font-weight: 600;
+}
+
+.audio-setting {
+    display: grid;
+    grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+    align-items: center;
+    column-gap: 24px;
+}
+
+.audio-setting-control {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) 5ch;
+    align-items: center;
+    column-gap: 12px;
+}
+
+.audio-setting input {
+    width: 100%;
+    min-width: 0;
+    accent-color: #ffe27a;
+}
+
+.audio-setting output {
+    width: 5ch;
+    text-align: right;
+}
+
+@media screen and (max-width: 420px) {
+    .audio-setting {
+        grid-template-columns: 1fr;
+        row-gap: 8px;
+    }
 }
 
 .settings-panel::backdrop,

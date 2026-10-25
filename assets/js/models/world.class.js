@@ -25,6 +25,7 @@ class World {
     this.level = createLevel1();
     this.gameplayMusic = new Audio("assets/audio/AugustUltraAmbience.wav");
     this.gameplayMusic.loop = true;
+    this.gameplayMusic.volume = musicVolume;
     this.startGameplayMusic();
     this.onGameOver = onGameOver;
     this.setWorld();

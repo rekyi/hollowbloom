@@ -2,9 +2,11 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 let selectedCharacterClass = FemaleCharacter;
+let musicVolume = 1;
 const startScreenMusic = new Audio("assets/audio/start_screen.ogg");
 const pressedKeys = new Set();
 startScreenMusic.loop = true;
+startScreenMusic.volume = musicVolume;
 
 function startStartScreenMusic() {
   startScreenMusic.play().catch((error) => {
@@ -190,6 +192,25 @@ document.getElementById("settings-back-button").addEventListener("click", () => 
   document.getElementById("settings-overlay").close();
 });
 document.getElementById("settings-overlay").addEventListener("click", onBackdropClick);
+
+function initAudioSettings() {
+  const musicVolumeInput = document.getElementById("music-volume");
+  const soundEffectsVolumeInput = document.getElementById("sound-effects-volume");
+  const musicVolumeValue = document.getElementById("music-volume-value");
+  const soundEffectsVolumeValue = document.getElementById("sound-effects-volume-value");
+
+  musicVolumeInput.addEventListener("input", () => {
+    musicVolume = Number(musicVolumeInput.value) / 100;
+    musicVolumeValue.value = `${musicVolumeInput.value}%`;
+    startScreenMusic.volume = musicVolume;
+    if (world) world.gameplayMusic.volume = musicVolume;
+  });
+
+  soundEffectsVolumeInput.addEventListener("input", () => {
+    soundEffectsVolumeValue.value = `${soundEffectsVolumeInput.value}%`;
+  });
+}
+initAudioSettings();
 
 document.getElementById("restart-button").addEventListener("click", () => {
   startGame();

@@ -54,6 +54,23 @@
     <dialog id="settings-overlay" class="settings-panel" aria-labelledby="settings-title">
       <div class="dialog-content">
         <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
+        <fieldset class="settings-audio">
+          <legend>Audio</legend>
+          <label class="audio-setting" for="music-volume">
+            Musik
+            <span class="audio-setting-control">
+              <input id="music-volume" type="range" min="0" max="100" step="1" value="100" />
+              <output id="music-volume-value" for="music-volume">100%</output>
+            </span>
+          </label>
+          <label class="audio-setting" for="sound-effects-volume">
+            Soundeffekte
+            <span class="audio-setting-control">
+              <input id="sound-effects-volume" type="range" min="0" max="100" step="1" value="100" />
+              <output id="sound-effects-volume-value" for="sound-effects-volume">100%</output>
+            </span>
+          </label>
+        </fieldset>
         <button id="settings-back-button" type="button">Zurück</button>
       </div>
     </dialog>
