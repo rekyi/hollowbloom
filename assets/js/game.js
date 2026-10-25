@@ -55,7 +55,37 @@ function resetKeyboard() {
 }
 
 function showGameOver() {
+  const characterCanvas = document.getElementById("game-over-character");
+  const characterContext = characterCanvas.getContext("2d");
+  const character = world.character;
+  characterContext.clearRect(0, 0, characterCanvas.width, characterCanvas.height);
+  characterContext.drawImage(
+    character.img,
+    (characterCanvas.width - character.width) / 2,
+    characterCanvas.height * 0.39,
+    character.width,
+    character.height,
+  );
   document.getElementById("game-over").hidden = false;
+}
+
+function startGame() {
+  resetKeyboard();
+  gameLoop.stop();
+  document.getElementById("start-screen").hidden = true;
+  document.getElementById("game-over").hidden = true;
+  canvas.classList.add("ready");
+  world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
+}
+
+function returnToMainMenu() {
+  resetKeyboard();
+  gameLoop.stop();
+  world = null;
+  document.getElementById("game-over").hidden = true;
+  canvas.classList.remove("ready");
+  document.getElementById("start-screen").hidden = false;
+  document.getElementById("start-button").focus();
 }
 
 function initCharacterSelection() {
@@ -74,9 +104,7 @@ function initCharacterSelection() {
 initCharacterSelection();
 
 document.getElementById("start-button").addEventListener("click", () => {
-  document.getElementById("start-screen").hidden = true;
-  canvas.classList.add("ready");
-  world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
+  startGame();
 });
 
 function initDialog(buttonId, dialogId, titleId, backId) {
@@ -106,11 +134,10 @@ initDialog("imprint-button", "imprint-overlay", "imprint-title", "imprint-back-b
 initDialog("settings-button", "settings-overlay", "settings-title", "settings-back-button");
 
 document.getElementById("restart-button").addEventListener("click", () => {
-  resetKeyboard();
-  gameLoop.stop();
-  world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
-  document.getElementById("game-over").hidden = true;
+  startGame();
 });
+
+document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
 
 window.addEventListener("blur", resetKeyboard);
 document.addEventListener("visibilitychange", () => {

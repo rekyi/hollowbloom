@@ -14,6 +14,8 @@ class World {
   shakeMagnitude = 7;
   timerStartMs = null;
   timerStopMs = null;
+  gameOverDelayStartedAt = null;
+  gameOverDelayMs = 1000;
   isGameOver = false;
   onGameOver;
 
@@ -78,7 +80,10 @@ class World {
 
   checkGameOver() {
     if (this.isGameOver || !this.character.isDead()) return;
+    this.timerStopMs ??= gameLoop.now();
     if (!this.character.deathStarted || this.character.currentImage < this.character.IMAGES_DEAD.length * 4) return;
+    this.gameOverDelayStartedAt ??= gameLoop.now();
+    if (gameLoop.now() - this.gameOverDelayStartedAt < this.gameOverDelayMs) return;
     this.isGameOver = true;
     gameLoop.stop();
     this.onGameOver();
