@@ -1,6 +1,7 @@
 class World {
   character;
   level;
+  gameplayMusic;
   canvas;
   ctx;
   keyboard;
@@ -22,6 +23,9 @@ class World {
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1();
+    this.gameplayMusic = new Audio("assets/audio/gameplay_bg.mp3");
+    this.gameplayMusic.loop = true;
+    this.startGameplayMusic();
     this.onGameOver = onGameOver;
     this.setWorld();
     this.run();
@@ -72,6 +76,25 @@ class World {
     this.checkGameOver();
   }
 
+  startGameplayMusic() {
+    this.gameplayMusic.play();
+  }
+
+  pauseGameplayMusic() {
+    this.gameplayMusic.pause();
+  }
+
+  resumeGameplayMusic() {
+    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
+    if (this.character.isDead() || boss?.isDead()) return;
+    this.startGameplayMusic();
+  }
+
+  stopGameplayMusic() {
+    this.gameplayMusic.pause();
+    this.gameplayMusic.currentTime = 0;
+  }
+
   checkItemCollection() {
     if (this.character.isDead()) return;
     const characterHitbox = this.character.getHitbox();
@@ -85,6 +108,7 @@ class World {
 
   checkGameOver() {
     if (this.isGameOver || !this.character.isDead()) return;
+    this.stopGameplayMusic();
     this.timerStopMs ??= gameLoop.now();
     if (!this.character.deathStarted || this.character.currentImage < this.character.IMAGES_DEAD.length * 4) return;
     this.gameOverDelayStartedAt ??= gameLoop.now();
@@ -99,9 +123,10 @@ class World {
   }
 
   checkTimerStop() {
-    if (this.timerStartMs === null || this.timerStopMs !== null) return;
     const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
-    if (boss && boss.isDead()) this.timerStopMs = gameLoop.now();
+    if (!boss || !boss.isDead()) return;
+    this.stopGameplayMusic();
+    if (this.timerStartMs !== null && this.timerStopMs === null) this.timerStopMs = gameLoop.now();
   }
 
   drawTimer() {

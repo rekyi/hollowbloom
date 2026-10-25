@@ -14,6 +14,11 @@ window.addEventListener("keydown", (event) => {
   if (event.code === "Escape") {
     if (!event.repeat) {
       gameLoop.togglePause();
+      if (gameLoop.isPaused) {
+        world.pauseGameplayMusic();
+      } else {
+        world.resumeGameplayMusic();
+      }
       syncPauseScreen();
     }
     return;
@@ -100,6 +105,7 @@ function syncPauseScreen() {
 function returnToMainMenu() {
   resetKeyboard();
   gameLoop.stop();
+  world?.stopGameplayMusic();
   world = null;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
