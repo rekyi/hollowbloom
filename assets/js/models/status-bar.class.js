@@ -6,6 +6,7 @@ class StatusBar extends DrawableObject {
   };
   maxHearts = 3;
   hearts = 3;
+  coins = 0;
   heartSize = 40;
   heartGap = 5;
 
@@ -20,6 +21,10 @@ class StatusBar extends DrawableObject {
     this.hearts = Math.max(0, Math.min(this.maxHearts, hearts));
   }
 
+  setCoins(coins) {
+    this.coins = coins;
+  }
+
   draw(ctx) {
     for (let i = 0; i < this.maxHearts; i++) {
       const x = this.x + i * (this.heartSize + this.heartGap);
@@ -27,6 +32,15 @@ class StatusBar extends DrawableObject {
       if (i < this.hearts) this.drawLayer(ctx, this.IMAGES.HEART, x);
       this.drawLayer(ctx, this.IMAGES.BORDER, x);
     }
+    ctx.save();
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 3;
+    ctx.font = "bold 18px monospace";
+    ctx.textBaseline = "middle";
+    ctx.strokeText(`Münzen ${this.coins}/${EXTRA_ATTACK_COIN_THRESHOLD}`, 190, 35);
+    ctx.fillText(`Münzen ${this.coins}/${EXTRA_ATTACK_COIN_THRESHOLD}`, 190, 35);
+    ctx.restore();
   }
 
   drawLayer(ctx, path, x) {

@@ -22,12 +22,17 @@ window.addEventListener("keydown", (event) => {
 
   pressedKeys.add(event.code);
   updateKeyboardState();
-  if (["ArrowLeft", "ArrowRight", "ArrowUp", "KeyA", "KeyD", "Space", "KeyF", "KeyJ"].includes(event.code)) {
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "KeyA", "KeyD", "Space", "KeyF", "KeyJ", "KeyG", "KeyK"].includes(event.code)) {
     world.startTimer();
   }
   if (event.code === "KeyF" || event.code === "KeyJ") {
     if (!event.repeat) {
       world.character.attack();
+    }
+  }
+  if (event.code === "KeyG" || event.code === "KeyK") {
+    if (!event.repeat) {
+      world.character.extraAttack();
     }
   }
   if (event.code === "ArrowUp" || event.code === "Space") {

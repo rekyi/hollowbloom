@@ -48,6 +48,7 @@ class World {
     this.ctx.translate(shakeX, shakeY);
     this.ctx.translate(cameraX, 0);
     this.addObjectsToMap(this.level.background);
+    this.addObjectsToMap(this.level.items.filter((item) => !item.collected));
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.clouds);
@@ -66,8 +67,20 @@ class World {
 
   update() {
     this.checkCollision();
+    this.checkItemCollection();
     this.checkTimerStop();
     this.checkGameOver();
+  }
+
+  checkItemCollection() {
+    if (this.character.isDead()) return;
+    const characterHitbox = this.character.getHitbox();
+    this.level.items.forEach((item) => {
+      if (item.collected || !this.hitboxesOverlap(characterHitbox, item.getHitbox())) return;
+      item.collected = true;
+      this.character.collectCoin();
+      this.statusBar.setCoins(this.character.coins);
+    });
   }
 
   checkGameOver() {

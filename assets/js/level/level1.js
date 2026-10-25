@@ -18,6 +18,7 @@ function createLevel1() {
     [new Rat(), new Bat(), new Slime(), new Mimic(), new FinalBoss()],
     [],
     [],
+    [400, 850, 1300, 1750, 2200, 2700].map((x) => new ChargeItem(x)),
   );
   const backgroundTileIndices = new Set();
 

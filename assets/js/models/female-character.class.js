@@ -8,12 +8,15 @@ const FEMALE_CHARACTER_CONFIG = {
     idle: { file: "Idle.png", count: 5 },
     idleLong: null,
     attack: { file: "Attack_1.png", count: 6 },
+    extraAttack: { file: "Attack_4.png", count: 10 },
     jumping: { file: "Jump.png", count: 8 },
     standing: { file: "Walk.png", count: 8 },
     hurt: { file: "Hurt.png", count: 2 },
     dead: { file: "Dead.png", count: 5 },
     bubble: null,
   },
+  extraAttackDamageFrame: 6,
+  extraAttackReach: 150,
 };
 
 class FemaleCharacter extends MaleCharacter {

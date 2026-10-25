@@ -1,3 +1,5 @@
+const EXTRA_ATTACK_COIN_THRESHOLD = 5;
+
 const MALE_CHARACTER_CONFIG = {
   width: 200,
   height: 200,
@@ -8,6 +10,8 @@ const MALE_CHARACTER_CONFIG = {
   attackReach: 60,
   attackDamageFrame: 5,
   attackTicksPerFrame: 2,
+  extraAttackDamageFrame: 5,
+  extraAttackReach: 150,
   legsArea: { x: 30, y: 98, w: 52, h: 30 },
   offset: { top: 80, right: 80, bottom: 0, left: 52 },
   spritePath: "assets/images/character/male/",
@@ -17,6 +21,7 @@ const MALE_CHARACTER_CONFIG = {
     idle: { file: "Idle.png", count: 6 },
     idleLong: { file: "Idle_long.png", count: 5 },
     attack: { file: "Attack_1.png", count: 10 },
+    extraAttack: { file: "Attack_3.png", count: 8 },
     jumping: { file: "Jump.png", count: 11 },
     hurt: { file: "Hurt.png", count: 4 },
     dead: { file: "Dead.png", count: 4 },
@@ -43,6 +48,12 @@ class MaleCharacter extends MoveableObject {
   IMAGES_JUMPING;
   IMAGES_STANDING;
   IMAGES_ATTACK;
+  IMAGES_EXTRA_ATTACK;
+  extraAttackDamageFrame;
+  extraAttackReach;
+  activeAttackImages;
+  activeAttackDamageFrame;
+  activeAttackReach;
   attacking = false;
   attackTick = 0;
   attackTicksPerFrame;
@@ -69,6 +80,7 @@ class MaleCharacter extends MoveableObject {
   deathStarted = false;
   IMAGES_BUBBLE;
   showBubble = false;
+  coins = 0;
 
   constructor(config) {
     super();
@@ -92,6 +104,8 @@ class MaleCharacter extends MoveableObject {
     this.attackDamageFrame = settings.attackDamageFrame;
     this.attackTicksPerFrame = settings.attackTicksPerFrame;
     this.legsArea = settings.legsArea;
+    this.extraAttackDamageFrame = settings.extraAttackDamageFrame;
+    this.extraAttackReach = settings.extraAttackReach;
 
     const loadSprites = (name) => {
       const sprite = settings.sprites[name];
@@ -102,6 +116,10 @@ class MaleCharacter extends MoveableObject {
     this.IMAGES_IDLE = loadSprites("idle");
     this.IMAGES_IDLE_LONG = settings.sprites.idleLong ? loadSprites("idleLong") : this.IMAGES_IDLE;
     this.IMAGES_ATTACK = loadSprites("attack");
+    this.IMAGES_EXTRA_ATTACK = loadSprites("extraAttack");
+    this.activeAttackImages = this.IMAGES_ATTACK;
+    this.activeAttackDamageFrame = this.attackDamageFrame;
+    this.activeAttackReach = this.attackReach;
     this.IMAGES_JUMPING = loadSprites("jumping");
     this.IMAGES_STANDING = settings.sprites.standing ? loadSprites("standing") : this.IMAGES_JUMPING;
     this.IMAGES_HURT = loadSprites("hurt");
@@ -217,9 +235,26 @@ class MaleCharacter extends MoveableObject {
   attack() {
     this.updateState();
     if (!this.canPerformAction("attack")) return;
+    this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+  }
+
+  extraAttack() {
+    this.updateState();
+    if (!this.canPerformAction("attack") || this.coins < EXTRA_ATTACK_COIN_THRESHOLD) return;
+    this.startAttack(this.IMAGES_EXTRA_ATTACK, this.extraAttackDamageFrame, this.extraAttackReach);
+  }
+
+  startAttack(images, damageFrame, reach) {
     this.attacking = true;
     this.attackTick = 0;
+    this.activeAttackImages = images;
+    this.activeAttackDamageFrame = damageFrame;
+    this.activeAttackReach = reach;
     this.updateState();
+  }
+
+  collectCoin() {
+    this.coins++;
   }
 
   jump() {
@@ -258,31 +293,35 @@ class MaleCharacter extends MoveableObject {
 
   playAttack() {
     const frame = Math.floor(this.attackTick / this.attackTicksPerFrame);
-    if (frame >= this.IMAGES_ATTACK.length) {
+    if (frame >= this.activeAttackImages.length) {
       this.attacking = false;
+      this.activeAttackImages = this.IMAGES_ATTACK;
+      this.activeAttackDamageFrame = this.attackDamageFrame;
+      this.activeAttackReach = this.attackReach;
       return;
     }
-    this.img = this.imageCache[this.IMAGES_ATTACK[frame]];
-    if (this.attackTick === this.attackDamageFrame * this.attackTicksPerFrame) this.damageEnemiesInReach();
+    this.img = this.imageCache[this.activeAttackImages[frame]];
+    if (this.attackTick === this.activeAttackDamageFrame * this.attackTicksPerFrame) this.damageEnemiesInReach();
     this.attackTick++;
   }
 
   damageEnemiesInReach() {
     const box = this.getHitbox();
     const reach = {
-      x: this.oppositeDirection ? box.x - this.attackReach : box.x + box.width,
+      x: this.oppositeDirection ? box.x - this.activeAttackReach : box.x + box.width,
       y: box.y,
-      width: this.attackReach,
+      width: this.activeAttackReach,
       height: box.height,
     };
     this.world.level.enemies.forEach((enemy) => {
       if (enemy.isDead()) return;
       const e = enemy.getHitbox();
       if (enemy instanceof FinalBoss) {
+        const bossReachWidth = Math.max(120, this.activeAttackReach);
         const bossReach = {
           ...reach,
-          x: this.oppositeDirection ? box.x - 120 : box.x + box.width,
-          width: 120,
+          x: this.oppositeDirection ? box.x - bossReachWidth : box.x + box.width,
+          width: bossReachWidth,
           y: box.y - 140,
           height: box.height + 140,
         };
