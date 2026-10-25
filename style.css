@@ -13,9 +13,6 @@ body {
 }
 
 .start-screen[hidden],
-.settings-overlay[hidden],
-.credits-overlay[hidden],
-.imprint-overlay[hidden],
 .game-over[hidden] {
     display: none;
 }
@@ -53,9 +50,9 @@ body {
 
 .start-menu > button:hover,
 .start-menu > button:focus-visible,
-body:has(.settings-overlay:not([hidden])) .start-menu > button:nth-child(2),
-body:has(.credits-overlay:not([hidden])) .start-menu > button:nth-child(3),
-body:has(.imprint-overlay:not([hidden])) .start-menu > button:nth-child(4),
+body:has(.settings-panel[open]) .start-menu > button:nth-child(2),
+body:has(.credits-panel[open]) .start-menu > button:nth-child(3),
+body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
 .settings-panel button:hover,
 .credits-panel button:hover,
 .imprint-panel button:hover {
@@ -156,29 +153,28 @@ body:has(.imprint-overlay:not([hidden])) .start-menu > button:nth-child(4),
     }
 }
 
-/* Zusammengefasste Overlays & Panels */
-.settings-overlay,
-.credits-overlay,
-.imprint-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    text-align: center;
-}
-
 .settings-panel,
 .credits-panel,
 .imprint-panel {
     max-width: 100%;
-    padding: 24px;
+    margin: auto;
+    padding: 0;
     border: 2px solid #fff;
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    text-align: center;
+}
+
+.dialog-content {
+    padding: 24px;
+}
+
+.settings-panel::backdrop,
+.credits-panel::backdrop,
+.imprint-panel::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(0.5px);
 }
 
 canvas {

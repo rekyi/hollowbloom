@@ -9,6 +9,7 @@ const FEMALE_CHARACTER_CONFIG = {
     idleLong: null,
     attack: { file: "Attack_1.png", count: 6 },
     jumping: { file: "Jump.png", count: 8 },
+    standing: { file: "Walk.png", count: 8 },
     hurt: { file: "Hurt.png", count: 2 },
     dead: { file: "Dead.png", count: 5 },
     bubble: null,

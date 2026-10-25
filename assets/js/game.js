@@ -79,56 +79,31 @@ document.getElementById("start-button").addEventListener("click", () => {
   world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
 });
 
-function initCredits() {
-  const creditsButton = document.getElementById("credits-button");
-  const creditsOverlay = document.getElementById("credits-overlay");
-  const creditsTitle = document.getElementById("credits-title");
+function initDialog(buttonId, dialogId, titleId, backId) {
+  const dialog = document.getElementById(dialogId);
+  const button = document.getElementById(buttonId);
 
-  creditsButton.addEventListener("click", () => {
-    creditsOverlay.hidden = false;
-    creditsTitle.focus();
+  button.addEventListener("click", () => {
+    dialog.showModal();
+    document.getElementById(titleId).focus();
   });
 
-  document.getElementById("credits-back-button").addEventListener("click", () => {
-    creditsOverlay.hidden = true;
-    creditsButton.focus();
-  });
+  document.getElementById(backId).addEventListener("click", () => dialog.close());
+
+  dialog.addEventListener("click", onBackdropClick);
 }
-initCredits();
 
-function initImprint() {
-  const imprintButton = document.getElementById("imprint-button");
-  const imprintOverlay = document.getElementById("imprint-overlay");
-  const imprintTitle = document.getElementById("imprint-title");
+function onBackdropClick(event) {
+  const dialogRef = event.currentTarget;
 
-  imprintButton.addEventListener("click", () => {
-    imprintOverlay.hidden = false;
-    imprintTitle.focus();
-  });
-
-  document.getElementById("imprint-back-button").addEventListener("click", () => {
-    imprintOverlay.hidden = true;
-    imprintButton.focus();
-  });
+  if (event.target === dialogRef) {
+    dialogRef.close();
+  }
 }
-initImprint();
 
-function initSettings() {
-  const settingsButton = document.getElementById("settings-button");
-  const settingsOverlay = document.getElementById("settings-overlay");
-  const settingsTitle = document.getElementById("settings-title");
-
-  settingsButton.addEventListener("click", () => {
-    settingsOverlay.hidden = false;
-    settingsTitle.focus();
-  });
-
-  document.getElementById("settings-back-button").addEventListener("click", () => {
-    settingsOverlay.hidden = true;
-    settingsButton.focus();
-  });
-}
-initSettings();
+initDialog("credits-button", "credits-overlay", "credits-title", "credits-back-button");
+initDialog("imprint-button", "imprint-overlay", "imprint-title", "imprint-back-button");
+initDialog("settings-button", "settings-overlay", "settings-title", "settings-back-button");
 
 document.getElementById("restart-button").addEventListener("click", () => {
   resetKeyboard();

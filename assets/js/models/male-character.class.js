@@ -41,6 +41,7 @@ class MaleCharacter extends MoveableObject {
   idleLongFrame = 0;
   animationElapsedMs = 0;
   IMAGES_JUMPING;
+  IMAGES_STANDING;
   IMAGES_ATTACK;
   attacking = false;
   charges = 3;
@@ -103,6 +104,7 @@ class MaleCharacter extends MoveableObject {
     this.IMAGES_IDLE_LONG = settings.sprites.idleLong ? loadSprites("idleLong") : this.IMAGES_IDLE;
     this.IMAGES_ATTACK = loadSprites("attack");
     this.IMAGES_JUMPING = loadSprites("jumping");
+    this.IMAGES_STANDING = settings.sprites.standing ? loadSprites("standing") : this.IMAGES_JUMPING;
     this.IMAGES_HURT = loadSprites("hurt");
     this.IMAGES_DEAD = loadSprites("dead");
     this.IMAGES_BUBBLE = loadSprites("bubble");
@@ -187,7 +189,7 @@ class MaleCharacter extends MoveableObject {
       } else if (idleTime >= 3000) {
         this.playIdle(this.IMAGES_IDLE);
       } else {
-        this.img = this.imageCache[this.IMAGES_JUMPING[0]];
+        this.img = this.imageCache[this.IMAGES_STANDING[0]];
         this.currentImage = 0;
       }
     }
