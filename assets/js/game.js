@@ -149,9 +149,20 @@ function onBackdropClick(event) {
   }
 }
 
+function openSettings() {
+  const settingsDialog = document.getElementById("settings-overlay");
+  settingsDialog.showModal();
+  document.getElementById("settings-title").focus();
+}
+
 initDialog("credits-button", "credits-overlay", "credits-title", "credits-back-button");
 initDialog("imprint-button", "imprint-overlay", "imprint-title", "imprint-back-button");
-initDialog("settings-button", "settings-overlay", "settings-title", "settings-back-button");
+document.getElementById("settings-button").addEventListener("click", openSettings);
+document.getElementById("pause-settings-button").addEventListener("click", openSettings);
+document.getElementById("settings-back-button").addEventListener("click", () => {
+  document.getElementById("settings-overlay").close();
+});
+document.getElementById("settings-overlay").addEventListener("click", onBackdropClick);
 
 document.getElementById("restart-button").addEventListener("click", () => {
   startGame();

@@ -27,12 +27,6 @@
           <span class="character-sprite character-sprite--male" aria-hidden="true"></span>
         </button>
       </div>
-      <dialog id="settings-overlay" class="settings-panel" aria-labelledby="settings-title">
-        <div class="dialog-content">
-          <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
-          <button id="settings-back-button" type="button">Zurück</button>
-        </div>
-      </dialog>
       <dialog id="credits-overlay" class="credits-panel" aria-labelledby="credits-title">
         <div class="dialog-content">
           <h1 id="credits-title">Credits</h1>
@@ -53,9 +47,16 @@
       <section class="pause-screen-content" aria-label="Spiel pausiert">
         <h1>Pause</h1>
         <p>Esc zum Fortsetzen</p>
+        <button id="pause-settings-button" type="button">Einstellungen</button>
         <button id="pause-main-menu-button" type="button">Hauptmenü</button>
       </section>
     </div>
+    <dialog id="settings-overlay" class="settings-panel" aria-labelledby="settings-title">
+      <div class="dialog-content">
+        <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
+        <button id="settings-back-button" type="button">Zurück</button>
+      </div>
+    </dialog>
     <div id="game-over" class="game-over" hidden>
       <section class="game-over-screen" aria-label="Game Over">
         <canvas id="game-over-character" width="720" height="480" aria-hidden="true"></canvas>
