@@ -47,10 +47,11 @@ body {
 
 .character-choice {
     position: absolute;
-    top: 49%;
+    bottom: 21%;
     display: flex;
-    width: clamp(112px, 20%, 168px);
-    align-items: center;
+    justify-content: center;
+    width: clamp(50px, 9%, 76px);
+    align-items: flex-end;
     padding: 0;
     transform: translateX(-50%);
     border: 0;
@@ -89,9 +90,12 @@ body {
 }
 
 .character-sprite {
-    width: 100%;
+    width: 220%;
+    margin-top: -85%;
+    flex-shrink: 0;
     aspect-ratio: 1;
     background-repeat: no-repeat;
+    pointer-events: none;
 }
 
 .character-sprite--female {
