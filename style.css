@@ -13,6 +13,7 @@ body {
 }
 
 .start-screen[hidden],
+.pause-screen[hidden],
 .game-over[hidden] {
     display: none;
 }
@@ -193,6 +194,32 @@ canvas.ready {
     display: block;
 }
 
+.pause-screen {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9;
+}
+
+.pause-screen-content {
+    display: flex;
+    width: min(720px, 100vw, 150vh);
+    aspect-ratio: 3 / 2;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: #fff;
+    text-align: center;
+}
+
+.pause-screen-content h1,
+.pause-screen-content p {
+    margin: 0;
+}
+
 .game-over {
     position: fixed;
     inset: 0;
@@ -229,7 +256,8 @@ canvas.ready {
     gap: 3rem;
 }
 
-.game-over button {
+.game-over button,
+.pause-screen button {
     padding: 12px 20px;
     border: 1px solid rgba(255, 226, 122, 0.8);
     border-radius: 6px;
@@ -243,7 +271,9 @@ canvas.ready {
 }
 
 .game-over button:hover,
-.game-over button:focus-visible {
+.game-over button:focus-visible,
+.pause-screen button:hover,
+.pause-screen button:focus-visible {
     background: rgba(35, 42, 37, 0.95);
     transform: translateY(-3px);
 }

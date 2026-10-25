@@ -12,7 +12,10 @@ init();
 window.addEventListener("keydown", (event) => {
   if (!world || world.isGameOver) return;
   if (event.code === "Escape") {
-    if (!event.repeat) gameLoop.togglePause();
+    if (!event.repeat) {
+      gameLoop.togglePause();
+      syncPauseScreen();
+    }
     return;
   }
   if (gameLoop.isPaused) return;
@@ -73,15 +76,27 @@ function startGame() {
   resetKeyboard();
   gameLoop.stop();
   document.getElementById("start-screen").hidden = true;
+  document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   canvas.classList.add("ready");
   world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
+}
+
+function syncPauseScreen() {
+  const pauseScreen = document.getElementById("pause-screen");
+  pauseScreen.hidden = !gameLoop.isPaused;
+  if (gameLoop.isPaused) {
+    document.getElementById("pause-main-menu-button").focus();
+  } else {
+    document.getElementById("pause-main-menu-button").blur();
+  }
 }
 
 function returnToMainMenu() {
   resetKeyboard();
   gameLoop.stop();
   world = null;
+  document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   canvas.classList.remove("ready");
   document.getElementById("start-screen").hidden = false;
@@ -138,6 +153,7 @@ document.getElementById("restart-button").addEventListener("click", () => {
 });
 
 document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
+document.getElementById("pause-main-menu-button").addEventListener("click", returnToMainMenu);
 
 window.addEventListener("blur", resetKeyboard);
 document.addEventListener("visibilitychange", () => {

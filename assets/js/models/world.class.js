@@ -58,7 +58,6 @@ class World {
     this.ctx.restore();
     this.statusBar.draw(this.ctx);
     this.drawTimer();
-    if (gameLoop.isPaused) this.drawPauseOverlay();
   }
 
   run() {
@@ -171,20 +170,6 @@ class World {
     const text = `x${this.character.charges} charges`;
     this.ctx.strokeText(text, 20, 56);
     this.ctx.fillText(text, 20, 56);
-    this.ctx.restore();
-  }
-
-  drawPauseOverlay() {
-    this.ctx.save();
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "bold 36px sans-serif";
-    this.ctx.textAlign = "center";
-    this.ctx.textBaseline = "middle";
-    this.ctx.fillText("PAUSE", this.canvas.width / 2, this.canvas.height / 2);
-    this.ctx.font = "16px sans-serif";
-    this.ctx.fillText("Esc zum Fortsetzen", this.canvas.width / 2, this.canvas.height / 2 + 36);
     this.ctx.restore();
   }
 
