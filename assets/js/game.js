@@ -2,7 +2,21 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 let selectedCharacterClass = FemaleCharacter;
+const startScreenMusic = new Audio("assets/audio/start_screen.ogg");
 const pressedKeys = new Set();
+startScreenMusic.loop = true;
+
+function startStartScreenMusic() {
+  startScreenMusic.play().catch((error) => {
+    if (error.name === "NotAllowedError") return;
+    console.error("Start-screen music could not be played.", error);
+  });
+}
+
+function stopStartScreenMusic() {
+  startScreenMusic.pause();
+  startScreenMusic.currentTime = 0;
+}
 
 function init() {
   canvas = document.getElementById("canvas");
@@ -90,6 +104,7 @@ function startGame() {
   document.getElementById("game-over").hidden = true;
   canvas.classList.add("ready");
   world = new World(canvas, keyboard, showGameOver, selectedCharacterClass);
+  stopStartScreenMusic();
 }
 
 function syncPauseScreen() {
@@ -112,7 +127,13 @@ function returnToMainMenu() {
   canvas.classList.remove("ready");
   document.getElementById("start-screen").hidden = false;
   document.getElementById("start-button").focus();
+  startStartScreenMusic();
 }
+
+document.getElementById("start-screen").addEventListener("click", (event) => {
+  if (event.target.closest("#start-button")) return;
+  startStartScreenMusic();
+});
 
 function initCharacterSelection() {
   const choices = document.querySelectorAll(".character-choice");
@@ -181,3 +202,5 @@ window.addEventListener("blur", resetKeyboard);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) resetKeyboard();
 });
+
+startStartScreenMusic();

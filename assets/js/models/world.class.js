@@ -23,7 +23,7 @@ class World {
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1();
-    this.gameplayMusic = new Audio("assets/audio/gameplay_bg.mp3");
+    this.gameplayMusic = new Audio("assets/audio/AugustUltraAmbience.wav");
     this.gameplayMusic.loop = true;
     this.startGameplayMusic();
     this.onGameOver = onGameOver;
