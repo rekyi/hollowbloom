@@ -6,9 +6,6 @@ class World {
   keyboard;
   camera_x = 0;
   statusBar = new StatusBar();
-  droppedItems = [];
-  chargeFallbackMs = 4000;
-  noChargeSince = null;
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;
   shakeMagnitude = 7;
@@ -53,7 +50,6 @@ class World {
     this.addObjectsToMap(this.level.background);
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
-    this.addObjectsToMap(this.droppedItems);
     this.addObjectsToMap(this.level.clouds);
     this.ctx.restore();
     this.statusBar.draw(this.ctx);
@@ -69,10 +65,7 @@ class World {
   }
 
   update() {
-    this.checkEnemyDrops();
     this.checkCollision();
-    this.collectChargeItems();
-    this.checkChargeFallback();
     this.checkTimerStop();
     this.checkGameOver();
   }
@@ -86,48 +79,6 @@ class World {
     this.isGameOver = true;
     gameLoop.stop();
     this.onGameOver();
-  }
-
-  checkChargeFallback() {
-    const stuck = this.character.charges <= 0 && this.droppedItems.length === 0 && !this.character.isDead();
-    if (!stuck) {
-      this.noChargeSince = null;
-      return;
-    }
-    this.noChargeSince ??= gameLoop.now();
-    if (gameLoop.now() - this.noChargeSince < this.chargeFallbackMs) return;
-    this.character.charges++;
-    this.noChargeSince = null;
-  }
-
-  dropChargeItems(x, count) {
-    for (let i = 0; i < count; i++) this.droppedItems.push(new ChargeItem(x + i * 30, 440 - 36));
-  }
-
-  collectChargeItems() {
-    const box = this.character.getHitbox();
-    this.droppedItems = this.droppedItems.filter((item) => {
-      if (!this.hitboxesOverlap(box, { x: item.x, y: item.y, width: item.width, height: item.height })) return true;
-      this.character.charges++;
-      return false;
-    });
-  }
-
-  checkEnemyDrops() {
-    this.level.enemies.forEach((enemy) => {
-      if (enemy instanceof FinalBoss) {
-        if (enemy.isEnraged() && !enemy.chargeDropScheduled) {
-          enemy.chargeDropScheduled = true;
-          this.dropChargeItems(enemy.x + enemy.width / 2 - 30, 2);
-        }
-        return;
-      }
-      if (!enemy.isDead() || enemy.chargeDropScheduled) return;
-      enemy.chargeDropScheduled = true;
-      const x = enemy.x + enemy.width / 2 + 8;
-      const count = Math.random() < 0.3 ? 3 : 2;
-      gameLoop.runOnceAfter(1000, () => this.dropChargeItems(x, count));
-    });
   }
 
   startTimer() {
@@ -156,20 +107,6 @@ class World {
     this.ctx.textBaseline = "top";
     this.ctx.strokeText(text, this.canvas.width - 20, 16);
     this.ctx.fillText(text, this.canvas.width - 20, 16);
-    this.ctx.restore();
-    this.drawCharges();
-  }
-
-  drawCharges() {
-    this.ctx.save();
-    this.ctx.fillStyle = "white";
-    this.ctx.strokeStyle = "black";
-    this.ctx.lineWidth = 3;
-    this.ctx.font = "bold 24px monospace";
-    this.ctx.textBaseline = "top";
-    const text = `x${this.character.charges} charges`;
-    this.ctx.strokeText(text, 20, 56);
-    this.ctx.fillText(text, 20, 56);
     this.ctx.restore();
   }
 
