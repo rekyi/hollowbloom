@@ -12,7 +12,11 @@ body {
     background: url("assets/images/9_screens/start_screen.webp") center / 100% 100% no-repeat;
 }
 
-.start-screen[hidden] {
+.start-screen[hidden],
+.settings-overlay[hidden],
+.credits-overlay[hidden],
+.imprint-overlay[hidden],
+.game-over[hidden] {
     display: none;
 }
 
@@ -23,20 +27,42 @@ body {
     display: flex;
     width: min(30%, 210px);
     flex-direction: column;
-    gap: 8px;
+    gap: 1.5rem;
     transform: translateY(-50%);
     z-index: 1;
 }
 
-.start-menu > button {
-    padding: 12px 28px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: #b52b13;
-    color: #fff;
-    font-size: clamp(14px, 2.5vw, 20px);
-    font-weight: bold;
+.start-menu > button,
+.settings-panel button,
+.credits-panel button,
+.imprint-panel button {
+    padding: 12px 20px;
+    border: none;
+    border-left: 2px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(90deg, rgba(10, 20, 24, 0.85) 0%, rgba(10, 20, 24, 0.2) 100%);
+    color: #e2e8e4;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
     cursor: pointer;
+    transition: transform 200ms ease, border-color 200ms ease, background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+
+.start-menu > button:hover,
+.start-menu > button:focus-visible,
+body:has(.settings-overlay:not([hidden])) .start-menu > button:nth-child(2),
+body:has(.credits-overlay:not([hidden])) .start-menu > button:nth-child(3),
+body:has(.imprint-overlay:not([hidden])) .start-menu > button:nth-child(4),
+.settings-panel button:hover,
+.credits-panel button:hover,
+.imprint-panel button:hover {
+    border-left-color: #ffe27a;
+    background: linear-gradient(90deg, rgba(255, 226, 122, 0.2) 0%, rgba(10, 20, 24, 0.4) 100%);
+    color: #ffe27a;
+    transform: translateX(6px);
 }
 
 .character-choices {
@@ -130,76 +156,9 @@ body {
     }
 }
 
-.settings-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    text-align: center;
-}
-
-.settings-overlay[hidden] {
-    display: none;
-}
-
-.settings-panel {
-    max-width: 100%;
-    padding: 24px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.settings-panel button {
-    padding: 10px 20px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: #b52b13;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.credits-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    text-align: center;
-}
-
-.credits-overlay[hidden] {
-    display: none;
-}
-
-.credits-panel {
-    max-width: 100%;
-    padding: 24px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.credits-panel button {
-    padding: 10px 20px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: #b52b13;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
+/* Zusammengefasste Overlays & Panels */
+.settings-overlay,
+.credits-overlay,
 .imprint-overlay {
     position: absolute;
     inset: 0;
@@ -212,10 +171,8 @@ body {
     text-align: center;
 }
 
-.imprint-overlay[hidden] {
-    display: none;
-}
-
+.settings-panel,
+.credits-panel,
 .imprint-panel {
     max-width: 100%;
     padding: 24px;
@@ -224,26 +181,9 @@ body {
     background: rgba(0, 0, 0, 0.8);
 }
 
-.imprint-panel button {
-    padding: 10px 20px;
-    border: 2px solid #fff;
-    border-radius: 8px;
-    background: #b52b13;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
 canvas {
     display: none;
-}
 
-canvas.ready {
-    display: block;
-}
-
-canvas {
     @media screen and (max-width: 720px) {
         width: 100%;
     }
@@ -251,7 +191,10 @@ canvas {
     @media screen and (max-height: 480px) {
         height: 100vh;
     }
+}
 
+canvas.ready {
+    display: block;
 }
 
 .game-over {
@@ -264,10 +207,6 @@ canvas {
     gap: 24px;
     background: rgba(0, 0, 0, 0.85);
     z-index: 1;
-}
-
-.game-over[hidden] {
-    display: none;
 }
 
 .game-over img {
