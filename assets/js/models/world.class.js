@@ -1,11 +1,19 @@
-class World {
+import { appState } from "../data.js";
+import { gameLoop } from "./game-loop.class.js";
+import { StatusBar } from "./status-bar.class.js";
+import { Enemy } from "./enemies.class.js";
+import { FinalBoss } from "./final-boss.class.js";
+import { createLevel1 } from "../level/level1.js";
+import { FemaleCharacter } from "./female-character.class.js";
+
+export class World {
   character;
   level;
   gameplayMusic;
-  canvas;
+  canvasRef;
   ctx;
   keyboard;
-  camera_x = 0;
+  cameraX = 0;
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;
@@ -17,19 +25,23 @@ class World {
   isGameOver = false;
   onGameOver;
 
-  constructor(canvas, keyboard, onGameOver, CharacterClass = FemaleCharacter) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d");
+  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter) {
+    this.canvasRef = canvasRef;
+    this.ctx = canvasRef.getContext("2d");
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1();
-    this.gameplayMusic = new Audio("assets/audio/AugustUltraAmbience.wav");
-    this.gameplayMusic.loop = true;
-    this.gameplayMusic.volume = musicVolume;
-    this.startGameplayMusic();
     this.onGameOver = onGameOver;
+    this.setupGameplayMusic();
     this.setWorld();
     this.run();
+  }
+
+  setupGameplayMusic() {
+    this.gameplayMusic = new Audio("assets/audio/august_ultra_ambience.wav");
+    this.gameplayMusic.loop = true;
+    this.gameplayMusic.volume = appState.musicVolume;
+    this.startGameplayMusic();
   }
 
   setWorld() {
@@ -40,26 +52,40 @@ class World {
   }
 
   draw() {
+    const shake = this.getShakeOffset();
+    const cameraX = Math.round(this.cameraX);
+    this.updateLevelBackground(cameraX + shake.x);
+    this.ctx.clearRect(0, 0, this.canvasRef.width, this.canvasRef.height);
+    this.drawScene(cameraX + shake.x, shake.y);
+    this.statusBar.draw(this.ctx);
+    this.drawTimer();
+  }
+
+  getShakeOffset() {
     const shakeElapsed = gameLoop.now() - this.shakeStartedAt;
     const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < this.shakeDurationMs;
-    const shakeIntensity = isShaking ? 1 - shakeElapsed / this.shakeDurationMs : 0;
-    const shakeX = isShaking ? Math.round(Math.sin(shakeElapsed * 0.08) * this.shakeMagnitude * shakeIntensity) : 0;
-    const shakeY = isShaking ? Math.round(Math.cos(shakeElapsed * 0.11) * this.shakeMagnitude * 0.5 * shakeIntensity) : 0;
-    const cameraX = Math.round(this.camera_x);
+    if (!isShaking) return { x: 0, y: 0 };
+    const shakeIntensity = 1 - shakeElapsed / this.shakeDurationMs;
+    return {
+      x: Math.round(Math.sin(shakeElapsed * 0.08) * this.shakeMagnitude * shakeIntensity),
+      y: Math.round(Math.cos(shakeElapsed * 0.11) * this.shakeMagnitude * 0.5 * shakeIntensity),
+    };
+  }
+
+  updateLevelBackground(offsetX) {
     const backgroundMargin = this.shakeMagnitude + 1;
-    this.level.updateBackground(cameraX + shakeX + backgroundMargin, this.canvas.width + backgroundMargin * 2);
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.level.updateBackground(offsetX + backgroundMargin, this.canvasRef.width + backgroundMargin * 2);
+  }
+
+  drawScene(offsetX, offsetY) {
     this.ctx.save();
-    this.ctx.translate(shakeX, shakeY);
-    this.ctx.translate(cameraX, 0);
+    this.ctx.translate(offsetX, offsetY);
     this.addObjectsToMap(this.level.background);
-    this.addObjectsToMap(this.level.items.filter((item) => !item.collected));
+    this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.addObjectsToMap(this.level.clouds);
     this.ctx.restore();
-    this.statusBar.draw(this.ctx);
-    this.drawTimer();
   }
 
   run() {
@@ -100,8 +126,8 @@ class World {
     if (this.character.isDead()) return;
     const characterHitbox = this.character.getHitbox();
     this.level.items.forEach((item) => {
-      if (item.collected || !this.hitboxesOverlap(characterHitbox, item.getHitbox())) return;
-      item.collected = true;
+      if (item.isCollected || !this.hitboxesOverlap(characterHitbox, item.getHitbox())) return;
+      item.isCollected = true;
       this.character.collectCoin();
       this.statusBar.setCoins(this.character.coins);
     });
@@ -111,9 +137,17 @@ class World {
     if (this.isGameOver || !this.character.isDead()) return;
     this.stopGameplayMusic();
     this.timerStopMs ??= gameLoop.now();
-    if (!this.character.deathStarted || this.character.currentImage < this.character.IMAGES_DEAD.length * 4) return;
+    if (!this.isDeathAnimationDone()) return;
     this.gameOverDelayStartedAt ??= gameLoop.now();
     if (gameLoop.now() - this.gameOverDelayStartedAt < this.gameOverDelayMs) return;
+    this.finishGame();
+  }
+
+  isDeathAnimationDone() {
+    return this.character.isDeathStarted && this.character.currentImage >= this.character.IMAGES_DEAD.length * 4;
+  }
+
+  finishGame() {
     this.isGameOver = true;
     gameLoop.stop();
     this.onGameOver();
@@ -130,13 +164,17 @@ class World {
     if (this.timerStartMs !== null && this.timerStopMs === null) this.timerStopMs = gameLoop.now();
   }
 
-  drawTimer() {
+  getTimerText() {
     const elapsedMs = this.timerStartMs === null ? 0 : (this.timerStopMs ?? gameLoop.now()) - this.timerStartMs;
     const totalSeconds = Math.floor(elapsedMs / 1000);
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const seconds = String(totalSeconds % 60).padStart(2, "0");
     const millis = String(Math.floor(elapsedMs % 1000)).padStart(3, "0");
-    const text = `${minutes}:${seconds}:${millis}`;
+    return `${minutes}:${seconds}:${millis}`;
+  }
+
+  drawTimer() {
+    const text = this.getTimerText();
     this.ctx.save();
     this.ctx.fillStyle = "white";
     this.ctx.strokeStyle = "black";
@@ -144,23 +182,22 @@ class World {
     this.ctx.font = "bold 24px monospace";
     this.ctx.textAlign = "right";
     this.ctx.textBaseline = "top";
-    this.ctx.strokeText(text, this.canvas.width - 20, 16);
-    this.ctx.fillText(text, this.canvas.width - 20, 16);
+    this.ctx.strokeText(text, this.canvasRef.width - 20, 16);
+    this.ctx.fillText(text, this.canvasRef.width - 20, 16);
     this.ctx.restore();
   }
 
   checkCollision() {
-    this.level.enemies.forEach((enemy) => {
-      if (enemy.isDead() || !enemy.isAttackFrameActive() || enemy.attackHitRegistered) return;
-      const characterHitbox = this.character.getHitbox();
-      const enemyHitbox = enemy.getAttackHitbox();
-      if (!this.hitboxesOverlap(characterHitbox, enemyHitbox)) return;
-      if (this.character.hitByEnemy(enemy)) {
-        this.statusBar.setHearts(this.character.hp);
-        enemy.attackHitRegistered = true;
-        this.triggerHitFeedback();
-      }
-    });
+    this.level.enemies.forEach((enemy) => this.checkEnemyAttack(enemy));
+  }
+
+  checkEnemyAttack(enemy) {
+    if (enemy.isDead() || !enemy.isAttackFrameActive() || enemy.isAttackHitRegistered) return;
+    if (!this.hitboxesOverlap(this.character.getHitbox(), enemy.getAttackHitbox())) return;
+    if (!this.character.hitByEnemy(enemy)) return;
+    this.statusBar.setHearts(this.character.hp);
+    enemy.isAttackHitRegistered = true;
+    this.triggerHitFeedback();
   }
 
   triggerHitFeedback() {
@@ -173,7 +210,9 @@ class World {
   }
 
   removeDeadEnemies() {
-    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.deathAnimationFinished : enemy.isDead()));
+    this.level.enemies = this.level.enemies.filter(
+      (enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()),
+    );
   }
 
   addObjectsToMap(objects) {
@@ -183,17 +222,22 @@ class World {
   }
 
   addToMap(movableObject) {
-    if (movableObject.oppositeDirection) {
-      this.ctx.save();
-      this.ctx.translate(movableObject.x + movableObject.width / 2, 0);
-      this.ctx.scale(-1, 1);
-      this.ctx.translate(-(movableObject.x + movableObject.width / 2), 0);
-      movableObject.draw(this.ctx);
-      this.ctx.restore();
+    if (movableObject.isOppositeDirection) {
+      this.drawFlipped(movableObject);
     } else {
       movableObject.draw(this.ctx);
     }
 
     movableObject.drawFrame(this.ctx);
+  }
+
+  drawFlipped(movableObject) {
+    const centerX = movableObject.x + movableObject.width / 2;
+    this.ctx.save();
+    this.ctx.translate(centerX, 0);
+    this.ctx.scale(-1, 1);
+    this.ctx.translate(-centerX, 0);
+    movableObject.draw(this.ctx);
+    this.ctx.restore();
   }
 }

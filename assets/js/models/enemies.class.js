@@ -1,40 +1,44 @@
-class Enemy extends MoveableObject {
+import { gameLoop } from "./game-loop.class.js";
+import { MoveableObject } from "./movable-object.class.js";
+
+export class Enemy extends MoveableObject {
   IMAGES_IDLE = [];
   IMAGES_MOVING = [];
   IMAGES_HURT = [];
   IMAGES_DEAD = [];
   IMAGES_ATTACK = [];
   hp = 2;
-
-  constructor() {
-    super();
-    this.movementDirection = -1;
-    this.oppositeDirection = true;
-    this.canMove = true;
-    this.isMoving = this.canMove;
-    this.currentAnimation = "";
-    this.deathAnimationFinished = false;
-    this.attackCooldown = 3000;
-    this.nextAttackAt = Number.NEGATIVE_INFINITY;
-    this.attackOffset = this.offset;
-    this.attackReach = 0;
-    this.isAggro = false;
-    this.isReturning = false;
-    this.aggroRange = 300;
-    this.target = null;
-  }
+  movementDirection = -1;
+  isOppositeDirection = true;
+  isMovable = true;
+  isMoving = this.isMovable;
+  currentAnimation = "";
+  isDeathAnimationFinished = false;
+  attackCooldown = 3000;
+  nextAttackAt = Number.NEGATIVE_INFINITY;
+  attackOffset = this.offset;
+  attackReach = 0;
+  isAggro = false;
+  isReturning = false;
+  aggroRange = 300;
+  target = null;
+  drawHitbox = true;
 
   updateAggro() {
     if (!this.target || this.isDead()) return;
-    const dx = this.target.x + this.target.width / 2 - (this.x + this.width / 2);
-    const dy = this.target.y + this.target.height / 2 - (this.y + this.height / 2);
-    const distance = Math.hypot(dx, dy);
+    const distance = this.getDistanceToTarget();
     if (!this.isAggro && distance <= this.aggroRange) {
       this.isAggro = true;
       this.isReturning = false;
     } else if (this.isAggro && distance > this.aggroRange) {
       this.resetToSpawn();
     }
+  }
+
+  getDistanceToTarget() {
+    const dx = this.target.x + this.target.width / 2 - (this.x + this.width / 2);
+    const dy = this.target.y + this.target.height / 2 - (this.y + this.height / 2);
+    return Math.hypot(dx, dy);
   }
 
   chase() {
@@ -45,8 +49,11 @@ class Enemy extends MoveableObject {
       this.isMoving = false;
       return;
     }
+    this.moveTowards(targetHitbox, attackHitbox);
+  }
 
-    const direction = this.oppositeDirection ? -1 : 1;
+  moveTowards(targetHitbox, attackHitbox) {
+    const direction = this.isOppositeDirection ? -1 : 1;
     const distance = direction < 0 ? attackHitbox.x - (targetHitbox.x + targetHitbox.width) : targetHitbox.x - (attackHitbox.x + attackHitbox.width);
     const movement = Math.min(this.speed, Math.max(0, distance) + 1);
     this.isMoving = movement > 0;
@@ -64,7 +71,7 @@ class Enemy extends MoveableObject {
   faceTarget() {
     const enemyCenter = this.x + this.width / 2;
     const targetCenter = this.target.x + this.target.width / 2;
-    this.oppositeDirection = targetCenter < enemyCenter;
+    this.isOppositeDirection = targetCenter < enemyCenter;
   }
 
   hitboxesOverlap(a, b) {
@@ -82,44 +89,44 @@ class Enemy extends MoveableObject {
     const dx = spawnX - this.x;
     const dy = spawnY - this.y;
     const distance = Math.hypot(dx, dy);
-    if (distance <= this.speed) {
-      this.setPosition(...this.spawnArgs);
-      this.isReturning = false;
-      this.isMoving = this.canMove;
-      return;
-    }
+    if (distance <= this.speed) this.arriveAtSpawn();
+    else this.stepToSpawn(dx, dy, distance);
+  }
+
+  arriveAtSpawn() {
+    this.setPosition(...this.spawnArgs);
+    this.isReturning = false;
+    this.isMoving = this.isMovable;
+  }
+
+  stepToSpawn(dx, dy, distance) {
     this.isMoving = true;
-    this.oppositeDirection = dx < 0;
+    this.isOppositeDirection = dx < 0;
     this.x += (dx / distance) * this.speed;
     this.y += (dy / distance) * this.speed;
   }
 
   getAttackHitbox() {
-    const left = this.oppositeDirection ? this.attackOffset.right : this.attackOffset.left;
-    const right = this.oppositeDirection ? this.attackOffset.left : this.attackOffset.right;
-    const hitbox = {
-      x: this.x + left,
-      y: this.y + this.attackOffset.top,
-      width: this.width - left - right,
-      height: this.height - this.attackOffset.top - this.attackOffset.bottom,
-    };
-    if (this.oppositeDirection) {
+    const hitbox = this.getHitboxFor(this.attackOffset);
+    if (this.isOppositeDirection) {
       return { ...hitbox, x: hitbox.x - this.attackReach, width: hitbox.width + this.attackReach };
     }
     return { ...hitbox, width: hitbox.width + this.attackReach };
   }
 
   startAttackCycle() {
-    gameLoop.runEvery(1000 / 60, () => {
-      if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || !this.IMAGES_ATTACK.length) return;
-      this.faceTarget();
-      if (!this.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
-      if (gameLoop.now() < this.nextAttackAt) return;
-      this.isAttacking = true;
-      this.attackHitRegistered = false;
-      this.currentImage = 0;
-      this.nextAttackAt = gameLoop.now() + this.attackCooldown;
-    });
+    gameLoop.runEvery(1000 / 60, () => this.tryStartAttack());
+  }
+
+  tryStartAttack() {
+    if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || !this.IMAGES_ATTACK.length) return;
+    this.faceTarget();
+    if (!this.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
+    if (gameLoop.now() < this.nextAttackAt) return;
+    this.isAttacking = true;
+    this.isAttackHitRegistered = false;
+    this.currentImage = 0;
+    this.nextAttackAt = gameLoop.now() + this.attackCooldown;
   }
 
   setPosition(x, y, width, height, speed, minX, maxX) {
@@ -139,71 +146,82 @@ class Enemy extends MoveableObject {
     this.animation();
     this.startAttackCycle();
   }
+
   animation() {
-    gameLoop.runEvery(1000 / 60, () => {
-      this.updateAggro();
-      if (this.knockbackFrames > 0) {
-        this.x += this.knockbackDirection * 4.5;
-        this.knockbackFrames--;
-        this.isMoving = false;
-        return;
-      }
-      if (this.isAggro && !this.isDead()) {
-        if (!this.isAttacking && !this.gettingHit()) this.chase();
-        return;
-      }
-      if (this.isReturning && !this.isDead()) {
-        this.returnToSpawn();
-        return;
-      }
-      if (this.canMove && this.isMoving && !this.isDead() && !this.isAttacking) {
-        this.x += this.speed * this.movementDirection;
-        this.oppositeDirection = this.movementDirection < 0;
+    gameLoop.runEvery(1000 / 60, () => this.updateMovement());
+    gameLoop.runEvery(120, () => this.updateAnimation());
+  }
 
-        if (this.x <= this.minX || this.x >= this.maxX) {
-          this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
-          this.isMoving = false;
-          gameLoop.runOnceAfter(500, () => {
-            if (this.isDead() || this.isAggro || this.isReturning) return;
-            this.movementDirection *= -1;
-            this.isMoving = true;
-          });
-        }
-      }
-    });
+  updateMovement() {
+    this.updateAggro();
+    if (this.knockbackFrames > 0) this.applyKnockback();
+    else if (this.isAggro && !this.isDead()) this.updateChase();
+    else if (this.isReturning && !this.isDead()) this.returnToSpawn();
+    else this.patrol();
+  }
 
-    gameLoop.runEvery(120, () => {
-      if (this.isDead()) {
-        this.playDeathAnimation();
-        return;
-      }
+  applyKnockback() {
+    this.x += this.knockbackDirection * 4.5;
+    this.knockbackFrames--;
+    this.isMoving = false;
+  }
 
-      if (this.isAttacking && this.currentAnimation === "attack" && this.currentImage >= this.IMAGES_ATTACK.length) {
-        this.isAttacking = false;
-      }
+  updateChase() {
+    if (!this.isAttacking && !this.gettingHit()) this.chase();
+  }
 
-      let state = "idle";
-      let images = this.IMAGES_IDLE;
+  patrol() {
+    if (!this.isMovable || !this.isMoving || this.isDead() || this.isAttacking) return;
+    this.x += this.speed * this.movementDirection;
+    this.isOppositeDirection = this.movementDirection < 0;
+    if (this.x <= this.minX || this.x >= this.maxX) this.turnAtPatrolEnd();
+  }
 
-      if (this.gettingHit() && this.IMAGES_HURT.length) {
-        this.isAttacking = false;
-        state = "hurt";
-        images = this.IMAGES_HURT;
-      } else if (this.isAttacking) {
-        state = "attack";
-        images = this.IMAGES_ATTACK;
-      } else if (this.isMoving) {
-        state = "moving";
-        images = this.IMAGES_MOVING;
-      }
+  turnAtPatrolEnd() {
+    this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
+    this.isMoving = false;
+    gameLoop.runOnceAfter(500, () => this.reversePatrolDirection());
+  }
 
-      if (this.currentAnimation !== state) {
-        this.currentAnimation = state;
-        this.currentImage = 0;
-      }
-      if (state === "idle") this.playIdle();
-      else this.playAnimation(images);
-    });
+  reversePatrolDirection() {
+    if (this.isDead() || this.isAggro || this.isReturning) return;
+    this.movementDirection *= -1;
+    this.isMoving = true;
+  }
+
+  updateAnimation() {
+    if (this.isDead()) {
+      this.playDeathAnimation();
+      return;
+    }
+    this.updateAttackFlag();
+    const { state, images } = this.getAnimationState();
+    this.switchAnimation(state);
+    this.playStateAnimation(state, images);
+  }
+
+  updateAttackFlag() {
+    const isAttackFinished = this.currentAnimation === "attack" && this.currentImage >= this.IMAGES_ATTACK.length;
+    const isHurt = this.gettingHit() && this.IMAGES_HURT.length > 0;
+    if (isAttackFinished || isHurt) this.isAttacking = false;
+  }
+
+  getAnimationState() {
+    if (this.gettingHit() && this.IMAGES_HURT.length) return { state: "hurt", images: this.IMAGES_HURT };
+    if (this.isAttacking) return { state: "attack", images: this.IMAGES_ATTACK };
+    if (this.isMoving) return { state: "moving", images: this.IMAGES_MOVING };
+    return { state: "idle", images: this.IMAGES_IDLE };
+  }
+
+  switchAnimation(state) {
+    if (this.currentAnimation === state) return;
+    this.currentAnimation = state;
+    this.currentImage = 0;
+  }
+
+  playStateAnimation(state, images) {
+    if (state === "idle") this.playIdle();
+    else this.playAnimation(images);
   }
 
   playIdle() {
@@ -211,29 +229,30 @@ class Enemy extends MoveableObject {
   }
 
   playDeathAnimation() {
-    if (this.currentAnimation !== "dead") {
-      this.currentAnimation = "dead";
-      this.currentImage = 0;
-      this.isMoving = false;
+    if (this.currentAnimation !== "dead") this.startDeathAnimation();
+    if (this.currentImage >= this.IMAGES_DEAD.length) {
+      this.isDeathAnimationFinished = true;
+      return;
     }
+    this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
+    this.currentImage++;
+  }
 
-    if (this.currentImage < this.IMAGES_DEAD.length) {
-      this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
-      this.currentImage++;
-    } else {
-      this.deathAnimationFinished = true;
-    }
+  startDeathAnimation() {
+    this.currentAnimation = "dead";
+    this.currentImage = 0;
+    this.isMoving = false;
   }
 }
 
-class Rat extends Enemy {
+export class Rat extends Enemy {
   constructor() {
     super();
-    const base = "assets/images/3_enemies/Rat/";
+    const base = "assets/images/3_enemies/rat/";
     this.IMAGES_IDLE = this.loadSpriteSheet(base + "idle.png", 10, 70);
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "run.png", 8, 70);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 70);
-    this.IMAGES_DEAD = this.loadSpriteSheet(base + "rat-death.png", 6, 70);
+    this.IMAGES_DEAD = this.loadSpriteSheet(base + "rat_death.png", 6, 70);
     this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack_bite.png", 12, 70);
     this.setPosition(650, 382, 90, 90, 1.5, 550, 1000);
     this.offset = { top: 32, right: 10, bottom: 32, left: 5 };
@@ -243,10 +262,24 @@ class Rat extends Enemy {
   }
 }
 
-class Bat extends Enemy {
+export class Bat extends Enemy {
+  groundY = 382;
+  fallSpeed = 4;
+  isTransitionDone = false;
+
   constructor() {
     super();
-    const base = "assets/images/3_enemies/Bat/";
+    this.loadSprites();
+    this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
+    this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
+    this.attackOffset = { top: 10, right: 0, bottom: 10, left: 8 };
+    this.attackHitStartFrame = 8;
+    this.start();
+    gameLoop.runEvery(1000 / 60, () => this.fallAfterDeath());
+  }
+
+  loadSprites() {
+    const base = "assets/images/3_enemies/bat/";
     this.IMAGES_IDLE = this.loadSpriteSheet(base + "fly.png", 11, 87);
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "fly.png", 11, 87);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 87);
@@ -254,45 +287,45 @@ class Bat extends Enemy {
     this.IMAGES_FLY_TO_FALL = this.loadSpriteSheet(base + "fly_to_fall.png", 3, 87);
     this.IMAGES_FALL = this.loadSpriteSheet(base + "fall.png", 5, 87);
     this.IMAGES_ATTACK = this.loadSpriteSheet(base + "attack.png", 11, 87);
-    this.setPosition(1050, 290, 100, 100, 1.5, 900, 1500);
-    this.offset = { top: 18, right: 7, bottom: 18, left: 16 };
-    this.attackOffset = { top: 10, right: 0, bottom: 10, left: 8 };
-    this.attackHitStartFrame = 8;
-    this.groundY = 382;
-    this.fallSpeed = 4;
-    this.transitionDone = false;
-    this.start();
-    gameLoop.runEvery(1000 / 60, () => {
-      if (this.isDead() && this.transitionDone && this.y < this.groundY) {
-        this.y = Math.min(this.groundY, this.y + this.fallSpeed);
-      }
-    });
+  }
+
+  fallAfterDeath() {
+    if (this.isDead() && this.isTransitionDone && this.y < this.groundY) {
+      this.y = Math.min(this.groundY, this.y + this.fallSpeed);
+    }
   }
 
   playDeathAnimation() {
-    if (this.y < this.groundY) {
-      if (this.currentAnimation !== "falling") {
-        this.currentAnimation = "falling";
-        this.currentImage = 0;
-        this.isMoving = false;
-      }
-      if (this.currentImage < this.IMAGES_FLY_TO_FALL.length) {
-        this.img = this.imageCache[this.IMAGES_FLY_TO_FALL[this.currentImage]];
-        this.currentImage++;
-        return;
-      }
-      this.transitionDone = true;
-      this.playAnimation(this.IMAGES_FALL);
+    if (this.y >= this.groundY) {
+      super.playDeathAnimation();
       return;
     }
-    super.playDeathAnimation();
+    if (this.currentAnimation !== "falling") this.startFalling();
+    if (this.currentImage < this.IMAGES_FLY_TO_FALL.length) this.playFlyToFall();
+    else this.playFall();
+  }
+
+  startFalling() {
+    this.currentAnimation = "falling";
+    this.currentImage = 0;
+    this.isMoving = false;
+  }
+
+  playFlyToFall() {
+    this.img = this.imageCache[this.IMAGES_FLY_TO_FALL[this.currentImage]];
+    this.currentImage++;
+  }
+
+  playFall() {
+    this.isTransitionDone = true;
+    this.playAnimation(this.IMAGES_FALL);
   }
 }
 
-class Slime extends Enemy {
+export class Slime extends Enemy {
   constructor() {
     super();
-    const base = "assets/images/3_enemies/Slime/";
+    const base = "assets/images/3_enemies/slime/";
     this.IMAGES_IDLE = this.loadSpriteSheet(base + "idle.png", 14, 156);
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 156);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 156);
@@ -307,10 +340,10 @@ class Slime extends Enemy {
   }
 }
 
-class Mimic extends Enemy {
+export class Mimic extends Enemy {
   constructor() {
     super();
-    const base = "assets/images/3_enemies/Mimic/";
+    const base = "assets/images/3_enemies/mimic/";
     this.IMAGES_IDLE = this.loadSpriteSheet(base + "idle_transformed.png", 9, 146);
     this.IMAGES_MOVING = this.loadSpriteSheet(base + "walk.png", 6, 146);
     this.IMAGES_HURT = this.loadSpriteSheet(base + "hurt.png", 3, 146);

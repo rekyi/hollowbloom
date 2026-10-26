@@ -1,35 +1,9 @@
-const EXTRA_ATTACK_COIN_THRESHOLD = 5;
+import { CHARACTER_SETTING_KEYS, EXTRA_ATTACK_COIN_THRESHOLD, MALE_CHARACTER_CONFIG } from "../data.js";
+import { gameLoop } from "./game-loop.class.js";
+import { FinalBoss } from "./final-boss.class.js";
+import { MoveableObject } from "./movable-object.class.js";
 
-const MALE_CHARACTER_CONFIG = {
-  width: 200,
-  height: 200,
-  y: 240,
-  hp: 3,
-  walkSpeed: 7,
-  runSpeedFactor: 1.5,
-  attackReach: 60,
-  attackDamageFrame: 5,
-  attackTicksPerFrame: 2,
-  extraAttackDamageFrame: 5,
-  extraAttackReach: 150,
-  legsArea: { x: 30, y: 98, w: 52, h: 30 },
-  offset: { top: 80, right: 80, bottom: 0, left: 52 },
-  spritePath: "assets/images/character/male/",
-  sprites: {
-    walking: { file: "Walk.png", count: 7 },
-    running: { file: "Run.png", count: 8 },
-    idle: { file: "Idle.png", count: 6 },
-    idleLong: { file: "Idle_long.png", count: 5 },
-    attack: { file: "Attack_1.png", count: 10 },
-    extraAttack: { file: "Attack_3.png", count: 8 },
-    jumping: { file: "Jump.png", count: 11 },
-    hurt: { file: "Hurt.png", count: 4 },
-    dead: { file: "Dead.png", count: 4 },
-    bubble: { file: "idle_long_bubble.png", count: 2, frameSize: 15, frameHeight: 16 },
-  },
-};
-
-class MaleCharacter extends MoveableObject {
+export class MaleCharacter extends MoveableObject {
   width;
   height;
   y;
@@ -54,7 +28,6 @@ class MaleCharacter extends MoveableObject {
   activeAttackImages;
   activeAttackDamageFrame;
   activeAttackReach;
-  attacking = false;
   attackTick = 0;
   attackTicksPerFrame;
   legsImg = null;
@@ -75,157 +48,168 @@ class MaleCharacter extends MoveableObject {
   knockbackDirection = 0;
   knockbackFrames = 0;
   invulnerableUntil = 0;
+  drawHitbox = true;
 
   world;
-  deathStarted = false;
+  isDeathStarted = false;
   IMAGES_BUBBLE;
-  showBubble = false;
+  isBubbleVisible = false;
   coins = 0;
 
-  constructor(config) {
+  constructor(config = {}) {
     super();
-    config = config || {};
-    const settings = {
+    const settings = this.mergeSettings(config);
+    this.applySettings(settings);
+    this.loadMovementSprites(settings);
+    this.loadCombatSprites(settings);
+    this.img = this.imageCache[this.IMAGES_JUMPING[0]];
+    this.animation();
+    this.gravity();
+  }
+
+  mergeSettings(config) {
+    return {
       ...MALE_CHARACTER_CONFIG,
       ...config,
       offset: { ...MALE_CHARACTER_CONFIG.offset, ...config.offset },
       legsArea: { ...MALE_CHARACTER_CONFIG.legsArea, ...config.legsArea },
       sprites: { ...MALE_CHARACTER_CONFIG.sprites, ...config.sprites },
     };
-    this.width = settings.width;
-    this.height = settings.height;
-    this.y = settings.y;
-    this.offset = settings.offset;
-    this.hp = settings.hp;
-    this.speed = settings.walkSpeed;
-    this.walkSpeed = settings.walkSpeed;
-    this.runSpeedFactor = settings.runSpeedFactor;
-    this.attackReach = settings.attackReach;
-    this.attackDamageFrame = settings.attackDamageFrame;
-    this.attackTicksPerFrame = settings.attackTicksPerFrame;
-    this.legsArea = settings.legsArea;
-    this.extraAttackDamageFrame = settings.extraAttackDamageFrame;
-    this.extraAttackReach = settings.extraAttackReach;
+  }
 
-    const loadSprites = (name) => {
-      const sprite = settings.sprites[name];
-      return sprite ? this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, sprite.frameSize, sprite.frameHeight) : [];
-    };
-    this.IMAGES_WALKING = loadSprites("walking");
-    this.IMAGES_RUNNING = loadSprites("running");
-    this.IMAGES_IDLE = loadSprites("idle");
-    this.IMAGES_IDLE_LONG = settings.sprites.idleLong ? loadSprites("idleLong") : this.IMAGES_IDLE;
-    this.IMAGES_ATTACK = loadSprites("attack");
-    this.IMAGES_EXTRA_ATTACK = loadSprites("extraAttack");
-    this.activeAttackImages = this.IMAGES_ATTACK;
-    this.activeAttackDamageFrame = this.attackDamageFrame;
-    this.activeAttackReach = this.attackReach;
-    this.IMAGES_JUMPING = loadSprites("jumping");
-    this.IMAGES_STANDING = settings.sprites.standing ? loadSprites("standing") : this.IMAGES_JUMPING;
-    this.IMAGES_HURT = loadSprites("hurt");
-    this.IMAGES_DEAD = loadSprites("dead");
-    this.IMAGES_BUBBLE = loadSprites("bubble");
-    this.img = this.imageCache[this.IMAGES_JUMPING[0]];
-    this.animation();
-    this.gravity();
+  applySettings(settings) {
+    CHARACTER_SETTING_KEYS.forEach((key) => {
+      this[key] = settings[key];
+    });
+    this.speed = settings.walkSpeed;
+  }
+
+  loadCharacterSprites(settings, name) {
+    const sprite = settings.sprites[name];
+    if (!sprite) return [];
+    return this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, sprite.frameSize, sprite.frameHeight);
+  }
+
+  loadMovementSprites(settings) {
+    this.IMAGES_WALKING = this.loadCharacterSprites(settings, "walking");
+    this.IMAGES_RUNNING = this.loadCharacterSprites(settings, "running");
+    this.IMAGES_IDLE = this.loadCharacterSprites(settings, "idle");
+    this.IMAGES_IDLE_LONG = settings.sprites.idleLong ? this.loadCharacterSprites(settings, "idleLong") : this.IMAGES_IDLE;
+    this.IMAGES_JUMPING = this.loadCharacterSprites(settings, "jumping");
+    this.IMAGES_STANDING = settings.sprites.standing ? this.loadCharacterSprites(settings, "standing") : this.IMAGES_JUMPING;
+  }
+
+  loadCombatSprites(settings) {
+    this.IMAGES_ATTACK = this.loadCharacterSprites(settings, "attack");
+    this.IMAGES_EXTRA_ATTACK = this.loadCharacterSprites(settings, "extraAttack");
+    this.setActiveAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+    this.IMAGES_HURT = this.loadCharacterSprites(settings, "hurt");
+    this.IMAGES_DEAD = this.loadCharacterSprites(settings, "dead");
+    this.IMAGES_BUBBLE = this.loadCharacterSprites(settings, "bubble");
   }
 
   animation() {
-    gameLoop.runEvery(1000 / 60, () => {
-      this.updateCharacter();
-    });
+    gameLoop.runEvery(1000 / 60, () => this.updateCharacter());
   }
 
   updateCharacter() {
-    if (this.isDead()) {
-      this.updateState();
-    } else {
+    if (!this.isDead()) {
       this.updateInput();
       this.updatePhysics();
-      this.updateState();
     }
+    this.updateState();
+    this.tickAnimation();
+  }
+
+  tickAnimation() {
     this.animationElapsedMs += gameLoop.fixedStepMs;
-    if (this.animationElapsedMs >= 25) {
-      this.animationElapsedMs -= 25;
-      this.updateAnimation();
-    }
+    if (this.animationElapsedMs < 25) return;
+    this.animationElapsedMs -= 25;
+    this.updateAnimation();
   }
 
   updateInput() {
     const key = this.world.keyboard;
     this.speed = key.SHIFT ? this.walkSpeed * this.runSpeedFactor : this.walkSpeed;
-    if (key.LEFT || key.RIGHT || key.SPACE || this.attacking || this.isAboveGround() || this.gettingHit()) {
+    if (key.LEFT || key.RIGHT || key.SPACE || this.isAttacking || this.isAboveGround() || this.gettingHit()) {
       this.idleSince = gameLoop.now();
       this.idleLongFrame = 0;
     }
   }
 
   updatePhysics() {
+    this.updateMovement();
+    this.applyKnockback();
+    this.x = Math.max(0, Math.min(this.world.level.levelEndX, this.x));
+    this.world.cameraX = -this.x;
+  }
+
+  updateMovement() {
     const key = this.world.keyboard;
-    if (key.RIGHT && !key.LEFT && this.x < this.world.level.level_end_x) {
-      this.moveRight();
-    }
-    if (key.LEFT && !key.RIGHT && this.x > 0) {
-      this.moveLeft();
-    }
+    if (key.RIGHT && !key.LEFT && this.x < this.world.level.levelEndX) this.moveRight();
+    if (key.LEFT && !key.RIGHT && this.x > 0) this.moveLeft();
+  }
 
-    if (this.knockbackFrames > 0) {
-      this.x += this.knockbackDirection * 2.5;
-      this.knockbackFrames--;
-    }
-
-    this.x = Math.max(0, Math.min(this.world.level.level_end_x, this.x));
-    this.world.camera_x = -this.x;
+  applyKnockback() {
+    if (this.knockbackFrames <= 0) return;
+    this.x += this.knockbackDirection * 2.5;
+    this.knockbackFrames--;
   }
 
   updateAnimation() {
-    this.showBubble = false;
+    this.isBubbleVisible = false;
     this.legsImg = null;
-    if (this.state === "dead") {
-      if (!this.deathStarted) {
-        this.deathStarted = true;
-        this.currentImage = 0;
-      }
-      if (this.currentImage < this.IMAGES_DEAD.length * 4) {
-        this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
-        this.currentImage++;
-      }
-    } else if (this.state === "attack") {
-      this.playAttack();
-      this.playLegsWhileAttacking();
-    } else if (this.state === "hurt") {
-      this.playAnimation(this.IMAGES_HURT);
-    } else if (this.state === "jump") {
-      this.playJump();
-    } else if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
-      this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
-    } else {
-      const idleTime = gameLoop.now() - this.idleSince;
-      if (idleTime >= 10000) {
-        this.playIdleLong();
-      } else if (idleTime >= 3000) {
-        this.playIdle(this.IMAGES_IDLE);
-      } else {
-        this.img = this.imageCache[this.IMAGES_STANDING[0]];
-        this.currentImage = 0;
-      }
+    if (this.state === "dead") this.playDeathAnimation();
+    else if (this.state === "attack") this.playAttackWithLegs();
+    else if (this.state === "hurt") this.playAnimation(this.IMAGES_HURT);
+    else if (this.state === "jump") this.playJump();
+    else if (this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) this.playMovement();
+    else this.playIdleState();
+  }
+
+  playDeathAnimation() {
+    if (!this.isDeathStarted) {
+      this.isDeathStarted = true;
+      this.currentImage = 0;
+    }
+    if (this.currentImage < this.IMAGES_DEAD.length * 4) {
+      this.img = this.imageCache[this.IMAGES_DEAD[Math.floor(this.currentImage / 4)]];
+      this.currentImage++;
     }
   }
 
+  playAttackWithLegs() {
+    this.playAttack();
+    this.playLegsWhileAttacking();
+  }
+
+  playMovement() {
+    this.playAnimation(this.world.keyboard.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
+  }
+
+  playIdleState() {
+    const idleTime = gameLoop.now() - this.idleSince;
+    if (idleTime >= 10000) this.playIdleLong();
+    else if (idleTime >= 3000) this.playIdle(this.IMAGES_IDLE);
+    else this.playStanding();
+  }
+
+  playStanding() {
+    this.img = this.imageCache[this.IMAGES_STANDING[0]];
+    this.currentImage = 0;
+  }
+
   updateState() {
-    if (this.isDead()) {
-      this.state = "dead";
-    } else if (this.gettingHit()) {
-      this.state = "hurt";
-    } else if (this.attacking) {
-      this.state = "attack";
-    } else if (this.isAboveGround()) {
-      this.state = "jump";
-    } else if (this.world && this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) {
-      this.state = "run";
-    } else {
-      this.state = "idle";
-    }
+    this.state = this.getState();
+  }
+
+  getState() {
+    if (this.isDead()) return "dead";
+    if (this.gettingHit()) return "hurt";
+    if (this.isAttacking) return "attack";
+    if (this.isAboveGround()) return "jump";
+    if (this.world && this.world.keyboard.RIGHT !== this.world.keyboard.LEFT) return "run";
+    return "idle";
   }
 
   canPerformAction(action) {
@@ -245,12 +229,16 @@ class MaleCharacter extends MoveableObject {
   }
 
   startAttack(images, damageFrame, reach) {
-    this.attacking = true;
+    this.isAttacking = true;
     this.attackTick = 0;
+    this.setActiveAttack(images, damageFrame, reach);
+    this.updateState();
+  }
+
+  setActiveAttack(images, damageFrame, reach) {
     this.activeAttackImages = images;
     this.activeAttackDamageFrame = damageFrame;
     this.activeAttackReach = reach;
-    this.updateState();
   }
 
   collectCoin() {
@@ -268,12 +256,16 @@ class MaleCharacter extends MoveableObject {
     if (this.isDead() || this.isInvulnerable()) return false;
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.hit();
-    this.attacking = false;
+    this.isAttacking = false;
+    this.startKnockback(enemy);
+    this.updateState();
+    return true;
+  }
+
+  startKnockback(enemy) {
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
     this.knockbackFrames = 10;
     this.speedY = 12;
-    this.updateState();
-    return true;
   }
 
   isInvulnerable() {
@@ -282,8 +274,8 @@ class MaleCharacter extends MoveableObject {
 
   playLegsWhileAttacking() {
     const key = this.world.keyboard;
-    const moving = key.LEFT !== key.RIGHT;
-    if (!moving && !this.isAboveGround()) return;
+    const isMoving = key.LEFT !== key.RIGHT;
+    if (!isMoving && !this.isAboveGround()) return;
     const attackImg = this.img;
     if (this.isAboveGround()) this.playJump();
     else this.playAnimation(key.SHIFT ? this.IMAGES_RUNNING : this.IMAGES_WALKING);
@@ -294,10 +286,7 @@ class MaleCharacter extends MoveableObject {
   playAttack() {
     const frame = Math.floor(this.attackTick / this.attackTicksPerFrame);
     if (frame >= this.activeAttackImages.length) {
-      this.attacking = false;
-      this.activeAttackImages = this.IMAGES_ATTACK;
-      this.activeAttackDamageFrame = this.attackDamageFrame;
-      this.activeAttackReach = this.attackReach;
+      this.finishAttack();
       return;
     }
     this.img = this.imageCache[this.activeAttackImages[frame]];
@@ -305,35 +294,38 @@ class MaleCharacter extends MoveableObject {
     this.attackTick++;
   }
 
+  finishAttack() {
+    this.isAttacking = false;
+    this.setActiveAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+  }
+
   damageEnemiesInReach() {
     const box = this.getHitbox();
-    const reach = {
-      x: this.oppositeDirection ? box.x - this.activeAttackReach : box.x + box.width,
+    this.world.level.enemies.forEach((enemy) => {
+      if (enemy.isDead()) return;
+      const reach = enemy instanceof FinalBoss ? this.getBossReach(box) : this.getReach(box);
+      if (!this.world.hitboxesOverlap(reach, enemy.getHitbox())) return;
+      if (enemy.hit()) this.world.triggerHitFeedback();
+    });
+  }
+
+  getReach(box) {
+    return {
+      x: this.isOppositeDirection ? box.x - this.activeAttackReach : box.x + box.width,
       y: box.y,
       width: this.activeAttackReach,
       height: box.height,
     };
-    this.world.level.enemies.forEach((enemy) => {
-      if (enemy.isDead()) return;
-      const e = enemy.getHitbox();
-      if (enemy instanceof FinalBoss) {
-        const bossReachWidth = Math.max(120, this.activeAttackReach);
-        const bossReach = {
-          ...reach,
-          x: this.oppositeDirection ? box.x - bossReachWidth : box.x + box.width,
-          width: bossReachWidth,
-          y: box.y - 140,
-          height: box.height + 140,
-        };
-        if (bossReach.x < e.x + e.width && bossReach.x + bossReach.width > e.x && bossReach.y < e.y + e.height && bossReach.y + bossReach.height > e.y) {
-          if (enemy.hit()) {
-            this.world.triggerHitFeedback();
-          }
-        }
-      } else if (reach.x < e.x + e.width && reach.x + reach.width > e.x && reach.y < e.y + e.height && reach.y + reach.height > e.y) {
-        if (enemy.hit()) this.world.triggerHitFeedback();
-      }
-    });
+  }
+
+  getBossReach(box) {
+    const width = Math.max(120, this.activeAttackReach);
+    return {
+      x: this.isOppositeDirection ? box.x - width : box.x + box.width,
+      y: box.y - 140,
+      width,
+      height: box.height + 140,
+    };
   }
 
   playJump() {
@@ -343,50 +335,60 @@ class MaleCharacter extends MoveableObject {
   }
 
   draw(ctx) {
-    const blink = this.isInvulnerable() && Math.floor(gameLoop.now() / 100) % 2 === 0;
-    if (!blink) {
-      if (this.legsImg) {
-        const s = this.width / 128;
-        const { x, y, w, h } = this.legsArea;
-        const lx = this.x + x * s,
-          ly = this.y + y * s,
-          lw = w * s,
-          lh = h * s;
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(this.x - 500, this.y - 500, this.width + 1000, this.height + 1000);
-        ctx.rect(lx, ly, lw, lh);
-        ctx.clip("evenodd");
-        super.draw(ctx);
-        ctx.restore();
-        ctx.drawImage(this.legsImg, x, y, w, h, lx, ly, lw, lh);
-      } else {
-        super.draw(ctx);
-      }
-    }
-    if (this.showBubble && this.IMAGES_BUBBLE.length > 0) {
-      const frame = Math.floor(gameLoop.now() / 500) % this.IMAGES_BUBBLE.length;
-      const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
-      const cx = this.x + this.width / 2;
-      ctx.save();
-      ctx.translate(cx, 0);
-      if (this.oppositeDirection) ctx.scale(-1, 1);
-      ctx.drawImage(bubble, 20, this.y + 35, 40, 45);
-      ctx.restore();
-    }
+    const isBlinking = this.isInvulnerable() && Math.floor(gameLoop.now() / 100) % 2 === 0;
+    if (!isBlinking) this.drawBody(ctx);
+    if (this.isBubbleVisible && this.IMAGES_BUBBLE.length > 0) this.drawBubble(ctx);
   }
 
-  playIdleLong() {
-    this.showBubble = this.IMAGES_BUBBLE.length > 0;
-    this.img = this.imageCache[this.IMAGES_IDLE_LONG[this.idleLongFrame]];
-    if (gameLoop.now() - this.lastIdleFrame < 150) return;
-    this.lastIdleFrame = gameLoop.now();
-    if (this.idleLongFrame < this.IMAGES_IDLE_LONG.length - 1) this.idleLongFrame++;
+  drawBody(ctx) {
+    if (this.legsImg) this.drawWithLegs(ctx);
+    else super.draw(ctx);
+  }
+
+  drawWithLegs(ctx) {
+    const { x, y, w, h } = this.legsArea;
+    const legs = this.getLegsRect();
+    ctx.save();
+    this.clipOutRect(ctx, legs);
+    super.draw(ctx);
+    ctx.restore();
+    ctx.drawImage(this.legsImg, x, y, w, h, legs.x, legs.y, legs.width, legs.height);
+  }
+
+  getLegsRect() {
+    const scale = this.width / 128;
+    const { x, y, w, h } = this.legsArea;
+    return { x: this.x + x * scale, y: this.y + y * scale, width: w * scale, height: h * scale };
+  }
+
+  clipOutRect(ctx, rect) {
+    ctx.beginPath();
+    ctx.rect(this.x - 500, this.y - 500, this.width + 1000, this.height + 1000);
+    ctx.rect(rect.x, rect.y, rect.width, rect.height);
+    ctx.clip("evenodd");
+  }
+
+  drawBubble(ctx) {
+    const frame = Math.floor(gameLoop.now() / 500) % this.IMAGES_BUBBLE.length;
+    const bubble = this.imageCache[this.IMAGES_BUBBLE[frame]];
+    ctx.save();
+    ctx.translate(this.x + this.width / 2, 0);
+    if (this.isOppositeDirection) ctx.scale(-1, 1);
+    ctx.drawImage(bubble, 20, this.y + 35, 40, 45);
+    ctx.restore();
   }
 
   playIdle(images) {
     if (gameLoop.now() - this.lastIdleFrame < 150) return;
     this.lastIdleFrame = gameLoop.now();
     this.playAnimation(images);
+  }
+
+  playIdleLong() {
+    this.isBubbleVisible = this.IMAGES_BUBBLE.length > 0;
+    this.img = this.imageCache[this.IMAGES_IDLE_LONG[this.idleLongFrame]];
+    if (gameLoop.now() - this.lastIdleFrame < 150) return;
+    this.lastIdleFrame = gameLoop.now();
+    if (this.idleLongFrame < this.IMAGES_IDLE_LONG.length - 1) this.idleLongFrame++;
   }
 }

@@ -3,6 +3,8 @@ let world;
 let keyboard = new Keyboard();
 let selectedCharacterClass = FemaleCharacter;
 let musicVolume = 1;
+let startScreenMusicWasPlaying = false;
+let gameplayMusicWasPlaying = false;
 const startScreenMusic = new Audio("assets/audio/start_screen.ogg");
 const pressedKeys = new Set();
 startScreenMusic.loop = true;
@@ -88,13 +90,7 @@ function showGameOver() {
   const characterContext = characterCanvas.getContext("2d");
   const character = world.character;
   characterContext.clearRect(0, 0, characterCanvas.width, characterCanvas.height);
-  characterContext.drawImage(
-    character.img,
-    (characterCanvas.width - character.width) / 2,
-    characterCanvas.height * 0.39,
-    character.width,
-    character.height,
-  );
+  characterContext.drawImage(character.img, (characterCanvas.width - character.width) / 2, characterCanvas.height * 0.39, character.width, character.height);
   document.getElementById("game-over").hidden = false;
 }
 
@@ -221,7 +217,19 @@ document.getElementById("pause-main-menu-button").addEventListener("click", retu
 
 window.addEventListener("blur", resetKeyboard);
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) resetKeyboard();
+  if (document.hidden) {
+    resetKeyboard();
+    startScreenMusicWasPlaying = !startScreenMusic.paused;
+    gameplayMusicWasPlaying = Boolean(world && !world.gameplayMusic.paused);
+    startScreenMusic.pause();
+    world?.pauseGameplayMusic();
+    return;
+  }
+
+  if (startScreenMusicWasPlaying && !world) startStartScreenMusic();
+  if (gameplayMusicWasPlaying && world && !gameLoop.isPaused) world.resumeGameplayMusic();
+  startScreenMusicWasPlaying = false;
+  gameplayMusicWasPlaying = false;
 });
 
 startStartScreenMusic();

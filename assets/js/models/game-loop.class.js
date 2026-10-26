@@ -1,4 +1,4 @@
-class GameLoop {
+export class GameLoop {
   fixedStepSeconds = 1 / 60;
   fixedStepMs = 1000 / 60;
   maxFrameDurationMs = 250;
@@ -57,6 +57,10 @@ class GameLoop {
     this.scheduledTasks = [];
     this.updateCallback = null;
     this.renderCallback = null;
+    this.resetTiming();
+  }
+
+  resetTiming() {
     this.isPaused = false;
     this.accumulatorMs = 0;
     this.gameTimeMs = 0;
@@ -67,41 +71,50 @@ class GameLoop {
     if (!this.isRunning) return;
     const frameDurationMs = Math.min(Math.max(currentTimeMs - this.lastFrameTimeMs, 0), this.maxFrameDurationMs);
     this.lastFrameTimeMs = currentTimeMs;
-    if (!this.isPaused) {
-      if (currentTimeMs < this.hitStopUntilMs) {
-        this.accumulatorMs = 0;
-      } else {
-        this.accumulatorMs += frameDurationMs;
-        while (this.isRunning && this.accumulatorMs >= this.fixedStepMs) {
-          this.gameTimeMs += this.fixedStepMs;
-          this.runScheduledTasks(this.fixedStepMs);
-          if (this.updateCallback) this.updateCallback(this.fixedStepSeconds);
-          if (!this.isRunning) return;
-          this.accumulatorMs -= this.fixedStepMs;
-          if (currentTimeMs < this.hitStopUntilMs) {
-            this.accumulatorMs = 0;
-            break;
-          }
-        }
-      }
-    } else {
-      this.accumulatorMs = 0;
-    }
+    this.advanceTime(currentTimeMs, frameDurationMs);
     if (!this.isRunning) return;
     if (this.renderCallback) this.renderCallback();
     this.animationFrameId = requestAnimationFrame((timeMs) => this.onAnimationFrame(timeMs));
   }
 
+  advanceTime(currentTimeMs, frameDurationMs) {
+    if (this.isPaused || currentTimeMs < this.hitStopUntilMs) {
+      this.accumulatorMs = 0;
+      return;
+    }
+    this.accumulatorMs += frameDurationMs;
+    this.runFixedSteps(currentTimeMs);
+  }
+
+  runFixedSteps(currentTimeMs) {
+    while (this.isRunning && this.accumulatorMs >= this.fixedStepMs) {
+      this.runFixedStep();
+      if (!this.isRunning) return;
+      this.accumulatorMs -= this.fixedStepMs;
+      if (currentTimeMs < this.hitStopUntilMs) this.accumulatorMs = 0;
+    }
+  }
+
+  runFixedStep() {
+    this.gameTimeMs += this.fixedStepMs;
+    this.runScheduledTasks(this.fixedStepMs);
+    if (this.updateCallback) this.updateCallback(this.fixedStepSeconds);
+  }
+
   runScheduledTasks(frameDurationMs) {
     for (const task of this.scheduledTasks) {
-      if (!task.isActive) continue;
-      task.elapsedMs += frameDurationMs;
-      while (task.elapsedMs >= task.intervalMs && task.isActive) {
-        task.elapsedMs -= task.intervalMs;
-        task.callback();
-      }
+      this.runTask(task, frameDurationMs);
     }
     this.scheduledTasks = this.scheduledTasks.filter((task) => task.isActive);
   }
+
+  runTask(task, frameDurationMs) {
+    if (!task.isActive) return;
+    task.elapsedMs += frameDurationMs;
+    while (task.elapsedMs >= task.intervalMs && task.isActive) {
+      task.elapsedMs -= task.intervalMs;
+      task.callback();
+    }
+  }
 }
-const gameLoop = new GameLoop();
+export const gameLoop = new GameLoop();

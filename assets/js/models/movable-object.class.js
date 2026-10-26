@@ -1,13 +1,16 @@
-class MoveableObject extends DrawableObject {
+import { gameLoop } from "./game-loop.class.js";
+import { DrawableObject } from "./drawable-object.class.js";
+
+export class MoveableObject extends DrawableObject {
   speed = 0.15;
-  oppositeDirection = false;
+  isOppositeDirection = false;
   speedY = 0;
   acceleration = 2;
   groundLevel = 440;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
   isAttacking = false;
-  attackHitRegistered = false;
+  isAttackHitRegistered = false;
   attackHitStartFrame = 2;
   attackHitEndFrame = Number.POSITIVE_INFINITY;
   hitFlashUntil = Number.NEGATIVE_INFINITY;
@@ -53,12 +56,12 @@ class MoveableObject extends DrawableObject {
 
   moveRight() {
     this.x += this.speed;
-    this.oppositeDirection = false;
+    this.isOppositeDirection = false;
   }
 
   moveLeft() {
     this.x -= this.speed;
-    this.oppositeDirection = true;
+    this.isOppositeDirection = true;
   }
 
   jump() {
@@ -68,19 +71,23 @@ class MoveableObject extends DrawableObject {
   }
 
   gravity() {
-    gameLoop.runEvery(1000 / 25, () => {
-      const groundY = this.groundLevel - this.height;
-      const nextYPosition = this.y - this.speedY;
+    gameLoop.runEvery(1000 / 25, () => this.applyGravity());
+  }
 
-      if (nextYPosition >= groundY) {
-        this.y = groundY;
-        this.speedY = 0;
-        return;
-      }
+  applyGravity() {
+    const groundY = this.groundLevel - this.height;
+    const nextYPosition = this.y - this.speedY;
+    if (nextYPosition >= groundY) {
+      this.land(groundY);
+      return;
+    }
+    this.y = nextYPosition;
+    this.speedY -= this.acceleration;
+  }
 
-      this.y = nextYPosition;
-      this.speedY -= this.acceleration;
-    });
+  land(groundY) {
+    this.y = groundY;
+    this.speedY = 0;
   }
 
   isAboveGround() {

@@ -1,6 +1,9 @@
-class ChargeItem extends DrawableObject {
+import { gameLoop } from "./game-loop.class.js";
+import { DrawableObject } from "./drawable-object.class.js";
+
+export class ChargeItem extends DrawableObject {
   static FRAME_COUNT = 5;
-  collected = false;
+  isCollected = false;
 
   constructor(x) {
     super();

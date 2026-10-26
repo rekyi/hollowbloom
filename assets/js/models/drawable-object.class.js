@@ -1,4 +1,4 @@
-class DrawableObject {
+export class DrawableObject {
   img;
   x = 120;
   y = 280;
@@ -6,6 +6,7 @@ class DrawableObject {
   height = 60;
   imageCache = {};
   currentImage = 0;
+  drawHitbox = false;
 
   loadImage(path) {
     this.img = new Image();
@@ -14,7 +15,7 @@ class DrawableObject {
 
   loadImages(arr) {
     arr.forEach((path) => {
-      let img = new Image();
+      const img = new Image();
       img.src = path;
       this.imageCache[path] = img;
     });
@@ -22,22 +23,27 @@ class DrawableObject {
 
   loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize) {
     const sheet = new Image();
-    const keys = [];
-    for (let i = 0; i < frameCount; i++) {
-      const canvas = document.createElement("canvas");
-      canvas.width = frameSize;
-      canvas.height = frameHeight;
-      const key = `${path}#${i}`;
-      this.imageCache[key] = canvas;
-      keys.push(key);
-    }
-    sheet.onload = () => {
-      keys.forEach((key, i) => {
-        this.imageCache[key].getContext("2d").drawImage(sheet, i * frameSize, 0, frameSize, frameHeight, 0, 0, frameSize, frameHeight);
-      });
-    };
+    const keys = this.createFrameCanvases(path, frameCount, frameSize, frameHeight);
+    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight);
     sheet.src = path;
     return keys;
+  }
+
+  createFrameCanvases(path, frameCount, frameSize, frameHeight) {
+    return Array.from({ length: frameCount }, (_, index) => {
+      const canvasRef = document.createElement("canvas");
+      canvasRef.width = frameSize;
+      canvasRef.height = frameHeight;
+      const key = `${path}#${index}`;
+      this.imageCache[key] = canvasRef;
+      return key;
+    });
+  }
+
+  copySheetFrames(sheet, keys, frameSize, frameHeight) {
+    keys.forEach((key, index) => {
+      this.imageCache[key].getContext("2d").drawImage(sheet, index * frameSize, 0, frameSize, frameHeight, 0, 0, frameSize, frameHeight);
+    });
   }
 
   draw(ctx) {
@@ -48,24 +54,27 @@ class DrawableObject {
   offset = { top: 0, right: 0, bottom: 0, left: 0 };
 
   getHitbox() {
-    const left = this.oppositeDirection ? this.offset.right : this.offset.left;
-    const right = this.oppositeDirection ? this.offset.left : this.offset.right;
+    return this.getHitboxFor(this.offset);
+  }
+
+  getHitboxFor(offset) {
+    const left = this.isOppositeDirection ? offset.right : offset.left;
+    const right = this.isOppositeDirection ? offset.left : offset.right;
     return {
       x: this.x + left,
-      y: this.y + this.offset.top,
+      y: this.y + offset.top,
       width: this.width - left - right,
-      height: this.height - this.offset.top - this.offset.bottom,
+      height: this.height - offset.top - offset.bottom,
     };
   }
 
   drawFrame(ctx) {
-    if (this instanceof MaleCharacter || this instanceof Enemy || this instanceof FinalBoss) {
-      const box = this.getHitbox();
-      ctx.beginPath();
-      ctx.lineWidth = "3";
-      ctx.strokeStyle = "white";
-      ctx.rect(box.x, box.y, box.width, box.height);
-      ctx.stroke();
-    }
+    if (!this.drawHitbox) return;
+    const box = this.getHitbox();
+    ctx.beginPath();
+    ctx.lineWidth = "3";
+    ctx.strokeStyle = "white";
+    ctx.rect(box.x, box.y, box.width, box.height);
+    ctx.stroke();
   }
 }

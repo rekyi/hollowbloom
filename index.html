@@ -19,12 +19,12 @@
         <button id="credits-button" type="button">Credits</button>
         <button id="imprint-button" type="button">Impressum</button>
       </nav>
-      <div class="character-choices" role="group" aria-label="Character auswählen">
-        <button class="character-choice character-choice--female selected" type="button" data-character="female" aria-pressed="true">
-          <span class="character-sprite character-sprite--female" aria-hidden="true"></span>
+      <div id="character-choices" class="character-choices" role="group" aria-label="Character auswählen">
+        <button class="character-choice character-choice-female selected" type="button" data-character="female" aria-label="Weiblicher Character" aria-pressed="true">
+          <span class="character-sprite character-sprite-female" aria-hidden="true"></span>
         </button>
-        <button class="character-choice character-choice--male" type="button" data-character="male" aria-pressed="false">
-          <span class="character-sprite character-sprite--male" aria-hidden="true"></span>
+        <button class="character-choice character-choice-male" type="button" data-character="male" aria-label="Männlicher Character" aria-pressed="false">
+          <span class="character-sprite character-sprite-male" aria-hidden="true"></span>
         </button>
       </div>
       <dialog id="credits-overlay" class="credits-panel" aria-labelledby="credits-title">
@@ -84,22 +84,6 @@
       </section>
     </div>
 
-    <script src="assets/js/models/game-loop.class.js"></script>
-    <script src="assets/js/models/drawable-object.class.js"></script>
-    <script src="assets/js/models/charge-item.class.js"></script>
-    <script src="assets/js/models/movable-object.class.js"></script>
-    <script src="assets/js/models/male-character.class.js"></script>
-    <script src="assets/js/models/female-character.class.js"></script>
-    <script src="assets/js/models/enemies.class.js"></script>
-    <script src="assets/js/models/final-boss.class.js"></script>
-    <script src="assets/js/models/clouds.class.js"></script>
-    <script src="assets/js/models/background.class.js"></script>
-    <script src="assets/js/models/keyboard.class.js"></script>
-    <script src="assets/js/models/status-bar.class.js"></script>
-    <script src="assets/js/models/level.class.js"></script>
-    <script src="assets/js/level/level1.js"></script>
-    <script src="assets/js/models/world.class.js"></script>
-    <script src="assets/js/game.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>

@@ -1,4 +1,7 @@
-class FinalBoss extends MoveableObject {
+import { gameLoop } from "./game-loop.class.js";
+import { MoveableObject } from "./movable-object.class.js";
+
+export class FinalBoss extends MoveableObject {
   IMAGES_IDLE = [];
   IMAGES_ATTACK = [];
   IMAGES_HURT = [];
@@ -26,63 +29,73 @@ class FinalBoss extends MoveableObject {
   hurtFrameDuration = 100;
   deathStartedAt = Number.NEGATIVE_INFINITY;
   deathFrameDuration = 100;
-  deathAnimationFinished = false;
+  isDeathAnimationFinished = false;
   lastIdleFrameAt = 0;
   currentImage = 0;
+  drawHitbox = true;
 
   constructor() {
     super();
-    this.IMAGES_IDLE = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-idle.png", 6, 160, 144);
-    this.IMAGES_ATTACK = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-attack.png", 11, 240, 192);
-    this.IMAGES_HURT = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-hurt.png", 8, 192, 176);
-    this.IMAGES_DEAD = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon-death.png", 8, 48);
+    this.IMAGES_IDLE = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_idle.png", 6, 160, 144);
+    this.IMAGES_ATTACK = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_attack.png", 11, 240, 192);
+    this.IMAGES_HURT = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_hurt.png", 8, 192, 176);
+    this.IMAGES_DEAD = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_death.png", 8, 48);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.x = 2800;
     this.animation();
   }
 
   animation() {
-    gameLoop.runEvery(1000 / 60, () => {
-      this.updateEnragePhase();
-
-      if (this.isDead()) {
-        this.playDeathAnimation();
-        return;
-      }
-
-      if (this.gettingHit() && !this.isDead()) {
-        const frame = Math.min(Math.floor((gameLoop.now() - this.hurtStartedAt) / this.hurtFrameDuration), this.IMAGES_HURT.length - 1);
-        this.currentImage = frame;
-        this.img = this.imageCache[this.IMAGES_HURT[frame]];
-        return;
-      }
-
-      if (this.isAttacking) {
-        const frame = Math.floor((gameLoop.now() - this.attackStartedAt) / this.getAttackFrameDuration());
-        if (frame >= this.IMAGES_ATTACK.length) {
-          this.isAttacking = false;
-          this.currentImage = 0;
-          this.playAnimation(this.IMAGES_IDLE);
-          return;
-        }
-        this.currentImage = frame;
-        this.img = this.imageCache[this.IMAGES_ATTACK[frame]];
-        return;
-      }
-
-      if (gameLoop.now() - this.lastIdleFrameAt >= 200) {
-        this.currentImage = (this.currentImage + 1) % this.IMAGES_IDLE.length;
-        this.img = this.imageCache[this.IMAGES_IDLE[this.currentImage]];
-        this.lastIdleFrameAt = gameLoop.now();
-      }
-      if (this.isDead() || !this.target || this.target.x >= this.x) return;
-
-      const distance = this.x - (this.target.x + this.target.width);
-      if (distance <= this.attackRange && gameLoop.now() - this.attackStartedAt >= this.getAttackCooldown()) {
-        this.startAttack();
-      }
-    });
+    gameLoop.runEvery(1000 / 60, () => this.updateBoss());
     gameLoop.runEvery(1000 / 60, () => this.float());
+  }
+
+  updateBoss() {
+    this.updateEnragePhase();
+    if (this.isDead()) this.playDeathAnimation();
+    else if (this.gettingHit()) this.playHurtAnimation();
+    else if (this.isAttacking) this.playAttackAnimation();
+    else this.updateIdle();
+  }
+
+  playHurtAnimation() {
+    const frame = Math.min(Math.floor((gameLoop.now() - this.hurtStartedAt) / this.hurtFrameDuration), this.IMAGES_HURT.length - 1);
+    this.currentImage = frame;
+    this.img = this.imageCache[this.IMAGES_HURT[frame]];
+  }
+
+  playAttackAnimation() {
+    const frame = Math.floor((gameLoop.now() - this.attackStartedAt) / this.getAttackFrameDuration());
+    if (frame >= this.IMAGES_ATTACK.length) {
+      this.endAttack();
+      return;
+    }
+    this.currentImage = frame;
+    this.img = this.imageCache[this.IMAGES_ATTACK[frame]];
+  }
+
+  endAttack() {
+    this.isAttacking = false;
+    this.currentImage = 0;
+    this.playAnimation(this.IMAGES_IDLE);
+  }
+
+  updateIdle() {
+    this.updateIdleFrame();
+    this.tryStartAttack();
+  }
+
+  updateIdleFrame() {
+    if (gameLoop.now() - this.lastIdleFrameAt < 200) return;
+    this.currentImage = (this.currentImage + 1) % this.IMAGES_IDLE.length;
+    this.img = this.imageCache[this.IMAGES_IDLE[this.currentImage]];
+    this.lastIdleFrameAt = gameLoop.now();
+  }
+
+  tryStartAttack() {
+    if (!this.target || this.target.x >= this.x) return;
+    const distance = this.x - (this.target.x + this.target.width);
+    if (distance <= this.attackRange && gameLoop.now() - this.attackStartedAt >= this.getAttackCooldown()) this.startAttack();
   }
 
   updateEnragePhase() {
@@ -106,20 +119,25 @@ class FinalBoss extends MoveableObject {
   hit() {
     if (!super.hit()) return false;
     this.isAttacking = false;
-    if (this.isDead()) {
-      this.deathStartedAt = gameLoop.now();
-      this.currentImage = 0;
-      const size = 300;
-      this.x += (this.width - size) / 2;
-      this.y += (this.height - size) / 2;
-      this.width = size;
-      this.height = size;
-      return true;
-    }
+    if (this.isDead()) this.startDeath();
+    else this.startHurt();
+    return true;
+  }
+
+  startDeath() {
+    const size = 300;
+    this.deathStartedAt = gameLoop.now();
+    this.currentImage = 0;
+    this.x += (this.width - size) / 2;
+    this.y += (this.height - size) / 2;
+    this.width = size;
+    this.height = size;
+  }
+
+  startHurt() {
     this.hurtStartedAt = gameLoop.now();
     this.currentImage = 0;
     this.img = this.imageCache[this.IMAGES_HURT[0]];
-    return true;
   }
 
   playDeathAnimation() {
@@ -127,12 +145,12 @@ class FinalBoss extends MoveableObject {
     const frame = Math.floor(elapsed / this.deathFrameDuration);
     this.currentImage = Math.min(frame, this.IMAGES_DEAD.length - 1);
     this.img = this.imageCache[this.IMAGES_DEAD[this.currentImage]];
-    this.deathAnimationFinished = frame >= this.IMAGES_DEAD.length;
+    this.isDeathAnimationFinished = frame >= this.IMAGES_DEAD.length;
   }
 
   startAttack() {
     this.isAttacking = true;
-    this.attackHitRegistered = false;
+    this.isAttackHitRegistered = false;
     this.attackStartedAt = gameLoop.now();
     this.currentImage = 0;
     this.img = this.imageCache[this.IMAGES_ATTACK[0]];

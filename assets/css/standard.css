@@ -6,10 +6,8 @@
 
 html {
     scroll-behavior: smooth;
-}
 
-@media (prefers-reduced-motion: reduce) {
-    html {
+    @media (prefers-reduced-motion: reduce) {
         scroll-behavior: auto;
     }
 }
@@ -17,6 +15,7 @@ html {
 body {
     min-height: 100vh;
     min-height: 100dvh;
+
     line-height: 1.5;
 }
 
@@ -35,4 +34,10 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /* #endregion */
 
-:root {}
+:root {
+    --color-accent: #ffe27a;
+    --color-text: #e2e8e4;
+    --color-white: #fff;
+    --font-base: system-ui, -apple-system, sans-serif;
+    --game-width: 720px;
+}
