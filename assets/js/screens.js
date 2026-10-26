@@ -14,6 +14,7 @@ export function setupScreens() {
   document.getElementById("character-choices").addEventListener("click", handleCharacterChoice);
   document.getElementById("start-button").addEventListener("click", startGame);
   document.getElementById("restart-button").addEventListener("click", startGame);
+  document.getElementById("pause-restart-button").addEventListener("click", startGame);
   document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
   document.getElementById("pause-main-menu-button").addEventListener("click", returnToMainMenu);
 }
@@ -45,6 +46,7 @@ function updateCharacterChoices(containerRef, selectedRef) {
 function startGame() {
   if (isScreenTransitioning) return;
   resetKeyboard();
+  appState.world?.stopGameplayMusic();
   gameLoop.stop();
   runScreenTransition(startGameAtBlackout);
 }
@@ -78,7 +80,7 @@ function drawGameOverCharacter() {
 
 export function syncPauseScreen() {
   document.getElementById("pause-screen").hidden = !gameLoop.isPaused;
-  const buttonRef = document.getElementById("pause-main-menu-button");
+  const buttonRef = document.getElementById("pause-restart-button");
   if (gameLoop.isPaused) buttonRef.focus();
   else buttonRef.blur();
 }
