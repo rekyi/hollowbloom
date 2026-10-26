@@ -1,0 +1,117 @@
+.start-menu > button,
+.settings-panel button,
+.credits-panel button,
+.imprint-panel button {
+    padding-block: 0.75rem;
+    padding-inline: 1.25rem;
+    border: none;
+    border-left: 2px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0 0.375rem 0.375rem 0;
+
+    background: linear-gradient(90deg, rgba(10, 20, 24, 0.85) 0%, rgba(10, 20, 24, 0.2) 100%);
+    color: var(--color-text);
+    font-family: var(--font-base);
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 200ms ease, border-color 200ms ease, background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+
+.start-menu > button:hover,
+.start-menu > button:focus-visible,
+body:has(.settings-panel[open]) .start-menu > button:nth-child(2),
+body:has(.credits-panel[open]) .start-menu > button:nth-child(3),
+body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
+.settings-panel button:hover,
+.settings-panel button:focus-visible,
+.credits-panel button:hover,
+.credits-panel button:focus-visible,
+.imprint-panel button:hover,
+.imprint-panel button:focus-visible {
+    border-left-color: var(--color-accent);
+    background: linear-gradient(90deg, rgba(255, 226, 122, 0.2) 0%, rgba(10, 20, 24, 0.4) 100%);
+    color: var(--color-accent);
+    transform: translateX(0.375rem);
+}
+
+.settings-panel,
+.credits-panel,
+.imprint-panel {
+    max-width: 100%;
+    margin: auto;
+    padding: 0;
+    border: 2px solid var(--color-white);
+    border-radius: 0.5rem;
+
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--color-white);
+    text-align: center;
+}
+
+.settings-panel {
+    width: min(32.5rem, calc(100vw - 2rem));
+}
+
+.dialog-content {
+    padding: 1.5rem;
+}
+
+.settings-audio {
+    width: 100%;
+    margin-block-end: 1.5rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0.375rem;
+    text-align: left;
+
+    display: grid;
+    gap: 1rem;
+}
+
+.settings-audio legend {
+    padding-inline: 0.5rem;
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+.audio-setting {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    row-gap: 0.5rem;
+    column-gap: 1.5rem;
+
+    @media (min-width: 480px) {
+        grid-template-columns: minmax(6rem, max-content) minmax(0, 1fr);
+        row-gap: normal;
+    }
+}
+
+.audio-setting-control {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 5ch;
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.audio-setting input {
+    width: 100%;
+    min-width: 0;
+
+    accent-color: var(--color-accent);
+}
+
+.audio-setting output {
+    width: 5ch;
+    text-align: right;
+}
+
+.settings-panel::backdrop,
+.credits-panel::backdrop,
+.imprint-panel::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(0.5px);
+}

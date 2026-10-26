@@ -9,17 +9,22 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="assets/css/fonts.css" />
     <link rel="stylesheet" href="assets/css/standard.css" />
+    <link rel="stylesheet" href="assets/css/start-screen.css" />
+    <link rel="stylesheet" href="assets/css/dialogs.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main id="start-screen" class="start-screen">
-      <nav class="start-menu" aria-label="Hauptmenü">
+    <main id="start-screen" class="start-screen is-pre-start">
+      <button id="pre-start-button" class="pre-start-prompt" type="button">
+        <span>Klicken, um zu starten</span>
+      </button>
+      <nav class="start-menu" aria-label="Hauptmenü" inert>
         <button id="start-button" type="button">Spiel starten</button>
         <button id="settings-button" type="button">Einstellungen</button>
         <button id="credits-button" type="button">Credits</button>
         <button id="imprint-button" type="button">Impressum</button>
       </nav>
-      <div id="character-choices" class="character-choices" role="group" aria-label="Character auswählen">
+      <div id="character-choices" class="character-choices" role="group" aria-label="Character auswählen" inert>
         <button class="character-choice character-choice-female selected" type="button" data-character="female" aria-label="Weiblicher Character" aria-pressed="true">
           <span class="character-sprite character-sprite-female" aria-hidden="true"></span>
         </button>

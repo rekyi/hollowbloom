@@ -1,0 +1,189 @@
+.start-screen {
+    position: relative;
+    width: min(var(--game-width), 100vw);
+    aspect-ratio: 3 / 2;
+    background: url("../images/9_screens/start_screen.webp") center / 100% 100% no-repeat;
+}
+
+.pre-start-prompt {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 0;
+
+    background: transparent;
+    color: var(--color-white);
+    font-family: var(--font-base);
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    cursor: pointer;
+
+    display: grid;
+    place-items: center;
+
+    transition: opacity 600ms ease, visibility 600ms ease;
+
+    &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: -0.5rem;
+    }
+}
+
+.pre-start-prompt span {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0.375rem;
+
+    background: rgba(10, 20, 24, 0.65);
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+}
+
+.start-screen.is-pre-start .start-menu,
+.start-screen.is-pre-start .character-choices {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.start-screen.is-pre-start .pre-start-prompt {
+    visibility: visible;
+    opacity: 1;
+}
+
+.start-menu,
+.character-choices {
+    transition: opacity 600ms ease, visibility 600ms ease;
+}
+
+.start-screen:not(.is-pre-start) .pre-start-prompt {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-screen:not(.is-pre-start) .start-menu,
+.start-screen:not(.is-pre-start) .character-choices {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .pre-start-prompt,
+    .start-menu,
+    .character-choices {
+        transition: none;
+    }
+}
+
+.start-menu {
+    position: absolute;
+    top: 50%;
+    left: 3%;
+    z-index: 1;
+    width: min(30%, 13.125rem);
+    transform: translateY(-50%);
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.character-choices {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.character-choice {
+    position: absolute;
+    bottom: 21%;
+    width: clamp(3.125rem, 9%, 4.75rem);
+    padding: 0;
+    border: 0;
+
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateX(-50%);
+    transition: transform 250ms ease, filter 250ms ease;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+
+    &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 4px;
+    }
+}
+
+.character-choice-female {
+    left: 40%;
+}
+
+.character-choice-male {
+    left: 59%;
+}
+
+.character-choice.selected {
+    transform: translateX(-50%) translateY(-4%) scale(1.1);
+    filter: brightness(1.1) drop-shadow(0 0 5px var(--color-accent)) drop-shadow(0 0 20px rgba(236, 206, 95, 0.7));
+}
+
+@keyframes bounce-arrow {
+    from {
+        transform: translate(-50%, 0);
+    }
+
+    to {
+        transform: translate(-50%, -0.5rem);
+    }
+}
+
+.character-choices:has(.character-choice.selected) .character-choice:not(.selected) {
+    transform: translateX(-50%) scale(0.95);
+    filter: brightness(0.55) saturate(0.7);
+}
+
+.character-sprite {
+    width: 220%;
+    margin-block-start: -85%;
+    aspect-ratio: 1;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.character-sprite-female {
+    background-image: url("../images/character/female/idle.png");
+    background-size: 500% 100%;
+    animation: female-idle 900ms steps(5, end) infinite;
+}
+
+.character-sprite-male {
+    background-image: url("../images/character/male/idle.png");
+    background-size: 600% 100%;
+    animation: male-idle 900ms steps(6, end) infinite;
+}
+
+@keyframes female-idle {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 125% 0;
+    }
+}
+
+@keyframes male-idle {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 120% 0;
+    }
+}

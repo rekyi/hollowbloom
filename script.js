@@ -1,5 +1,5 @@
 import { appState } from "./assets/js/data.js";
-import { setupStartScreenMusic, setupAudioSettings, startStartScreenMusic } from "./assets/js/audio.js";
+import { setupStartScreenMusic, setupAudioSettings } from "./assets/js/audio.js";
 import { setupInput } from "./assets/js/input.js";
 import { setupScreens } from "./assets/js/screens.js";
 import { setupDialogs } from "./assets/js/dialogs.js";
@@ -15,6 +15,5 @@ function init() {
   setupScreens();
   setupDialogs();
   setupAudioSettings();
-  startStartScreenMusic();
 }
 init();

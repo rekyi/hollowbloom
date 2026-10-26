@@ -7,7 +7,7 @@ import { resetKeyboard } from "./input.js";
 import { startStartScreenMusic, stopStartScreenMusic } from "./audio.js";
 
 export function setupScreens() {
-  document.getElementById("start-screen").addEventListener("click", handleStartScreenClick);
+  document.getElementById("pre-start-button").addEventListener("click", revealStartMenu, { once: true });
   document.getElementById("character-choices").addEventListener("click", handleCharacterChoice);
   document.getElementById("start-button").addEventListener("click", startGame);
   document.getElementById("restart-button").addEventListener("click", startGame);
@@ -15,8 +15,12 @@ export function setupScreens() {
   document.getElementById("pause-main-menu-button").addEventListener("click", returnToMainMenu);
 }
 
-function handleStartScreenClick(event) {
-  if (event.target.closest("#start-button")) return;
+function revealStartMenu() {
+  const startScreenRef = document.getElementById("start-screen");
+  startScreenRef.classList.remove("is-pre-start");
+  document.querySelector(".start-menu").inert = false;
+  document.getElementById("character-choices").inert = false;
+  document.getElementById("start-button").focus();
   startStartScreenMusic();
 }
 
