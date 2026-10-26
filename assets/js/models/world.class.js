@@ -180,13 +180,13 @@ export class World {
   }
 
   checkVictory() {
-    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
-    if (this.isVictory || !boss?.isDead()) return;
+    this.dyingBoss ??= this.level.enemies.find((enemy) => enemy instanceof FinalBoss && enemy.isDead());
+    if (this.isVictory || !this.dyingBoss?.isDeathAnimationFinished) return;
     this.isVictory = true;
     this.stopGameplayMusic();
     this.timerStopMs ??= gameLoop.now();
     gameLoop.stop();
-    window.setTimeout(this.onVictory, 2000);
+    window.setTimeout(this.onVictory, 1000);
   }
 
   startTimer() {
