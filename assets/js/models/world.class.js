@@ -22,6 +22,8 @@ export class World {
   shakeMagnitude = 7;
   timerStartMs = null;
   timerStopMs = null;
+  defeatedEnemies = 0;
+  countedDefeatedEnemies = new Set();
   gameOverDelayStartedAt = null;
   gameOverDelayMs = 1000;
   isGameOver = false;
@@ -119,6 +121,7 @@ export class World {
   }
 
   update() {
+    this.trackDefeatedEnemies();
     this.checkCollision();
     this.checkItemCollection();
     this.checkTimerStop();
@@ -197,6 +200,14 @@ export class World {
     if (this.timerStartMs !== null && this.timerStopMs === null) this.timerStopMs = gameLoop.now();
   }
 
+  trackDefeatedEnemies() {
+    this.level.enemies.forEach((enemy) => {
+      if (!enemy.isDead() || this.countedDefeatedEnemies.has(enemy)) return;
+      this.countedDefeatedEnemies.add(enemy);
+      this.defeatedEnemies++;
+    });
+  }
+
   getTimerText() {
     const elapsedMs = this.timerStartMs === null ? 0 : (this.timerStopMs ?? gameLoop.now()) - this.timerStartMs;
     const totalSeconds = Math.floor(elapsedMs / 1000);
@@ -243,6 +254,7 @@ export class World {
   }
 
   removeDeadEnemies() {
+    this.trackDefeatedEnemies();
     this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()));
   }
 

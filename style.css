@@ -110,7 +110,7 @@ canvas.ready {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3rem;
+    gap: 1.5rem;
 }
 
 .victory-screen-content h1 {
@@ -122,6 +122,32 @@ canvas.ready {
     font-weight: 800;
     letter-spacing: 0.08em;
     text-shadow: 0 0.25rem 0.5rem #000;
+}
+
+.victory-screen-stats {
+    margin: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(1rem, 5vw, 3rem);
+}
+
+.victory-screen-stats div {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.victory-screen-stats dt {
+    color: var(--color-accent);
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+}
+
+.victory-screen-stats dd {
+    margin: 0;
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 700;
+    text-shadow: 0 0.125rem 0.375rem #000;
 }
 
 .victory-screen-actions {

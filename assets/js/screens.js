@@ -77,8 +77,15 @@ function showVictory() {
 }
 
 function showVictoryAtBlackout() {
+  renderVictoryStats();
   document.getElementById("victory-screen").hidden = false;
   document.getElementById("victory-restart-button").focus();
+}
+
+function renderVictoryStats() {
+  document.getElementById("victory-play-time").textContent = appState.world.getTimerText();
+  document.getElementById("victory-coins").textContent = String(appState.world.character.coins);
+  document.getElementById("victory-defeated-enemies").textContent = String(appState.world.defeatedEnemies);
 }
 
 function drawGameOverCharacter() {
