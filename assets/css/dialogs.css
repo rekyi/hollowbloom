@@ -36,6 +36,29 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     transform: translateX(0.375rem);
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .start-menu > button,
+    .settings-panel button,
+    .credits-panel button,
+    .imprint-panel button {
+        transition: none;
+    }
+
+    .start-menu > button:hover,
+    .start-menu > button:focus-visible,
+    body:has(.settings-panel[open]) .start-menu > button:nth-child(2),
+    body:has(.credits-panel[open]) .start-menu > button:nth-child(3),
+    body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
+    .settings-panel button:hover,
+    .settings-panel button:focus-visible,
+    .credits-panel button:hover,
+    .credits-panel button:focus-visible,
+    .imprint-panel button:hover,
+    .imprint-panel button:focus-visible {
+        transform: none;
+    }
+}
+
 .settings-panel,
 .credits-panel,
 .imprint-panel {

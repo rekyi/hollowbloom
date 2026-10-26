@@ -6,6 +6,9 @@ import { World } from "./models/world.class.js";
 import { resetKeyboard } from "./input.js";
 import { startStartScreenMusic, stopStartScreenMusic } from "./audio.js";
 
+const SCREEN_FADE_DURATION_MS = 350;
+let isScreenTransitioning = false;
+
 export function setupScreens() {
   document.getElementById("pre-start-button").addEventListener("click", revealStartMenu, { once: true });
   document.getElementById("character-choices").addEventListener("click", handleCharacterChoice);
@@ -40,8 +43,13 @@ function updateCharacterChoices(containerRef, selectedRef) {
 }
 
 function startGame() {
+  if (isScreenTransitioning) return;
   resetKeyboard();
   gameLoop.stop();
+  runScreenTransition(startGameAtBlackout);
+}
+
+function startGameAtBlackout() {
   document.getElementById("start-screen").hidden = true;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
@@ -51,6 +59,10 @@ function startGame() {
 }
 
 function showGameOver() {
+  runScreenTransition(showGameOverAtBlackout);
+}
+
+function showGameOverAtBlackout() {
   drawGameOverCharacter();
   document.getElementById("game-over").hidden = false;
 }
@@ -72,16 +84,38 @@ export function syncPauseScreen() {
 }
 
 function returnToMainMenu() {
+  if (isScreenTransitioning) return;
   resetKeyboard();
   gameLoop.stop();
+  runScreenTransition(showStartScreen);
+}
+
+async function runScreenTransition(changeScreen) {
+  if (isScreenTransitioning) return;
+  isScreenTransitioning = true;
+  const transitionRef = document.getElementById("screen-transition");
+  try {
+    transitionRef.classList.add("is-visible");
+    await waitForScreenFade();
+    changeScreen();
+    transitionRef.classList.remove("is-visible");
+    await waitForScreenFade();
+  } finally {
+    transitionRef.classList.remove("is-visible");
+    isScreenTransitioning = false;
+  }
+}
+
+function waitForScreenFade() {
+  const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : SCREEN_FADE_DURATION_MS;
+  return new Promise((resolve) => window.setTimeout(resolve, duration));
+}
+
+function showStartScreen() {
   appState.world?.stopGameplayMusic();
   appState.world = null;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
-  showStartScreen();
-}
-
-function showStartScreen() {
   appState.canvasRef.classList.remove("ready");
   document.getElementById("start-screen").hidden = false;
   document.getElementById("start-button").focus();

@@ -68,15 +68,6 @@
     pointer-events: auto;
 }
 
-@media (prefers-reduced-motion: reduce) {
-
-    .pre-start-prompt,
-    .start-menu,
-    .character-choices {
-        transition: none;
-    }
-}
-
 .start-menu {
     position: absolute;
     top: 50%;
@@ -185,5 +176,24 @@
 
     to {
         background-position: 120% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pre-start-prompt,
+    .start-menu,
+    .character-choices,
+    .character-choice {
+        transition: none;
+    }
+
+    .character-sprite-female,
+    .character-sprite-male {
+        animation: none;
+    }
+
+    .character-choice.selected,
+    .character-choices:has(.character-choice.selected) .character-choice:not(.selected) {
+        transform: translateX(-50%);
     }
 }

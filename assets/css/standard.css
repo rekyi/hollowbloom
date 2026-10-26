@@ -9,7 +9,6 @@ html {
 
     @media (prefers-reduced-motion: reduce) {
         scroll-behavior: auto;
-        animation: none;
     }
 }
 

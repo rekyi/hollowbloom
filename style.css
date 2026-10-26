@@ -19,6 +19,26 @@ canvas.ready {
     display: block;
 }
 
+#screen-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+
+    background: #000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 350ms ease, visibility 350ms ease;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+#screen-transition.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
 .start-screen[hidden],
 .pause-screen[hidden],
 .game-over[hidden] {
@@ -119,4 +139,18 @@ canvas.ready {
 .pause-screen button:focus-visible {
     background: rgba(35, 42, 37, 0.95);
     transform: translateY(-0.1875rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-over button,
+    .pause-screen button {
+        transition: none;
+    }
+
+    .game-over button:hover,
+    .game-over button:focus-visible,
+    .pause-screen button:hover,
+    .pause-screen button:focus-visible {
+        transform: none;
+    }
 }
