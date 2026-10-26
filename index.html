@@ -32,14 +32,6 @@
           <span class="character-sprite character-sprite-male" aria-hidden="true"></span>
         </button>
       </div>
-      <dialog id="credits-overlay" class="credits-panel" aria-labelledby="credits-title">
-        <div class="dialog-content">
-          <h1 id="credits-title">Credits</h1>
-          <p>bla bla bla blub</p>
-          <p>bla bla bla blub</p>
-          <button id="credits-back-button" type="button">Zurück</button>
-        </div>
-      </dialog>
       <dialog id="imprint-overlay" class="imprint-panel" aria-labelledby="imprint-title">
         <div class="dialog-content">
           <h1 id="imprint-title" tabindex="-1">Impressum</h1>
@@ -47,6 +39,14 @@
         </div>
       </dialog>
     </main>
+    <dialog id="credits-overlay" class="credits-panel" aria-labelledby="credits-title">
+      <div class="dialog-content">
+        <h1 id="credits-title">Credits</h1>
+        <p>bla bla bla blub</p>
+        <p>bla bla bla blub</p>
+        <button id="credits-back-button" type="button">Zurück</button>
+      </div>
+    </dialog>
     <canvas id="canvas" width="720" height="480"> </canvas>
     <div id="pause-screen" class="pause-screen" hidden>
       <section class="pause-screen-content" aria-label="Spiel pausiert">
@@ -95,6 +95,7 @@
         <div class="victory-screen-actions">
           <button id="victory-restart-button" class="victory-restart-button" type="button">Nochmal spielen</button>
           <button id="victory-main-menu-button" type="button">Hauptmenü</button>
+          <button id="victory-credits-button" type="button">Credits</button>
         </div>
       </section>
     </div>

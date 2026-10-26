@@ -1,5 +1,6 @@
 export function setupDialogs() {
   setupDialog("credits-button", "credits-overlay", "credits-title", "credits-back-button");
+  setupDialogButton("victory-credits-button", document.getElementById("credits-overlay"), "credits-title");
   setupDialog("imprint-button", "imprint-overlay", "imprint-title", "imprint-back-button");
   document.getElementById("settings-button").addEventListener("click", openSettings);
   document.getElementById("pause-settings-button").addEventListener("click", openSettings);
@@ -9,9 +10,13 @@ export function setupDialogs() {
 
 function setupDialog(buttonId, dialogId, titleId, backId) {
   const dialogRef = document.getElementById(dialogId);
-  document.getElementById(buttonId).addEventListener("click", () => openDialog(dialogRef, titleId));
+  setupDialogButton(buttonId, dialogRef, titleId);
   document.getElementById(backId).addEventListener("click", () => dialogRef.close());
   dialogRef.addEventListener("click", onBackdropClick);
+}
+
+function setupDialogButton(buttonId, dialogRef, titleId) {
+  document.getElementById(buttonId).addEventListener("click", () => openDialog(dialogRef, titleId));
 }
 
 function openDialog(dialogRef, titleId) {
