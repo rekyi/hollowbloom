@@ -33,6 +33,7 @@ function handleEscape(event) {
 }
 
 function handleGameKey(event) {
+  if (gameLoop.isStarting) return;
   pressedKeys.add(event.code);
   updateKeyboardState();
   if (TIMER_START_KEYS.includes(event.code)) appState.world.startTimer();

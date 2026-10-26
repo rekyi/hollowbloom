@@ -6,6 +6,8 @@ import { FinalBoss } from "./final-boss.class.js";
 import { createLevel1 } from "../level/level1.js";
 import { FemaleCharacter } from "./female-character.class.js";
 
+const READY_DURATION_MS = 1500;
+
 export class World {
   character;
   level;
@@ -38,7 +40,7 @@ export class World {
   }
 
   setupGameplayMusic() {
-    this.gameplayMusic = new Audio("assets/audio/august_ultra_ambience.wav");
+    this.gameplayMusic = new Audio("assets/audio/gameplay.ogg");
     this.gameplayMusic.loop = true;
     this.gameplayMusic.volume = appState.musicVolume;
     this.startGameplayMusic();
@@ -46,6 +48,7 @@ export class World {
 
   setWorld() {
     this.character.world = this;
+    this.cameraX = -this.character.x;
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Enemy || enemy instanceof FinalBoss) enemy.target = this.character;
     });
@@ -59,6 +62,7 @@ export class World {
     this.drawScene(cameraX + shake.x, shake.y);
     this.statusBar.draw(this.ctx);
     this.drawTimer();
+    this.drawReadyMessage();
   }
 
   getShakeOffset() {
@@ -93,7 +97,22 @@ export class World {
     gameLoop.start(
       (dt) => this.update(dt),
       () => this.draw(),
+      READY_DURATION_MS,
     );
+  }
+
+  drawReadyMessage() {
+    if (!gameLoop.isStarting) return;
+    this.ctx.save();
+    this.ctx.fillStyle = "white";
+    this.ctx.strokeStyle = "black";
+    this.ctx.lineWidth = 5;
+    this.ctx.font = "bold 56px sans-serif";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.ctx.strokeText("READY!", this.canvasRef.width / 2, this.canvasRef.height / 2);
+    this.ctx.fillText("READY!", this.canvasRef.width / 2, this.canvasRef.height / 2);
+    this.ctx.restore();
   }
 
   update() {
@@ -210,9 +229,7 @@ export class World {
   }
 
   removeDeadEnemies() {
-    this.level.enemies = this.level.enemies.filter(
-      (enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()),
-    );
+    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()));
   }
 
   addObjectsToMap(objects) {

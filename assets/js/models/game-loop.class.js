@@ -12,9 +12,14 @@ export class GameLoop {
   gameTimeMs = 0;
   animationFrameId = 0;
   hitStopUntilMs = 0;
+  startDelayRemainingMs = 0;
 
   now() {
     return this.gameTimeMs;
+  }
+
+  get isStarting() {
+    return this.startDelayRemainingMs > 0;
   }
 
   runEvery(intervalMs, callback) {
@@ -31,10 +36,11 @@ export class GameLoop {
     return cancel;
   }
 
-  start(updateCallback, renderCallback) {
+  start(updateCallback, renderCallback, startDelayMs = 0) {
     this.updateCallback = updateCallback;
     this.renderCallback = renderCallback;
     if (this.isRunning) return;
+    this.startDelayRemainingMs = Math.max(0, startDelayMs);
     this.isRunning = true;
     this.lastFrameTimeMs = performance.now();
     this.accumulatorMs = 0;
@@ -65,6 +71,7 @@ export class GameLoop {
     this.accumulatorMs = 0;
     this.gameTimeMs = 0;
     this.hitStopUntilMs = 0;
+    this.startDelayRemainingMs = 0;
   }
 
   onAnimationFrame(currentTimeMs) {
@@ -81,6 +88,11 @@ export class GameLoop {
     if (this.isPaused || currentTimeMs < this.hitStopUntilMs) {
       this.accumulatorMs = 0;
       return;
+    }
+    if (this.startDelayRemainingMs > 0) {
+      const delayElapsedMs = Math.min(frameDurationMs, this.startDelayRemainingMs);
+      this.startDelayRemainingMs -= delayElapsedMs;
+      frameDurationMs -= delayElapsedMs;
     }
     this.accumulatorMs += frameDurationMs;
     this.runFixedSteps(currentTimeMs);
