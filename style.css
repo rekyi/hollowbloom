@@ -91,7 +91,7 @@ canvas.ready {
     width: min(var(--game-width), 100vw, 150vh);
     aspect-ratio: 3 / 2;
 
-    background: url("../images/9_screens/game_over_screen.webp") center / 100% 100% no-repeat;
+    background: url("assets/images/9_screens/game_over_screen.webp") center / 100% 100% no-repeat;
 }
 
 #game-over-character {
