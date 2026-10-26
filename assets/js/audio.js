@@ -1,11 +1,34 @@
 import { appState, startScreenMusic } from "./data.js";
 import { gameLoop } from "./models/game-loop.class.js";
 
+const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
 let startScreenMusicWasPlaying = false;
 let gameplayMusicWasPlaying = false;
 let startScreenMusicRestartTimeout = null;
 let isStartScreenMusicRequested = false;
 let isStartScreenMusicEnded = false;
+
+function saveAudioSettings() {
+  localStorage.setItem(
+    AUDIO_SETTINGS_STORAGE_KEY,
+    JSON.stringify({
+      musicVolume: appState.musicVolume,
+      soundEffectsVolume: appState.soundEffectsVolume,
+    }),
+  );
+}
+
+function loadAudioSettings() {
+  const savedSettings = localStorage.getItem(AUDIO_SETTINGS_STORAGE_KEY);
+  if (!savedSettings) return;
+  try {
+    const settings = JSON.parse(savedSettings);
+    if (isValidVolume(settings.musicVolume)) appState.musicVolume = settings.musicVolume;
+    if (isValidVolume(settings.soundEffectsVolume)) appState.soundEffectsVolume = settings.soundEffectsVolume;
+  } catch (error) {
+    console.error("Saved audio settings could not be loaded.", error);
+  }
+}
 
 export function setupStartScreenMusic() {
   startScreenMusic.loop = false;
@@ -50,9 +73,26 @@ function clearStartScreenMusicRestart() {
 }
 
 export function setupAudioSettings() {
-  document.getElementById("music-volume").addEventListener("input", handleMusicVolumeInput);
-  document.getElementById("sound-effects-volume").addEventListener("input", handleSoundEffectsVolumeInput);
+  const musicVolumeInput = document.getElementById("music-volume");
+  const soundEffectsVolumeInput = document.getElementById("sound-effects-volume");
+  loadAudioSettings();
+  syncAudioSettings(musicVolumeInput, soundEffectsVolumeInput);
+  musicVolumeInput.addEventListener("input", handleMusicVolumeInput);
+  soundEffectsVolumeInput.addEventListener("input", handleSoundEffectsVolumeInput);
   document.addEventListener("visibilitychange", handleVisibilityChange);
+}
+
+function isValidVolume(volume) {
+  return typeof volume === "number" && Number.isFinite(volume) && volume >= 0 && volume <= 1;
+}
+
+function syncAudioSettings(musicVolumeInput, soundEffectsVolumeInput) {
+  musicVolumeInput.value = String(Math.round(appState.musicVolume * 100));
+  soundEffectsVolumeInput.value = String(Math.round(appState.soundEffectsVolume * 100));
+  showVolumeValue("music-volume-value", musicVolumeInput.value);
+  showVolumeValue("sound-effects-volume-value", soundEffectsVolumeInput.value);
+  startScreenMusic.volume = appState.musicVolume;
+  if (appState.world) appState.world.gameplayMusic.volume = appState.musicVolume;
 }
 
 function handleVisibilityChange() {
@@ -80,10 +120,13 @@ function handleMusicVolumeInput(event) {
   showVolumeValue("music-volume-value", event.target.value);
   startScreenMusic.volume = appState.musicVolume;
   if (appState.world) appState.world.gameplayMusic.volume = appState.musicVolume;
+  saveAudioSettings();
 }
 
 function handleSoundEffectsVolumeInput(event) {
+  appState.soundEffectsVolume = Number(event.target.value) / 100;
   showVolumeValue("sound-effects-volume-value", event.target.value);
+  saveAudioSettings();
 }
 
 function showVolumeValue(outputId, value) {

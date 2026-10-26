@@ -81,4 +81,5 @@ export const appState = {
   keyboard: null,
   selectedCharacterClass: null,
   musicVolume: 1,
+  soundEffectsVolume: 1,
 };
