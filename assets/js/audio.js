@@ -3,13 +3,20 @@ import { gameLoop } from "./models/game-loop.class.js";
 
 let startScreenMusicWasPlaying = false;
 let gameplayMusicWasPlaying = false;
+let startScreenMusicRestartTimeout = null;
+let isStartScreenMusicRequested = false;
+let isStartScreenMusicEnded = false;
 
 export function setupStartScreenMusic() {
-  startScreenMusic.loop = true;
+  startScreenMusic.loop = false;
   startScreenMusic.volume = appState.musicVolume;
+  startScreenMusic.addEventListener("ended", handleStartScreenMusicEnded);
 }
 
 export function startStartScreenMusic() {
+  isStartScreenMusicRequested = true;
+  isStartScreenMusicEnded = false;
+  clearStartScreenMusicRestart();
   startScreenMusic.play().catch((error) => {
     if (error.name === "NotAllowedError") return;
     console.error("Start-screen music could not be played.", error);
@@ -17,8 +24,29 @@ export function startStartScreenMusic() {
 }
 
 export function stopStartScreenMusic() {
+  isStartScreenMusicRequested = false;
+  isStartScreenMusicEnded = false;
+  clearStartScreenMusicRestart();
   startScreenMusic.pause();
   startScreenMusic.currentTime = 0;
+}
+
+function handleStartScreenMusicEnded() {
+  isStartScreenMusicEnded = true;
+  clearStartScreenMusicRestart();
+  startScreenMusicRestartTimeout = setTimeout(restartStartScreenMusic, 3000);
+}
+
+function restartStartScreenMusic() {
+  startScreenMusicRestartTimeout = null;
+  if (!isStartScreenMusicRequested || appState.world || document.hidden) return;
+  startStartScreenMusic();
+}
+
+function clearStartScreenMusicRestart() {
+  if (startScreenMusicRestartTimeout === null) return;
+  clearTimeout(startScreenMusicRestartTimeout);
+  startScreenMusicRestartTimeout = null;
 }
 
 export function setupAudioSettings() {
@@ -41,6 +69,7 @@ function pauseAudioForHiddenTab() {
 
 function resumeAudioForVisibleTab() {
   if (startScreenMusicWasPlaying && !appState.world) startStartScreenMusic();
+  if (isStartScreenMusicEnded && startScreenMusicRestartTimeout === null && !appState.world) startStartScreenMusic();
   if (gameplayMusicWasPlaying && appState.world && !gameLoop.isPaused) appState.world.resumeGameplayMusic();
   startScreenMusicWasPlaying = false;
   gameplayMusicWasPlaying = false;
