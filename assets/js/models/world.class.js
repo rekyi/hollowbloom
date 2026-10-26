@@ -25,15 +25,18 @@ export class World {
   gameOverDelayStartedAt = null;
   gameOverDelayMs = 1000;
   isGameOver = false;
+  isVictory = false;
   onGameOver;
+  onVictory;
 
-  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter) {
+  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}) {
     this.canvasRef = canvasRef;
     this.ctx = canvasRef.getContext("2d");
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1();
     this.onGameOver = onGameOver;
+    this.onVictory = onVictory;
     this.setupGameplayMusic();
     this.setWorld();
     this.run();
@@ -119,6 +122,7 @@ export class World {
     this.checkCollision();
     this.checkItemCollection();
     this.checkTimerStop();
+    this.checkVictory();
     this.checkGameOver();
   }
 
@@ -153,7 +157,7 @@ export class World {
   }
 
   checkGameOver() {
-    if (this.isGameOver || !this.character.isDead()) return;
+    if (this.isGameOver || this.isVictory || !this.character.isDead()) return;
     this.stopGameplayMusic();
     this.timerStopMs ??= gameLoop.now();
     if (!this.isDeathAnimationDone()) return;
@@ -170,6 +174,16 @@ export class World {
     this.isGameOver = true;
     gameLoop.stop();
     this.onGameOver();
+  }
+
+  checkVictory() {
+    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
+    if (this.isVictory || !boss?.isDead()) return;
+    this.isVictory = true;
+    this.stopGameplayMusic();
+    this.timerStopMs ??= gameLoop.now();
+    gameLoop.stop();
+    window.setTimeout(this.onVictory, 2000);
   }
 
   startTimer() {

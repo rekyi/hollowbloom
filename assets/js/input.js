@@ -10,7 +10,7 @@ export function setupInput() {
 }
 
 function handleKeyDown(event) {
-  if (!appState.world || appState.world.isGameOver) return;
+  if (!appState.world || appState.world.isGameOver || appState.world.isVictory) return;
   if (event.code === "Escape") handleEscape(event);
   else if (!gameLoop.isPaused) handleGameKey(event);
 }
