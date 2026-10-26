@@ -1,4 +1,8 @@
 import { appState, startScreenMusic } from "./data.js";
+import { gameLoop } from "./models/game-loop.class.js";
+
+let startScreenMusicWasPlaying = false;
+let gameplayMusicWasPlaying = false;
 
 export function setupStartScreenMusic() {
   startScreenMusic.loop = true;
@@ -20,6 +24,26 @@ export function stopStartScreenMusic() {
 export function setupAudioSettings() {
   document.getElementById("music-volume").addEventListener("input", handleMusicVolumeInput);
   document.getElementById("sound-effects-volume").addEventListener("input", handleSoundEffectsVolumeInput);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+}
+
+function handleVisibilityChange() {
+  if (document.hidden) pauseAudioForHiddenTab();
+  else resumeAudioForVisibleTab();
+}
+
+function pauseAudioForHiddenTab() {
+  startScreenMusicWasPlaying = !startScreenMusic.paused;
+  gameplayMusicWasPlaying = Boolean(appState.world && !appState.world.gameplayMusic.paused);
+  startScreenMusic.pause();
+  appState.world?.pauseGameplayMusic();
+}
+
+function resumeAudioForVisibleTab() {
+  if (startScreenMusicWasPlaying && !appState.world) startStartScreenMusic();
+  if (gameplayMusicWasPlaying && appState.world && !gameLoop.isPaused) appState.world.resumeGameplayMusic();
+  startScreenMusicWasPlaying = false;
+  gameplayMusicWasPlaying = false;
 }
 
 function handleMusicVolumeInput(event) {
