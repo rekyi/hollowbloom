@@ -1,4 +1,5 @@
 import { appState, startScreenMusic } from "./data.js";
+import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
 
 const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
@@ -15,16 +16,13 @@ export function setupStartScreenMusic() {
 export function startStartScreenMusic() {
   isStartScreenMusicWanted = true;
   clearTimeout(startScreenMusicTimeout);
-  startScreenMusic.play().catch((error) => {
-    if (error.name !== "NotAllowedError") console.error("Start-screen music could not be played.", error);
-  });
+  AudioError.play(startScreenMusic);
 }
 
 export function stopStartScreenMusic() {
   isStartScreenMusicWanted = false;
   clearTimeout(startScreenMusicTimeout);
-  startScreenMusic.pause();
-  startScreenMusic.currentTime = 0;
+  AudioError.stop(startScreenMusic);
 }
 
 function handleStartScreenMusicEnded() {
@@ -39,7 +37,7 @@ function handleVisibilityChange() {
 function pauseAudioForHiddenTab() {
   wasGameplayMusicPlaying = Boolean(appState.world && !appState.world.gameplayMusic.paused);
   clearTimeout(startScreenMusicTimeout);
-  startScreenMusic.pause();
+  AudioError.pause(startScreenMusic);
   appState.world?.pauseGameplayMusic();
 }
 

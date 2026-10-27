@@ -5,6 +5,7 @@ import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { createLevel1 } from "../level/level1.js";
 import { FemaleCharacter } from "./female-character.class.js";
+import { AudioError } from "./audio-error.class.js";
 
 const READY_DURATION_MS = 1500;
 
@@ -130,11 +131,11 @@ export class World {
   }
 
   startGameplayMusic() {
-    this.gameplayMusic.play();
+    AudioError.play(this.gameplayMusic);
   }
 
   pauseGameplayMusic() {
-    this.gameplayMusic.pause();
+    AudioError.pause(this.gameplayMusic);
   }
 
   resumeGameplayMusic() {
@@ -144,8 +145,7 @@ export class World {
   }
 
   stopGameplayMusic() {
-    this.gameplayMusic.pause();
-    this.gameplayMusic.currentTime = 0;
+    AudioError.stop(this.gameplayMusic);
   }
 
   checkItemCollection() {
