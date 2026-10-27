@@ -6,6 +6,7 @@ import { FinalBoss } from "./final-boss.class.js";
 import { createLevel1 } from "../level/level1.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";
+import { applyMusicVolume } from "../audio.js";
 
 const READY_DURATION_MS = 1500;
 
@@ -48,7 +49,7 @@ export class World {
   setupGameplayMusic() {
     this.gameplayMusic = new Audio("assets/audio/gameplay.ogg");
     this.gameplayMusic.loop = true;
-    this.gameplayMusic.volume = appState.musicVolume;
+    applyMusicVolume(this.gameplayMusic);
     this.startGameplayMusic();
   }
 

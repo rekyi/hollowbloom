@@ -49,12 +49,23 @@ function resumeAudioForVisibleTab() {
 
 export function setupAudioSettings() {
   loadAudioSettings();
+  setVolumeSlider("master-volume", appState.masterVolume);
   setVolumeSlider("music-volume", appState.musicVolume);
   setVolumeSlider("sound-effects-volume", appState.soundEffectsVolume);
+  updateAudioMuteButton();
   applyMusicVolume();
+  document.getElementById("master-volume").addEventListener("input", handleMasterVolumeInput);
   document.getElementById("music-volume").addEventListener("input", handleMusicVolumeInput);
   document.getElementById("sound-effects-volume").addEventListener("input", handleSoundEffectsVolumeInput);
+  document.getElementById("audio-mute-button").addEventListener("click", toggleAudioMute);
   document.addEventListener("visibilitychange", handleVisibilityChange);
+}
+
+function handleMasterVolumeInput(event) {
+  appState.masterVolume = Number(event.target.value) / 100;
+  showVolumeValue("master-volume-value", event.target.value);
+  applyMusicVolume();
+  saveAudioSettings();
 }
 
 function handleMusicVolumeInput(event) {
@@ -70,9 +81,31 @@ function handleSoundEffectsVolumeInput(event) {
   saveAudioSettings();
 }
 
-function applyMusicVolume() {
-  startScreenMusic.volume = appState.musicVolume;
-  if (appState.world) appState.world.gameplayMusic.volume = appState.musicVolume;
+function toggleAudioMute() {
+  appState.isAudioMuted = !appState.isAudioMuted;
+  updateAudioMuteButton();
+  applyMusicVolume();
+  saveAudioSettings();
+}
+
+function updateAudioMuteButton() {
+  const muteButtonRef = document.getElementById("audio-mute-button");
+  const settingsAudioRef = document.querySelector(".settings-audio");
+  muteButtonRef.setAttribute("aria-pressed", String(appState.isAudioMuted));
+  muteButtonRef.setAttribute("aria-label", appState.isAudioMuted ? "Ton einschalten" : "Ton ausschalten");
+  settingsAudioRef.classList.toggle("is-muted", appState.isAudioMuted);
+  settingsAudioRef.querySelectorAll('input[type="range"]').forEach((sliderRef) => {
+    sliderRef.disabled = appState.isAudioMuted;
+  });
+}
+
+export function applyMusicVolume(gameplayMusic = appState.world?.gameplayMusic) {
+  const volume = appState.masterVolume * appState.musicVolume;
+  startScreenMusic.volume = volume;
+  startScreenMusic.muted = appState.isAudioMuted;
+  if (!gameplayMusic) return;
+  gameplayMusic.volume = volume;
+  gameplayMusic.muted = appState.isAudioMuted;
 }
 
 function setVolumeSlider(sliderId, volume) {
@@ -89,8 +122,10 @@ function saveAudioSettings() {
   localStorage.setItem(
     AUDIO_SETTINGS_STORAGE_KEY,
     JSON.stringify({
+      masterVolume: appState.masterVolume,
       musicVolume: appState.musicVolume,
       soundEffectsVolume: appState.soundEffectsVolume,
+      isAudioMuted: appState.isAudioMuted,
     }),
   );
 }
@@ -98,8 +133,10 @@ function saveAudioSettings() {
 function loadAudioSettings() {
   try {
     const settings = JSON.parse(localStorage.getItem(AUDIO_SETTINGS_STORAGE_KEY));
+    if (isValidVolume(settings?.masterVolume)) appState.masterVolume = settings.masterVolume;
     if (isValidVolume(settings?.musicVolume)) appState.musicVolume = settings.musicVolume;
     if (isValidVolume(settings?.soundEffectsVolume)) appState.soundEffectsVolume = settings.soundEffectsVolume;
+    if (typeof settings?.isAudioMuted === "boolean") appState.isAudioMuted = settings.isAudioMuted;
   } catch (error) {
     console.error("Saved audio settings could not be loaded.", error);
   }

@@ -62,20 +62,37 @@
         <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
         <fieldset class="settings-audio">
           <legend>Audio</legend>
-          <label class="audio-setting" for="music-volume">
-            Musik
+          <div class="audio-setting">
+            <label for="master-volume">Gesamtlautstärke</label>
+            <span class="audio-setting-control">
+              <button id="audio-mute-button" class="audio-mute-button" type="button" aria-label="Ton ausschalten" aria-pressed="false">
+                <svg data-muted-icon viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
+                  <path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                </svg>
+                <svg data-unmuted-icon viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
+                  <path d="M16 9a5 5 0 0 1 0 6m2-9a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                </svg>
+              </button>
+              <input id="master-volume" type="range" min="0" max="100" step="1" value="100" />
+              <output id="master-volume-value" for="master-volume">100%</output>
+            </span>
+          </div>
+          <div class="audio-setting">
+            <label for="music-volume">Musik</label>
             <span class="audio-setting-control">
               <input id="music-volume" type="range" min="0" max="100" step="1" value="100" />
               <output id="music-volume-value" for="music-volume">100%</output>
             </span>
-          </label>
-          <label class="audio-setting" for="sound-effects-volume">
-            Soundeffekte
+          </div>
+          <div class="audio-setting">
+            <label for="sound-effects-volume">Soundeffekte</label>
             <span class="audio-setting-control">
               <input id="sound-effects-volume" type="range" min="0" max="100" step="1" value="100" />
               <output id="sound-effects-volume-value" for="sound-effects-volume">100%</output>
             </span>
-          </label>
+          </div>
         </fieldset>
         <button id="settings-back-button" type="button">Zurück</button>
       </div>

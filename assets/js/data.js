@@ -80,6 +80,8 @@ export const appState = {
   world: null,
   keyboard: null,
   selectedCharacterClass: null,
+  masterVolume: 1,
   musicVolume: 1,
   soundEffectsVolume: 1,
+  isAudioMuted: false,
 };
