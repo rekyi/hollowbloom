@@ -12,6 +12,7 @@ const SFX_FILES = {
   enemyHit: getSfxPaths("enemy", "enemy_hit", 3),
   enemyDeath: ["enemy/enemy_death.mp3"],
   bossExplosion: ["boss/explosion_medium.wav"],
+  finalBossDeath: ["boss/final_boss_death.wav"],
   coinCollect: ["items/coin_collect.wav"],
 };
 

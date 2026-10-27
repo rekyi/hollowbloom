@@ -1,4 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
+import { playSfx } from "../sfx.js";
 import { MoveableObject } from "./movable-object.class.js";
 
 export class FinalBoss extends MoveableObject {
@@ -126,6 +127,7 @@ export class FinalBoss extends MoveableObject {
 
   startDeath() {
     const size = 300;
+    playSfx("finalBossDeath");
     this.deathStartedAt = gameLoop.now();
     this.currentImage = 0;
     this.x += (this.width - size) / 2;
