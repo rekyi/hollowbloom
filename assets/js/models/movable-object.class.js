@@ -1,4 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
+import { playSfx } from "../sfx.js";
 import { DrawableObject } from "./drawable-object.class.js";
 
 export class MoveableObject extends DrawableObject {
@@ -67,6 +68,7 @@ export class MoveableObject extends DrawableObject {
   jump() {
     if (!this.isAboveGround()) {
       this.speedY = 20;
+      playSfx("jumpingBefore");
     }
   }
 
@@ -86,8 +88,10 @@ export class MoveableObject extends DrawableObject {
   }
 
   land(groundY) {
+    const wasAboveGround = this.isAboveGround();
     this.y = groundY;
     this.speedY = 0;
+    if (wasAboveGround) playSfx("jumpingAfter");
   }
 
   isAboveGround() {
