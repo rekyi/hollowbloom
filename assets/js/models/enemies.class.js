@@ -63,7 +63,7 @@ export class Enemy extends MoveableObject {
 
   hit() {
     if (!super.hit()) return false;
-    playSfx("enemyHit");
+    playSfx(this.isDead() ? "enemyDeath" : "enemyHit");
     const targetCenter = this.target ? this.target.x + this.target.width / 2 : this.x;
     this.knockbackDirection = this.x + this.width / 2 < targetCenter ? -1 : 1;
     this.knockbackFrames = 6;
