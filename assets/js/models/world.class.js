@@ -7,6 +7,7 @@ import { createLevel1 } from "../level/level1.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";
 import { applyMusicVolume } from "../audio.js";
+import { playSfx } from "../sfx.js";
 
 const READY_DURATION_MS = 1500;
 
@@ -155,6 +156,7 @@ export class World {
     this.level.items.forEach((item) => {
       if (item.isCollected || !this.hitboxesOverlap(characterHitbox, item.getHitbox())) return;
       item.isCollected = true;
+      playSfx("coinCollect");
       this.character.collectCoin();
       this.statusBar.setCoins(this.character.coins);
     });
