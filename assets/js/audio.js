@@ -1,6 +1,7 @@
 import { appState, startScreenMusic } from "./data.js";
 import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
+import { applySfxSettings } from "./sfx.js";
 
 const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
 const START_SCREEN_MUSIC_PAUSE_MS = 3000;
@@ -54,6 +55,7 @@ export function setupAudioSettings() {
   setVolumeSlider("sound-effects-volume", appState.soundEffectsVolume);
   updateAudioMuteButton();
   applyMusicVolume();
+  applySfxSettings();
   document.getElementById("master-volume").addEventListener("input", handleMasterVolumeInput);
   document.getElementById("music-volume").addEventListener("input", handleMusicVolumeInput);
   document.getElementById("sound-effects-volume").addEventListener("input", handleSoundEffectsVolumeInput);
@@ -65,6 +67,7 @@ function handleMasterVolumeInput(event) {
   appState.masterVolume = Number(event.target.value) / 100;
   showVolumeValue("master-volume-value", event.target.value);
   applyMusicVolume();
+  applySfxSettings();
   saveAudioSettings();
 }
 
@@ -78,6 +81,7 @@ function handleMusicVolumeInput(event) {
 function handleSoundEffectsVolumeInput(event) {
   appState.soundEffectsVolume = Number(event.target.value) / 100;
   showVolumeValue("sound-effects-volume-value", event.target.value);
+  applySfxSettings();
   saveAudioSettings();
 }
 
@@ -85,6 +89,7 @@ function toggleAudioMute() {
   appState.isAudioMuted = !appState.isAudioMuted;
   updateAudioMuteButton();
   applyMusicVolume();
+  applySfxSettings();
   saveAudioSettings();
 }
 

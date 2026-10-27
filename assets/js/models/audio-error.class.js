@@ -1,14 +1,11 @@
 const pendingPlays = new WeakMap();
-const monitoredSounds = new WeakSet();
 
 export class AudioError {
   static play(sound) {
-    monitorAudioErrors(sound);
-    if (sound.readyState === 4) {
-      playSound(sound);
-      return;
-    }
-    if (!pendingPlays.has(sound)) waitForSound(sound);
+    cancelPendingPlay(sound);
+    if (sound.error) reportLoadError(sound);
+    else if (sound.readyState === 4) startSound(sound);
+    else waitUntilReady(sound);
   }
 
   static pause(sound) {
@@ -22,40 +19,24 @@ export class AudioError {
   }
 }
 
-function monitorAudioErrors(sound) {
-  if (monitoredSounds.has(sound)) return;
-  sound.addEventListener("error", handleAudioError);
-  monitoredSounds.add(sound);
+function startSound(sound) {
+  sound.play().catch((error) => {
+    if (error.name !== "NotAllowedError") console.error("Audio playback failed.", sound.src, error);
+  });
 }
 
-function handleAudioError(event) {
-  console.error("Audio resource could not be loaded.", event.currentTarget.error || event);
-}
-
-function waitForSound(sound) {
-  const onCanPlaythrough = () => {
-    cancelPendingPlay(sound);
-    if (sound.readyState === 4) playSound(sound);
-  };
-  const onError = () => cancelPendingPlay(sound);
-  pendingPlays.set(sound, { onCanPlaythrough, onError });
-  sound.addEventListener("canplaythrough", onCanPlaythrough, { once: true });
-  sound.addEventListener("error", onError, { once: true });
+function waitUntilReady(sound) {
+  const controller = new AbortController();
+  const options = { once: true, signal: controller.signal };
+  sound.addEventListener("canplaythrough", () => startSound(sound), options);
+  sound.addEventListener("error", () => reportLoadError(sound), options);
+  pendingPlays.set(sound, controller);
 }
 
 function cancelPendingPlay(sound) {
-  const pendingPlay = pendingPlays.get(sound);
-  if (!pendingPlay) return;
-  sound.removeEventListener("canplaythrough", pendingPlay.onCanPlaythrough);
-  sound.removeEventListener("error", pendingPlay.onError);
-  pendingPlays.delete(sound);
+  pendingPlays.get(sound)?.abort();
 }
 
-function playSound(sound) {
-  sound.play().catch(handlePlayRejection);
-}
-
-function handlePlayRejection(error) {
-  if (error?.name === "NotAllowedError") return;
-  console.error("Audio playback failed.", error);
+function reportLoadError(sound) {
+  console.error("Audio resource could not be loaded.", sound.src);
 }

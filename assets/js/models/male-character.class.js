@@ -1,4 +1,5 @@
 import { CHARACTER_SETTING_KEYS, EXTRA_ATTACK_COIN_THRESHOLD, MALE_CHARACTER_CONFIG } from "../data.js";
+import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { MoveableObject } from "./movable-object.class.js";
@@ -219,7 +220,12 @@ export class MaleCharacter extends MoveableObject {
   attack() {
     this.updateState();
     if (!this.canPerformAction("attack")) return;
+    this.playAttackStartSfx();
     this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+  }
+
+  playAttackStartSfx() {
+    playSfx("maleAttack1");
   }
 
   extraAttack() {
@@ -290,8 +296,15 @@ export class MaleCharacter extends MoveableObject {
       return;
     }
     this.img = this.imageCache[this.activeAttackImages[frame]];
-    if (this.attackTick === this.activeAttackDamageFrame * this.attackTicksPerFrame) this.damageEnemiesInReach();
+    if (this.attackTick === this.activeAttackDamageFrame * this.attackTicksPerFrame) {
+      if (this.activeAttackImages === this.IMAGES_EXTRA_ATTACK) this.playExtraAttackSfx();
+      this.damageEnemiesInReach();
+    }
     this.attackTick++;
+  }
+
+  playExtraAttackSfx() {
+    playSfx("maleAttack3");
   }
 
   finishAttack() {
