@@ -119,6 +119,7 @@ export class FinalBoss extends MoveableObject {
 
   hit() {
     if (!super.hit()) return false;
+    playSfx("enemyHit");
     this.isAttacking = false;
     if (this.isDead()) this.startDeath();
     else this.startHurt();

@@ -44,7 +44,7 @@ export const MALE_CHARACTER_CONFIG = {
     idle: { file: "idle.png", count: 6 },
     idleLong: { file: "idle_long.png", count: 5 },
     attack: { file: "attack_1.png", count: 10 },
-    extraAttack: { file: "attack_3.png", count: 8 },
+    extraAttack: { file: "attack_3.png", count: 7 },
     jumping: { file: "jump.png", count: 11 },
     hurt: { file: "hurt.png", count: 4 },
     dead: { file: "dead.png", count: 4 },
