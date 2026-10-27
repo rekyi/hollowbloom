@@ -1,4 +1,4 @@
-import { appState, startScreenMusic } from "./data.js";
+import { appState, deathScreenMusic, startScreenMusic } from "./data.js";
 import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
 import { applySfxSettings } from "./sfx.js";
@@ -24,6 +24,16 @@ export function stopStartScreenMusic() {
   isStartScreenMusicWanted = false;
   clearTimeout(startScreenMusicTimeout);
   AudioError.stop(startScreenMusic);
+}
+
+export function startDeathScreenMusic() {
+  deathScreenMusic.loop = false;
+  AudioError.stop(deathScreenMusic);
+  AudioError.play(deathScreenMusic);
+}
+
+export function stopDeathScreenMusic() {
+  AudioError.stop(deathScreenMusic);
 }
 
 function handleStartScreenMusicEnded() {
@@ -108,6 +118,8 @@ export function applyMusicVolume(gameplayMusic = appState.world?.gameplayMusic) 
   const volume = appState.masterVolume * appState.musicVolume;
   startScreenMusic.volume = volume;
   startScreenMusic.muted = appState.isAudioMuted;
+  deathScreenMusic.volume = volume;
+  deathScreenMusic.muted = appState.isAudioMuted;
   if (!gameplayMusic) return;
   gameplayMusic.volume = volume;
   gameplayMusic.muted = appState.isAudioMuted;

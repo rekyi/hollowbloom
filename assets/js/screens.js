@@ -4,7 +4,7 @@ import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
 import { resetKeyboard } from "./input.js";
-import { startStartScreenMusic, stopStartScreenMusic } from "./audio.js";
+import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 
 const SCREEN_FADE_DURATION_MS = 350;
 let isScreenTransitioning = false;
@@ -48,6 +48,7 @@ function updateCharacterChoices(containerRef, selectedRef) {
 function startGame() {
   if (isScreenTransitioning) return;
   resetKeyboard();
+  stopDeathScreenMusic();
   appState.world?.stopGameplayMusic();
   gameLoop.stop();
   runScreenTransition(startGameAtBlackout);
@@ -70,6 +71,7 @@ function showGameOver() {
 function showGameOverAtBlackout() {
   drawGameOverCharacter();
   document.getElementById("game-over").hidden = false;
+  startDeathScreenMusic();
 }
 
 function showVictory() {
@@ -107,6 +109,7 @@ export function syncPauseScreen() {
 function returnToMainMenu() {
   if (isScreenTransitioning) return;
   resetKeyboard();
+  stopDeathScreenMusic();
   gameLoop.stop();
   runScreenTransition(showStartScreen);
 }
