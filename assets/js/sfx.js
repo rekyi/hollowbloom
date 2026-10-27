@@ -24,7 +24,7 @@ export function setupSfx() {
   applySfxSettings();
 }
 
-export function playSfx(name, { volume = 1, pitchVariation = 0.05 } = {}) {
+export function playSfx(name, { volume = 0.5, pitchVariation = 0.05 } = {}) {
   const soundVariants = sounds.get(name);
   if (!soundVariants) {
     console.error(`Unknown sound effect: ${name}`);
