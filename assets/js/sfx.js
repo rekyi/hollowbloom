@@ -10,9 +10,9 @@ const SFX_FILES = {
   walking: getSfxPaths("character", "walking", 4),
   running: getSfxPaths("character", "running", 4, "wav"),
   enemyHit: getSfxPaths("enemy", "enemy_hit", 3),
-  enemyDeath: getSfxPaths("enemy", "enemy_death", 1, "mp3"),
-  bossExplosion: getSfxPaths("boss", "explosion_medium", 1, "wav"),
-  coinCollect: getSfxPaths("items", "coin_collect", 1, "wav"),
+  enemyDeath: ["enemy/enemy_death.mp3"],
+  bossExplosion: ["boss/explosion_medium.wav"],
+  coinCollect: ["items/coin_collect.wav"],
 };
 
 const sounds = new Map();

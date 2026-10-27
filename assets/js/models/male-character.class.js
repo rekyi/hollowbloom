@@ -20,6 +20,9 @@ export class MaleCharacter extends MoveableObject {
   lastIdleFrame = 0;
   idleLongFrame = 0;
   animationElapsedMs = 0;
+  stepElapsedSeconds = 0;
+  activeFootstepSfx = null;
+  footstepStartDelaySeconds = 0;
   IMAGES_JUMPING;
   IMAGES_STANDING;
   IMAGES_ATTACK;
@@ -119,7 +122,34 @@ export class MaleCharacter extends MoveableObject {
       this.updatePhysics();
     }
     this.updateState();
+    this.updateFootsteps();
     this.tickAnimation();
+  }
+
+  updateFootsteps() {
+    const key = this.world.keyboard;
+    if (!this.canPlayFootsteps()) {
+      this.stepElapsedSeconds = 0;
+      this.activeFootstepSfx = null;
+      return;
+    }
+    const soundName = key.SHIFT ? "running" : "walking";
+    const stepInterval = key.SHIFT ? 0.25 : 0.22;
+    if (soundName !== this.activeFootstepSfx) {
+      this.activeFootstepSfx = soundName;
+      this.stepElapsedSeconds = stepInterval - this.footstepStartDelaySeconds;
+    }
+    this.stepElapsedSeconds += gameLoop.fixedStepSeconds;
+    if (this.stepElapsedSeconds < stepInterval) return;
+    this.stepElapsedSeconds = 0;
+    playSfx(soundName);
+  }
+
+  canPlayFootsteps() {
+    const key = this.world.keyboard;
+    const isMovingRight = key.RIGHT && !key.LEFT && this.x < this.world.level.levelEndX;
+    const isMovingLeft = key.LEFT && !key.RIGHT && this.x > 0;
+    return (isMovingRight || isMovingLeft) && !this.isAboveGround() && !this.isAttacking && !this.gettingHit() && !this.isDead();
   }
 
   tickAnimation() {

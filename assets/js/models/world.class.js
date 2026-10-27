@@ -47,7 +47,7 @@ export class World {
   }
 
   setupGameplayMusic() {
-    this.gameplayMusic = new Audio("assets/audio/gameplay.ogg");
+    this.gameplayMusic = new Audio("assets/audio/music/gameplay.ogg");
     this.gameplayMusic.loop = true;
     applyMusicVolume(this.gameplayMusic);
     this.startGameplayMusic();

@@ -73,7 +73,7 @@ export const FEMALE_CHARACTER_CONFIG = {
   },
 };
 
-export const startScreenMusic = new Audio("assets/audio/start_screen.ogg");
+export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");
 export const pressedKeys = new Set();
 export const appState = {
   canvasRef: null,
