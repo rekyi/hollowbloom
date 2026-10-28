@@ -55,7 +55,8 @@ export class Enemy extends EnemyBehavior {
   getAnimationState() {
     if (this.gettingHit() && this.IMAGES_HURT.length) return { state: "hurt", images: this.IMAGES_HURT };
     if (this.isAttacking) return { state: "attack", images: this.IMAGES_ATTACK };
-    if (this.isMoving) return { state: "moving", images: this.IMAGES_MOVING };
+    if (this.isAggro && this.isMoving && this.IMAGES_RUN.length) return { state: "run", images: this.IMAGES_RUN };
+    if (this.isMoving) return { state: "walk", images: this.IMAGES_MOVING };
     return { state: "idle", images: this.IMAGES_IDLE };
   }
 

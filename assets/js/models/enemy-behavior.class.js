@@ -4,9 +4,11 @@ import { MoveableObject } from "./movable-object.class.js";
 export class EnemyBehavior extends MoveableObject {
   IMAGES_IDLE = [];
   IMAGES_MOVING = [];
+  IMAGES_RUN = [];
   IMAGES_HURT = [];
   IMAGES_DEAD = [];
   IMAGES_ATTACK = [];
+  animationInterval = 120;
   hp = 2;
   movementDirection = -1;
   isOppositeDirection = true;
@@ -44,7 +46,7 @@ export class EnemyBehavior extends MoveableObject {
 
   animation() {
     gameLoop.runEvery(1000 / 60, () => this.updateMovement());
-    gameLoop.runEvery(120, () => this.updateAnimation());
+    gameLoop.runEvery(this.animationInterval, () => this.updateAnimation());
   }
 
   updateMovement() {
