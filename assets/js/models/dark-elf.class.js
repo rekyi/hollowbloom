@@ -1,7 +1,7 @@
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const DARK_ELF_PATH = "assets/images/3_enemies/dark_elf/";
-function getDarkElfSprite(name, frameCount = 6, frameSize = 300, frameHeight = 384, columns = frameCount, placement = null) {
+function getDarkElfSprite(name, frameCount, frameSize = 300, frameHeight = 300, columns = 10, placement = { width: frameSize, height: 384 }) {
   return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, frameSize, frameHeight, columns, placement };
 }
 const DARK_ELF_SETTINGS = {
@@ -11,17 +11,17 @@ const DARK_ELF_SETTINGS = {
   attackHitbox: { top: 40, right: 14, bottom: 20, left: 14 },
   attackHitStartFrame: 3,
   sprites: {
-    idle: getDarkElfSprite("walk"),
-    walk: getDarkElfSprite("walk"),
-    run: getDarkElfSprite("run"),
+    idle: getDarkElfSprite("walk", 13),
+    walk: getDarkElfSprite("walk", 13),
+    run: getDarkElfSprite("run", 9),
     attack: [
-      { ...getDarkElfSprite("attack_0", 10), hitStartFrame: 7 },
+      { ...getDarkElfSprite("attack_0", 14), hitStartFrame: 7 },
       { ...getDarkElfSprite("attack_1", 20, 400, 300, 10, { width: 400, height: 384 }), hitStartFrame: 3 },
     ],
-    hurt: [getDarkElfSprite("hurt_0"), getDarkElfSprite("hurt_1"), getDarkElfSprite("hurt_2")],
-    death: getDarkElfSprite("death"),
-    frozen: getDarkElfSprite("frozen"),
-    shock: getDarkElfSprite("shock"),
+    hurt: [getDarkElfSprite("hurt_0", 8), getDarkElfSprite("hurt_1", 6), getDarkElfSprite("hurt_2", 13)],
+    death: getDarkElfSprite("death", 10, 400, 400, 10, { width: 400, height: 400 }),
+    frozen: getDarkElfSprite("frozen", 10),
+    shock: getDarkElfSprite("shock", 16),
   },
 };
 

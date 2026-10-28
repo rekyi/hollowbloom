@@ -12,6 +12,8 @@ export class EnemyBehavior extends MoveableObject {
   IMAGES_SHOCK = [];
   animationInterval = 120;
   attackAnimationInterval = 120;
+  runAnimationInterval = 120;
+  deathAnimationInterval = 120;
   hp = 2;
   movementDirection = -1;
   isOppositeDirection = true;
@@ -57,11 +59,19 @@ export class EnemyBehavior extends MoveableObject {
   }
 
   getAnimationSchedulerInterval() {
-    return Math.min(this.animationInterval, this.attackAnimationInterval);
+    return Math.min(this.animationInterval, this.attackAnimationInterval, this.runAnimationInterval, this.deathAnimationInterval);
   }
 
   getAnimationInterval() {
-    return this.currentAnimation === "attack" ? this.attackAnimationInterval : this.animationInterval;
+    if (this.currentAnimation === "dead") return this.deathAnimationInterval;
+    if (this.currentAnimation === "attack") return this.attackAnimationInterval;
+    if (this.currentAnimation === "run") return this.runAnimationInterval;
+    return this.animationInterval;
+  }
+
+  gettingHit() {
+    const hurtDuration = Math.max(500, (this.IMAGES_HURT.length + 1) * this.animationInterval);
+    return gameLoop.now() - this.lastHit < hurtDuration;
   }
 
   updateAnimationByInterval() {

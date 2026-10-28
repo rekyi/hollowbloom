@@ -13,6 +13,8 @@ export class ConfigurableEnemy extends Enemy {
     super();
     this.animationInterval = settings.animationInterval ?? 120;
     this.attackAnimationInterval = settings.attackAnimationInterval ?? this.animationInterval;
+    this.runAnimationInterval = settings.runAnimationInterval ?? this.animationInterval;
+    this.deathAnimationInterval = settings.deathAnimationInterval ?? this.animationInterval;
     this.IMAGES_IDLE = this.loadAnimation(settings.sprites.idle || settings.sprites.walk);
     this.IMAGES_MOVING = this.loadAnimation(settings.sprites.walk || settings.sprites.idle);
     this.IMAGES_RUN = this.loadAnimation(settings.sprites.run || settings.sprites.walk || settings.sprites.idle);
@@ -63,6 +65,12 @@ export class ConfigurableEnemy extends Enemy {
     } else if (source.character === "male" && source.attackType === "attack_3" && this.IMAGES_SHOCK.length) {
       this.applyStatus("shock", SHOCK_DURATION_MS);
     }
+  }
+
+  applyStatus(status, duration) {
+    const images = status === "frozen" ? this.IMAGES_FROZEN : this.IMAGES_SHOCK;
+    const animationDuration = (images.length + 1) * this.animationInterval;
+    super.applyStatus(status, Math.max(duration, animationDuration));
   }
 
   tryStartAttack() {
