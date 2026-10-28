@@ -8,6 +8,8 @@ export class EnemyBehavior extends MoveableObject {
   IMAGES_HURT = [];
   IMAGES_DEAD = [];
   IMAGES_ATTACK = [];
+  IMAGES_FROZEN = [];
+  IMAGES_SHOCK = [];
   animationInterval = 120;
   hp = 2;
   movementDirection = -1;
@@ -22,6 +24,8 @@ export class EnemyBehavior extends MoveableObject {
   attackReach = 0;
   isAggro = false;
   isReturning = false;
+  status = null;
+  statusUntil = Number.NEGATIVE_INFINITY;
   aggroRange = 300;
   target = null;
   drawHitbox = true;
@@ -51,6 +55,10 @@ export class EnemyBehavior extends MoveableObject {
 
   updateMovement() {
     this.updateAggro();
+    if (this.getActiveStatus()) {
+      this.isMoving = false;
+      return;
+    }
     if (this.knockbackFrames > 0) this.applyKnockback();
     else if (this.isAggro && !this.isDead()) this.updateChase();
     else if (this.isReturning && !this.isDead()) this.returnToSpawn();
@@ -95,6 +103,20 @@ export class EnemyBehavior extends MoveableObject {
     } else if (this.isAggro && distance > this.aggroRange) {
       this.resetToSpawn();
     }
+  }
+
+  getActiveStatus() {
+    return gameLoop.now() < this.statusUntil ? this.status : null;
+  }
+
+  applyStatus(status, duration) {
+    this.status = status;
+    this.statusUntil = gameLoop.now() + duration;
+    this.isAttacking = false;
+    this.isMoving = false;
+    this.knockbackFrames = 0;
+    this.currentAnimation = status;
+    this.currentImage = 0;
   }
 
   getDistanceToTarget() {

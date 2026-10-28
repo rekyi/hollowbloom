@@ -25,7 +25,7 @@ export class Enemy extends EnemyBehavior {
   }
 
   tryStartAttack() {
-    if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || !this.IMAGES_ATTACK.length) return;
+    if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || this.getActiveStatus() || !this.IMAGES_ATTACK.length) return;
     this.faceTarget();
     if (!this.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
     if (gameLoop.now() < this.nextAttackAt) return;
@@ -53,6 +53,8 @@ export class Enemy extends EnemyBehavior {
   }
 
   getAnimationState() {
+    if (this.getActiveStatus() === "frozen" && this.IMAGES_FROZEN.length) return { state: "frozen", images: this.IMAGES_FROZEN };
+    if (this.getActiveStatus() === "shock" && this.IMAGES_SHOCK.length) return { state: "shock", images: this.IMAGES_SHOCK };
     if (this.gettingHit() && this.IMAGES_HURT.length) return { state: "hurt", images: this.IMAGES_HURT };
     if (this.isAttacking) return { state: "attack", images: this.IMAGES_ATTACK };
     if (this.isAggro && this.isMoving && this.IMAGES_RUN.length) return { state: "run", images: this.IMAGES_RUN };

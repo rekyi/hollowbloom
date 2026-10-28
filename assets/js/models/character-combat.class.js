@@ -8,18 +8,19 @@ export class CharacterCombat extends CharacterMovement {
     this.updateState();
     if (!this.canPerformAction("attack")) return;
     this.playAttackStartSfx();
-    this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+    this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach, "attack_1");
   }
 
   extraAttack() {
     this.updateState();
     if (!this.canPerformAction("attack") || this.coins < EXTRA_ATTACK_COIN_THRESHOLD) return;
-    this.startAttack(this.IMAGES_EXTRA_ATTACK, this.extraAttackDamageFrame, this.extraAttackReach);
+    this.startAttack(this.IMAGES_EXTRA_ATTACK, this.extraAttackDamageFrame, this.extraAttackReach, this.extraAttackType);
   }
 
-  startAttack(images, damageFrame, reach) {
+  startAttack(images, damageFrame, reach, attackType) {
     this.isAttacking = true;
     this.attackTick = 0;
+    this.activeAttackType = attackType;
     this.setActiveAttack(images, damageFrame, reach);
     this.updateState();
   }
@@ -70,6 +71,7 @@ export class CharacterCombat extends CharacterMovement {
 
   finishAttack() {
     this.isAttacking = false;
+    this.activeAttackType = "attack_1";
     this.setActiveAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
   }
 
@@ -79,7 +81,7 @@ export class CharacterCombat extends CharacterMovement {
       if (enemy.isDead()) return;
       const reach = enemy instanceof FinalBoss ? this.getBossReach(box) : this.getReach(box);
       if (!this.world.hitboxesOverlap(reach, enemy.getHitbox())) return;
-      if (enemy.hit()) this.world.triggerHitFeedback();
+      if (enemy.hit({ character: this.characterType, attackType: this.activeAttackType })) this.world.triggerHitFeedback();
     });
   }
 

@@ -1,5 +1,8 @@
 import { Enemy } from "./enemy.class.js";
 
+const FROZEN_DURATION_MS = 2000;
+const SHOCK_DURATION_MS = 1000;
+
 export class ConfigurableEnemy extends Enemy {
   attackAnimations = [];
   hurtAnimations = [];
@@ -16,6 +19,8 @@ export class ConfigurableEnemy extends Enemy {
     this.IMAGES_ATTACK = this.attackAnimations[0] || [];
     this.IMAGES_HURT = this.hurtAnimations[0] || [];
     this.IMAGES_DEAD = this.loadAnimation(settings.sprites.death);
+    this.IMAGES_FROZEN = this.loadAnimation(settings.sprites.frozen);
+    this.IMAGES_SHOCK = this.loadAnimation(settings.sprites.shock);
     this.setEnemySettings(settings);
     this.start();
   }
@@ -38,10 +43,20 @@ export class ConfigurableEnemy extends Enemy {
     return sprites.map((sprite) => this.loadAnimation(sprite));
   }
 
-  hit() {
+  hit(source) {
     if (!super.hit()) return false;
     this.IMAGES_HURT = this.selectRandomAnimation(this.hurtAnimations);
+    this.applyHitStatus(source);
     return true;
+  }
+
+  applyHitStatus(source) {
+    if (this.isDead() || !source) return;
+    if (source.character === "female" && source.attackType === "attack_4" && this.IMAGES_FROZEN.length) {
+      this.applyStatus("frozen", FROZEN_DURATION_MS);
+    } else if (source.character === "male" && source.attackType === "attack_3" && this.IMAGES_SHOCK.length) {
+      this.applyStatus("shock", SHOCK_DURATION_MS);
+    }
   }
 
   tryStartAttack() {

@@ -2,6 +2,9 @@ import { playSfx } from "../sfx.js";
 import { CharacterVisuals } from "./character-visuals.class.js";
 
 export class MaleCharacter extends CharacterVisuals {
+  characterType = "male";
+  extraAttackType = "attack_3";
+
   constructor(config = {}) {
     super();
     const settings = this.mergeSettings(config);
