@@ -39,8 +39,8 @@ export class Boar extends ConfigurableEnemy {
   idleAlertStartedAt = 0;
   idleAlertFrameAt = 0;
 
-  constructor() {
-    super(BOAR_SETTINGS);
+  constructor(positionOverrides = {}) {
+    super(BOAR_SETTINGS, positionOverrides);
     this.isMovable = false;
     this.isMoving = false;
     this.IMAGES_ALERT = this.loadAnimation(BOAR_SPRITES.alert);

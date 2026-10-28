@@ -22,8 +22,8 @@ const DARK_ELF_SETTINGS = {
 };
 
 export class DarkElf extends ConfigurableEnemy {
-  constructor() {
-    super(DARK_ELF_SETTINGS);
+  constructor(positionOverrides = {}) {
+    super(DARK_ELF_SETTINGS, positionOverrides);
   }
 
   playIdle() {

@@ -8,7 +8,7 @@ export class ConfigurableEnemy extends Enemy {
   hurtAnimations = [];
   attackHitEndFrameOverride = null;
 
-  constructor(settings) {
+  constructor(settings, positionOverrides = {}) {
     super();
     this.animationInterval = settings.animationInterval ?? 120;
     this.IMAGES_IDLE = this.loadAnimation(settings.sprites.idle || settings.sprites.walk);
@@ -21,7 +21,10 @@ export class ConfigurableEnemy extends Enemy {
     this.IMAGES_DEAD = this.loadAnimation(settings.sprites.death);
     this.IMAGES_FROZEN = this.loadAnimation(settings.sprites.frozen);
     this.IMAGES_SHOCK = this.loadAnimation(settings.sprites.shock);
-    this.setEnemySettings(settings);
+    this.setEnemySettings({
+      ...settings,
+      position: { ...settings.position, ...positionOverrides },
+    });
     this.start();
   }
 

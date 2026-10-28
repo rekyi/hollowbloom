@@ -22,7 +22,7 @@ const SKELETON_SETTINGS = {
 export class Skeleton extends ConfigurableEnemy {
   isSpriteDirectionInverted = true;
 
-  constructor() {
-    super(SKELETON_SETTINGS);
+  constructor(positionOverrides = {}) {
+    super(SKELETON_SETTINGS, positionOverrides);
   }
 }
