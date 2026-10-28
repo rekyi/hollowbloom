@@ -23,7 +23,7 @@ export class FinalBoss extends MoveableObject {
   normalAttackCooldown = 3000;
   enragedAttackCooldown = 2500;
   attackRange = 300;
-  normalAttackFrameDuration = 115;
+  attackAnimationInterval = 115;
   enragedAttackFrameDuration = 95;
   attackStartedAt = Number.NEGATIVE_INFINITY;
   hurtStartedAt = Number.NEGATIVE_INFINITY;
@@ -110,7 +110,7 @@ export class FinalBoss extends MoveableObject {
   }
 
   getAttackFrameDuration() {
-    return this.isEnraged() ? this.enragedAttackFrameDuration : this.normalAttackFrameDuration;
+    return this.isEnraged() ? this.enragedAttackFrameDuration : this.attackAnimationInterval;
   }
 
   isEnraged() {

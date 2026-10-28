@@ -22,10 +22,10 @@ export class DrawableObject {
     });
   }
 
-  loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize, placement = null) {
+  loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize, placement = null, columns = frameCount) {
     const sheet = new Image();
     const keys = this.createFrameCanvases(path, frameCount, placement?.width ?? frameSize, placement?.height ?? frameHeight);
-    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight, placement);
+    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight, placement, columns);
     sheet.src = path;
     return keys;
   }
@@ -41,9 +41,11 @@ export class DrawableObject {
     });
   }
 
-  copySheetFrames(sheet, keys, frameSize, frameHeight, placement = null) {
+  copySheetFrames(sheet, keys, frameSize, frameHeight, placement = null, columns = keys.length) {
     keys.forEach((key, index) => {
-      this.imageCache[key].getContext("2d").drawImage(sheet, index * frameSize, 0, frameSize, frameHeight, placement?.x ?? 0, placement?.y ?? 0, frameSize, frameHeight);
+      const sourceX = (index % columns) * frameSize;
+      const sourceY = Math.floor(index / columns) * frameHeight;
+      this.imageCache[key].getContext("2d").drawImage(sheet, sourceX, sourceY, frameSize, frameHeight, placement?.x ?? 0, placement?.y ?? 0, frameSize, frameHeight);
     });
   }
 

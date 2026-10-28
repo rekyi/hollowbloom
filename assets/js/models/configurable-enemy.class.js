@@ -11,6 +11,7 @@ export class ConfigurableEnemy extends Enemy {
   constructor(settings, positionOverrides = {}) {
     super();
     this.animationInterval = settings.animationInterval ?? 120;
+    this.attackAnimationInterval = settings.attackAnimationInterval ?? this.animationInterval;
     this.IMAGES_IDLE = this.loadAnimation(settings.sprites.idle || settings.sprites.walk);
     this.IMAGES_MOVING = this.loadAnimation(settings.sprites.walk || settings.sprites.idle);
     this.IMAGES_RUN = this.loadAnimation(settings.sprites.run || settings.sprites.walk || settings.sprites.idle);
@@ -39,7 +40,7 @@ export class ConfigurableEnemy extends Enemy {
 
   loadAnimation(sprite) {
     if (!sprite) return [];
-    return this.loadSpriteSheet(sprite.path, sprite.frameCount, sprite.frameSize, sprite.frameHeight, sprite.placement);
+    return this.loadSpriteSheet(sprite.path, sprite.frameCount, sprite.frameSize, sprite.frameHeight, sprite.placement, sprite.columns);
   }
 
   loadAnimationVariants(sprites = []) {

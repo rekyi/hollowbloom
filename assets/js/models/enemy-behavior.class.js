@@ -11,12 +11,14 @@ export class EnemyBehavior extends MoveableObject {
   IMAGES_FROZEN = [];
   IMAGES_SHOCK = [];
   animationInterval = 120;
+  attackAnimationInterval = 120;
   hp = 2;
   movementDirection = -1;
   isOppositeDirection = true;
   isMovable = true;
   isMoving = this.isMovable;
   currentAnimation = "";
+  lastAnimationAt = 0;
   isDeathAnimationFinished = false;
   attackCooldown = 3000;
   nextAttackAt = Number.NEGATIVE_INFINITY;
@@ -44,13 +46,28 @@ export class EnemyBehavior extends MoveableObject {
   start() {
     this.attackHitEndFrame = this.IMAGES_ATTACK.length - 1;
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
+    this.lastAnimationAt = gameLoop.now();
     this.animation();
     this.startAttackCycle();
   }
 
   animation() {
     gameLoop.runEvery(1000 / 60, () => this.updateMovement());
-    gameLoop.runEvery(this.animationInterval, () => this.updateAnimation());
+    gameLoop.runEvery(this.getAnimationSchedulerInterval(), () => this.updateAnimationByInterval());
+  }
+
+  getAnimationSchedulerInterval() {
+    return Math.min(this.animationInterval, this.attackAnimationInterval);
+  }
+
+  getAnimationInterval() {
+    return this.currentAnimation === "attack" ? this.attackAnimationInterval : this.animationInterval;
+  }
+
+  updateAnimationByInterval() {
+    if (gameLoop.now() - this.lastAnimationAt < this.getAnimationInterval()) return;
+    this.lastAnimationAt = gameLoop.now();
+    this.updateAnimation();
   }
 
   updateMovement() {
