@@ -14,7 +14,7 @@ const DARK_ELF_SETTINGS = {
     idle: getDarkElfSprite("walk"),
     walk: getDarkElfSprite("walk"),
     run: getDarkElfSprite("run"),
-    attack: [getDarkElfSprite("attack_0", 10), getDarkElfSprite("attack_1", 20, 400, 300, 10, { width: 400, height: 384 })],
+    attack: [{ ...getDarkElfSprite("attack_0", 10), hitStartFrame: 7 }, { ...getDarkElfSprite("attack_1", 20, 400, 300, 10, { width: 400, height: 384 }), hitStartFrame: 3 }],
     hurt: [getDarkElfSprite("hurt_0"), getDarkElfSprite("hurt_1"), getDarkElfSprite("hurt_2")],
     death: getDarkElfSprite("death"),
     frozen: getDarkElfSprite("frozen"),
@@ -25,14 +25,5 @@ const DARK_ELF_SETTINGS = {
 export class DarkElf extends ConfigurableEnemy {
   constructor(positionOverrides = {}) {
     super(DARK_ELF_SETTINGS, positionOverrides);
-  }
-
-  playIdle() {
-    this.img = this.imageCache[this.IMAGES_IDLE[0]];
-  }
-
-  selectAttackAnimation() {
-    super.selectAttackAnimation();
-    this.attackHitStartFrame = this.IMAGES_ATTACK === this.attackAnimations[0] ? 7 : 3;
   }
 }

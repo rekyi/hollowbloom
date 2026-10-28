@@ -7,6 +7,7 @@ export class ConfigurableEnemy extends Enemy {
   attackAnimations = [];
   hurtAnimations = [];
   attackHitEndFrameOverride = null;
+  attackHitStartFrames = [];
 
   constructor(settings, positionOverrides = {}) {
     super();
@@ -36,6 +37,7 @@ export class ConfigurableEnemy extends Enemy {
     this.attackOffset = settings.attackHitbox || this.offset;
     this.attackHitStartFrame = settings.attackHitStartFrame ?? this.attackHitStartFrame;
     this.attackHitEndFrameOverride = settings.attackHitEndFrame ?? null;
+    this.attackHitStartFrames = (settings.sprites.attack ?? []).map((sprite) => sprite.hitStartFrame ?? this.attackHitStartFrame);
   }
 
   loadAnimation(sprite) {
@@ -71,6 +73,8 @@ export class ConfigurableEnemy extends Enemy {
 
   selectAttackAnimation() {
     this.IMAGES_ATTACK = this.selectRandomAnimation(this.attackAnimations);
+    const variantIndex = Math.max(0, this.attackAnimations.indexOf(this.IMAGES_ATTACK));
+    this.attackHitStartFrame = this.attackHitStartFrames[variantIndex] ?? this.attackHitStartFrame;
     this.attackHitEndFrame = this.attackHitEndFrameOverride ?? this.IMAGES_ATTACK.length - 1;
   }
 

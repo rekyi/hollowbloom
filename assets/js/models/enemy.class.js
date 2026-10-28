@@ -3,6 +3,11 @@ import { gameLoop } from "./game-loop.class.js";
 import { EnemyBehavior } from "./enemy-behavior.class.js";
 
 export class Enemy extends EnemyBehavior {
+  isAttackFrameActive() {
+    const displayedFrame = this.currentImage - 1;
+    return this.isAttacking && this.currentAnimation === "attack" && displayedFrame >= this.attackHitStartFrame && displayedFrame <= this.attackHitEndFrame;
+  }
+
   hit() {
     if (!super.hit()) return false;
     playSfx(this.isDead() ? "enemyDeath" : "enemyHit");

@@ -20,10 +20,7 @@ const BOAR_SETTINGS = {
     idle: BOAR_SPRITES.idle,
     walk: BOAR_SPRITES.idle,
     run: { path: `${BOAR_PATH}boar_run.webp`, frameCount: 10, frameSize: 500, frameHeight: 200 },
-    attack: [
-      { path: `${BOAR_PATH}boar_attack_0.webp`, frameCount: 64, frameSize: 500, frameHeight: 200, columns: 10 },
-      { path: `${BOAR_PATH}boar_attack_1.webp`, frameCount: 46, frameSize: 500, frameHeight: 200, columns: 10 },
-    ],
+    attack: [{ path: `${BOAR_PATH}boar_attack_0.webp`, frameCount: 46, frameSize: 500, frameHeight: 200, columns: 10, hitStartFrame: 25 }],
     hurt: [
       { path: `${BOAR_PATH}boar_hurt_0.webp`, frameCount: 10, frameSize: 500, frameHeight: 200 },
       { path: `${BOAR_PATH}boar_hurt_1.webp`, frameCount: 10, frameSize: 500, frameHeight: 200 },
