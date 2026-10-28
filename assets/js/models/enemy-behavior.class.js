@@ -101,14 +101,8 @@ export class EnemyBehavior extends MoveableObject {
 
   turnAtPatrolEnd() {
     this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
-    this.isMoving = false;
-    gameLoop.runOnceAfter(500, () => this.reversePatrolDirection());
-  }
-
-  reversePatrolDirection() {
-    if (this.isDead() || this.isAggro || this.isReturning) return;
     this.movementDirection *= -1;
-    this.isMoving = true;
+    this.isOppositeDirection = this.movementDirection < 0;
   }
 
   updateAggro() {
