@@ -13,6 +13,7 @@ const SKELETON_SETTINGS = {
     idle: getSkeletonSprite("walk", 20),
     walk: getSkeletonSprite("walk", 20),
     run: getSkeletonSprite("run", 15),
+    hurt: [{ path: `${SKELETON_PATH}skeleton_hurt.webp`, frameCount: 8, frameSize: 104, frameHeight: 104, placement: { width: 256, height: 256, x: 61, y: 84 } }],
     attack: [getSkeletonSprite("attack_0", 62), getSkeletonSprite("attack_1", 64)],
     death: getSkeletonSprite("death", 45),
   },

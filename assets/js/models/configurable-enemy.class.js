@@ -36,7 +36,7 @@ export class ConfigurableEnemy extends Enemy {
 
   loadAnimation(sprite) {
     if (!sprite) return [];
-    return this.loadSpriteSheet(sprite.path, sprite.frameCount, sprite.frameSize, sprite.frameHeight);
+    return this.loadSpriteSheet(sprite.path, sprite.frameCount, sprite.frameSize, sprite.frameHeight, sprite.placement);
   }
 
   loadAnimationVariants(sprites = []) {

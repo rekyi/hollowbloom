@@ -22,28 +22,28 @@ export class DrawableObject {
     });
   }
 
-  loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize) {
+  loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize, placement = null) {
     const sheet = new Image();
-    const keys = this.createFrameCanvases(path, frameCount, frameSize, frameHeight);
-    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight);
+    const keys = this.createFrameCanvases(path, frameCount, placement?.width ?? frameSize, placement?.height ?? frameHeight);
+    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight, placement);
     sheet.src = path;
     return keys;
   }
 
-  createFrameCanvases(path, frameCount, frameSize, frameHeight) {
+  createFrameCanvases(path, frameCount, canvasWidth, canvasHeight) {
     return Array.from({ length: frameCount }, (_, index) => {
       const canvasRef = document.createElement("canvas");
-      canvasRef.width = frameSize;
-      canvasRef.height = frameHeight;
+      canvasRef.width = canvasWidth;
+      canvasRef.height = canvasHeight;
       const key = `${path}#${index}`;
       this.imageCache[key] = canvasRef;
       return key;
     });
   }
 
-  copySheetFrames(sheet, keys, frameSize, frameHeight) {
+  copySheetFrames(sheet, keys, frameSize, frameHeight, placement = null) {
     keys.forEach((key, index) => {
-      this.imageCache[key].getContext("2d").drawImage(sheet, index * frameSize, 0, frameSize, frameHeight, 0, 0, frameSize, frameHeight);
+      this.imageCache[key].getContext("2d").drawImage(sheet, index * frameSize, 0, frameSize, frameHeight, placement?.x ?? 0, placement?.y ?? 0, frameSize, frameHeight);
     });
   }
 
