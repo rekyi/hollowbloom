@@ -1,7 +1,8 @@
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemy.class.js";
+import { Boar } from "./boar.class.js";
 
-export { Enemy };
+export { Enemy, Boar };
 
 export class Rat extends Enemy {
   constructor() {
