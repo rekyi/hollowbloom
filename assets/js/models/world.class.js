@@ -1,4 +1,3 @@
-import { appState } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";

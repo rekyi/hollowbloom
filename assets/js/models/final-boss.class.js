@@ -42,7 +42,7 @@ export class FinalBoss extends MoveableObject {
     this.IMAGES_HURT = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_hurt.png", 8, 192, 176);
     this.IMAGES_DEAD = this.loadSpriteSheet("assets/images/4_final_boss/demon_king/demon_death.png", 8, 48);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
-    this.x = 2800;
+    this.x = 3800;
     this.animation();
   }
 
