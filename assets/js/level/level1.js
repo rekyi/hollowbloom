@@ -1,6 +1,6 @@
 import { ChargeItem } from "../models/charge-item.class.js";
 import { Background } from "../models/background.class.js";
-import { Rat, Bat, Slime, Mimic, Boar } from "../models/enemies.class.js";
+import { Rat, Bat, Slime, Mimic, Boar, Skeleton } from "../models/enemies.class.js";
 import { FinalBoss } from "../models/final-boss.class.js";
 import { Level } from "../models/level.class.js";
 
@@ -23,7 +23,7 @@ const CHARGE_ITEM_POSITIONS = [400, 850, 1300, 1750, 2200, 2700];
 
 export function createLevel1() {
   const level = new Level(
-    [new Rat(), new Bat(), new Slime(), new Mimic(), new Boar(), new FinalBoss()],
+    [new Rat(), new Bat(), new Slime(), new Mimic(), new Boar(), new Skeleton(), new FinalBoss()],
     [],
     [],
     CHARGE_ITEM_POSITIONS.map((x) => new ChargeItem(x)),

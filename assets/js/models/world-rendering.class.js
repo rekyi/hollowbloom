@@ -84,7 +84,7 @@ export class WorldRendering extends WorldLogic {
   }
 
   addToMap(movableObject) {
-    if (movableObject.isOppositeDirection) {
+    if (movableObject.isOppositeDirection !== movableObject.isSpriteDirectionInverted) {
       this.drawFlipped(movableObject);
     } else {
       movableObject.draw(this.ctx);

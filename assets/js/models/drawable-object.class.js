@@ -7,6 +7,7 @@ export class DrawableObject {
   imageCache = {};
   currentImage = 0;
   drawHitbox = false;
+  isSpriteDirectionInverted = false;
 
   loadImage(path) {
     this.img = new Image();
