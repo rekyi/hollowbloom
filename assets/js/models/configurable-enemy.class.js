@@ -1,4 +1,5 @@
 import { Enemy } from "./enemy.class.js";
+import { gameLoop } from "./game-loop.class.js";
 
 const FROZEN_DURATION_MS = 2000;
 const SHOCK_DURATION_MS = 1000;
@@ -8,6 +9,7 @@ export class ConfigurableEnemy extends Enemy {
   hurtAnimations = [];
   attackHitEndFrameOverride = null;
   attackHitStartFrames = [];
+  frozenAnimationInterval = 120;
 
   constructor(settings, positionOverrides = {}) {
     super();
@@ -25,6 +27,7 @@ export class ConfigurableEnemy extends Enemy {
     this.IMAGES_DEAD = this.loadAnimation(settings.sprites.death);
     this.IMAGES_FROZEN = this.loadAnimation(settings.sprites.frozen);
     this.IMAGES_SHOCK = this.loadAnimation(settings.sprites.shock);
+    this.frozenAnimationInterval = settings.frozenAnimationInterval ?? (this.IMAGES_FROZEN.length ? FROZEN_DURATION_MS / this.IMAGES_FROZEN.length : this.animationInterval);
     this.setEnemySettings({
       ...settings,
       position: { ...settings.position, ...positionOverrides },
@@ -68,9 +71,20 @@ export class ConfigurableEnemy extends Enemy {
   }
 
   applyStatus(status, duration) {
-    const images = status === "frozen" ? this.IMAGES_FROZEN : this.IMAGES_SHOCK;
-    const animationDuration = (images.length + 1) * this.animationInterval;
-    super.applyStatus(status, Math.max(duration, animationDuration));
+    const statusDuration = status === "frozen" ? Math.max(duration, this.IMAGES_FROZEN.length * this.frozenAnimationInterval) : duration;
+    super.applyStatus(status, statusDuration);
+    if (status !== "frozen") return;
+    this.lastAnimationAt = gameLoop.now();
+    this.updateAnimation();
+  }
+
+  getAnimationSchedulerInterval() {
+    return Math.min(super.getAnimationSchedulerInterval(), this.frozenAnimationInterval);
+  }
+
+  getAnimationInterval() {
+    if (this.currentAnimation === "frozen") return this.frozenAnimationInterval;
+    return super.getAnimationInterval();
   }
 
   tryStartAttack() {
