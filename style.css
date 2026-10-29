@@ -59,8 +59,8 @@ canvas.ready {
 }
 
 .pause-screen-content {
-    width: min(var(--game-width), 100vw, 150vh);
-    aspect-ratio: 3 / 2;
+    width: min(var(--game-width), 100vw, 177.7778dvh);
+    aspect-ratio: 16 / 9;
 
     color: var(--color-white);
     text-align: center;
@@ -101,8 +101,8 @@ canvas.ready {
 }
 
 .victory-screen-content {
-    width: min(var(--game-width), 100vw, 150vh);
-    aspect-ratio: 3 / 2;
+    width: min(var(--game-width), 100vw, 177.7778dvh);
+    aspect-ratio: 16 / 9;
 
     color: var(--color-white);
     text-align: center;
@@ -160,8 +160,8 @@ canvas.ready {
 
 .game-over-screen {
     position: relative;
-    width: min(var(--game-width), 100vw, 150vh);
-    aspect-ratio: 3 / 2;
+    width: min(var(--game-width), 100vw, 177.7778dvh);
+    aspect-ratio: 16 / 9;
     background: url("assets/images/9_screens/game_over_screen.webp") center / 100% 100% no-repeat;
 }
 
