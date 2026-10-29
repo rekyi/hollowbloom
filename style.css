@@ -9,10 +9,12 @@ canvas {
     width: min(100%, var(--game-width));
 
     display: none;
+}
 
-    @media (max-height: 480px) {
-        height: 100vh;
-    }
+#canvas {
+    width: min(100vw, 1280px, 177.7778dvh);
+    aspect-ratio: 16 / 9;
+    image-rendering: pixelated;
 }
 
 canvas.ready {

@@ -1,0 +1,158 @@
+{
+	"identifier": "Level_0",
+	"uniqueIdentifer": "b607d860-bde0-11f1-b236-39113c95a7ed",
+	"x": 0,
+	"y": 0,
+	"width": 1280,
+	"height": 288,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields" : {},
+	"layers": [
+		"Background.png",
+		"Hanging.png",
+		"Deco_Hazard.png",
+		"Ground.png",
+		"Hills.png",
+		"Platforms.png"
+	],
+	"entities": {
+		"Exit": [
+			{
+				"id": "Exit",
+				"iid": "263026f0-bde0-11f1-b236-23673d533703",
+				"layer": "Entities",
+				"x": 1248,
+				"y": 208,
+				"width": 16,
+				"height": 32,
+				"color": 14120515,
+				"customFields" : {}
+			}
+		],
+		"Enemy_Patrol": [
+			{
+				"id": "Enemy_Patrol",
+				"iid": "4f0a5fa0-bde0-11f1-b236-a9dae865199f",
+				"layer": "Entities",
+				"x": 336,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields": {
+					"range": 5
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "5cd7b2e0-bde0-11f1-b236-af7372c2543e",
+				"layer": "Entities",
+				"x": 1200,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields": {
+					"range": 5
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "03e4f010-bde0-11f1-b236-43bf8829add2",
+				"layer": "Entities",
+				"x": 624,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields": {
+					"range": 5
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "5493ff60-bde0-11f1-b236-59af042193b3",
+				"layer": "Entities",
+				"x": 768,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 14984818,
+				"customFields": {
+					"range": 5
+				}
+			}
+		],
+		"Coin": [
+			{
+				"id": "Coin",
+				"iid": "78513cd0-bde0-11f1-b236-5b90c5052769",
+				"layer": "Entities",
+				"x": 1152,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "884826d0-bde0-11f1-b236-a96328423a7a",
+				"layer": "Entities",
+				"x": 304,
+				"y": 176,
+				"width": 16,
+				"height": 16,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "3d698440-bde0-11f1-b236-d79722fb43e3",
+				"layer": "Entities",
+				"x": 736,
+				"y": 192,
+				"width": 16,
+				"height": 16,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "f0427cb0-bde0-11f1-8977-357d0cc9348c",
+				"layer": "Entities",
+				"x": 32,
+				"y": 96,
+				"width": 16,
+				"height": 16,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "f74d7730-bde0-11f1-8977-cbab37079b7d",
+				"layer": "Entities",
+				"x": 96,
+				"y": 112,
+				"width": 16,
+				"height": 16,
+				"color": 15389866,
+				"customFields" : {}
+			}
+		],
+		"Player": [
+			{
+				"id": "Player",
+				"iid": "34b2cb00-bde0-11f1-b236-0dfd1de8fe32",
+				"layer": "Entities",
+				"x": 80,
+				"y": 224,
+				"width": 16,
+				"height": 16,
+				"color": 12470831,
+				"customFields" : {}
+			}
+		]
+	}
+}

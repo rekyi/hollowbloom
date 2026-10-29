@@ -14,6 +14,7 @@ export class World extends WorldRendering {
     super();
     this.canvasRef = canvasRef;
     this.ctx = canvasRef.getContext("2d");
+    this.setupCanvasContext();
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1();

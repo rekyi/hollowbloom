@@ -1,12 +1,21 @@
 import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
 
+const LOGICAL_CANVAS_WIDTH = 720;
+const LOGICAL_CANVAS_HEIGHT = 480;
+const BACKGROUND_COLOR = "#000";
+
 export class WorldRendering extends WorldLogic {
+  setupCanvasContext() {
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.setTransform(this.canvasRef.width / LOGICAL_CANVAS_WIDTH, 0, 0, this.canvasRef.height / LOGICAL_CANVAS_HEIGHT, 0, 0);
+  }
+
   draw() {
     const shake = this.getShakeOffset();
     const cameraX = Math.round(this.cameraX);
-    this.updateLevelBackground(cameraX + shake.x);
-    this.ctx.clearRect(0, 0, this.canvasRef.width, this.canvasRef.height);
+    this.ctx.fillStyle = BACKGROUND_COLOR;
+    this.ctx.fillRect(0, 0, LOGICAL_CANVAS_WIDTH, LOGICAL_CANVAS_HEIGHT);
     this.drawScene(cameraX + shake.x, shake.y);
     this.statusBar.draw(this.ctx);
     this.drawTimer();
@@ -24,19 +33,12 @@ export class WorldRendering extends WorldLogic {
     };
   }
 
-  updateLevelBackground(offsetX) {
-    const backgroundMargin = this.shakeMagnitude + 1;
-    this.level.updateBackground(offsetX + backgroundMargin, this.canvasRef.width + backgroundMargin * 2);
-  }
-
   drawScene(offsetX, offsetY) {
     this.ctx.save();
     this.ctx.translate(offsetX, offsetY);
-    this.addObjectsToMap(this.level.background);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
-    this.addObjectsToMap(this.level.clouds);
     this.ctx.restore();
   }
 
@@ -49,8 +51,8 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 56px sans-serif";
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
-    this.ctx.strokeText("READY!", this.canvasRef.width / 2, this.canvasRef.height / 2);
-    this.ctx.fillText("READY!", this.canvasRef.width / 2, this.canvasRef.height / 2);
+    this.ctx.strokeText("READY!", LOGICAL_CANVAS_WIDTH / 2, LOGICAL_CANVAS_HEIGHT / 2);
+    this.ctx.fillText("READY!", LOGICAL_CANVAS_WIDTH / 2, LOGICAL_CANVAS_HEIGHT / 2);
     this.ctx.restore();
   }
 
@@ -72,8 +74,8 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 24px monospace";
     this.ctx.textAlign = "right";
     this.ctx.textBaseline = "top";
-    this.ctx.strokeText(text, this.canvasRef.width - 20, 16);
-    this.ctx.fillText(text, this.canvasRef.width - 20, 16);
+    this.ctx.strokeText(text, LOGICAL_CANVAS_WIDTH - 20, 16);
+    this.ctx.fillText(text, LOGICAL_CANVAS_WIDTH - 20, 16);
     this.ctx.restore();
   }
 
