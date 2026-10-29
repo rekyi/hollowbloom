@@ -10,14 +10,14 @@ import { WorldRendering } from "./world-rendering.class.js";
 const READY_DURATION_MS = 1500;
 
 export class World extends WorldRendering {
-  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}) {
+  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}, levelAssets) {
     super();
     this.canvasRef = canvasRef;
     this.ctx = canvasRef.getContext("2d");
     this.setupCanvasContext();
     this.keyboard = keyboard;
     this.character = new CharacterClass();
-    this.level = createLevel1();
+    this.level = createLevel1(levelAssets);
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
     this.setupGameplayMusic();

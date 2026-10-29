@@ -3,11 +3,13 @@ import { gameLoop } from "./models/game-loop.class.js";
 import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
+import { loadLevelAssets } from "./level/level1.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 
 const SCREEN_FADE_DURATION_MS = 350;
 let isScreenTransitioning = false;
+let isLevelLoading = false;
 
 export function setupScreens() {
   document.getElementById("pre-start-button").addEventListener("click", revealStartMenu, { once: true });
@@ -45,22 +47,37 @@ function updateCharacterChoices(containerRef, selectedRef) {
   });
 }
 
-function startGame() {
-  if (isScreenTransitioning) return;
+async function startGame() {
+  if (isScreenTransitioning || isLevelLoading) return;
+  isLevelLoading = true;
   resetKeyboard();
   stopDeathScreenMusic();
   appState.world?.stopGameplayMusic();
   gameLoop.stop();
-  runScreenTransition(startGameAtBlackout);
+  const loadStatusRef = document.getElementById("level-load-status");
+  loadStatusRef.textContent = "Level wird geladen ...";
+  loadStatusRef.hidden = false;
+  try {
+    const levelAssets = await loadLevelAssets();
+    await runScreenTransition(() => startGameAtBlackout(levelAssets));
+  } catch (error) {
+    console.error("Level could not be loaded.", error);
+    appState.canvasRef.classList.remove("ready");
+    document.getElementById("start-screen").hidden = false;
+    loadStatusRef.textContent = "Level konnte nicht geladen werden. Bitte erneut versuchen.";
+  } finally {
+    isLevelLoading = false;
+  }
 }
 
-function startGameAtBlackout() {
+function startGameAtBlackout(levelAssets) {
   document.getElementById("start-screen").hidden = true;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   document.getElementById("victory-screen").hidden = true;
   appState.canvasRef.classList.add("ready");
-  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory);
+  document.getElementById("level-load-status").hidden = true;
+  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets);
   stopStartScreenMusic();
 }
 
@@ -121,7 +138,7 @@ async function runScreenTransition(changeScreen) {
   try {
     transitionRef.classList.add("is-visible");
     await waitForScreenFade();
-    changeScreen();
+    await changeScreen();
     transitionRef.classList.remove("is-visible");
     await waitForScreenFade();
   } finally {
