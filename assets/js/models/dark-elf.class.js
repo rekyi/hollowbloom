@@ -7,8 +7,8 @@ function getDarkElfSprite(name, frameCount, frameSize = 300, frameHeight = 300, 
 const DARK_ELF_SETTINGS = {
   attackAnimationInterval: 60,
   position: { x: 0, y: 0, width: 170, height: 190, speed: 2, minX: 0, maxX: 0 },
-  hitbox: { top: 28, right: 42, bottom: 20, left: 42 },
-  attackHitbox: { top: 40, right: 14, bottom: 20, left: 14 },
+  hitbox: { top: 28, right: 42, bottom: 44, left: 42 },
+  attackHitbox: { top: 40, right: 14, bottom: 44, left: 14 },
   attackHitStartFrame: 3,
   sprites: {
     idle: getDarkElfSprite("walk", 13),

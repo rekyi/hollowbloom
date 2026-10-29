@@ -9,8 +9,8 @@ const SKELETON_SETTINGS = {
   deathAnimationInterval: 60,
   frozenAnimationInterval: 80,
   position: { x: 0, y: 0, width: 140, height: 140, speed: 1.8, minX: 0, maxX: 0 },
-  hitbox: { top: 24, right: 34, bottom: 10, left: 34 },
-  attackHitbox: { top: 30, right: 8, bottom: 12, left: 8 },
+  hitbox: { top: 24, right: 34, bottom: 38, left: 34 },
+  attackHitbox: { top: 30, right: 8, bottom: 40, left: 8 },
   attackHitStartFrame: 8,
   sprites: {
     idle: getSkeletonSprite("walk", 20),
