@@ -7,7 +7,8 @@ export class MoveableObject extends DrawableObject {
   speed = 0.15;
   isOppositeDirection = false;
   speedY = 0;
-  acceleration = 2;
+  acceleration = 0.3623;
+  jumpSpeed = 11.3;
   groundLevel = GROUND_LEVEL;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
@@ -68,13 +69,13 @@ export class MoveableObject extends DrawableObject {
 
   jump() {
     if (!this.isAboveGround()) {
-      this.speedY = 20;
+      this.speedY = this.jumpSpeed;
       playSfx("jumpingBefore");
     }
   }
 
   gravity() {
-    gameLoop.runEvery(1000 / 25, () => this.applyGravity());
+    gameLoop.runEvery(1000 / 60, () => this.applyGravity());
   }
 
   applyGravity() {

@@ -48,7 +48,7 @@ export class CharacterCombat extends CharacterMovement {
   startKnockback(enemy) {
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
     this.knockbackFrames = 10;
-    this.speedY = 12;
+    this.speedY = 5.2;
   }
 
   isInvulnerable() {

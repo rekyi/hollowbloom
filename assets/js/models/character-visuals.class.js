@@ -57,7 +57,7 @@ export class CharacterVisuals extends CharacterCombat {
   }
 
   playJump() {
-    const progress = (20 - this.speedY) / 40;
+    const progress = (this.jumpSpeed - this.speedY) / (this.jumpSpeed * 2);
     const frame = Math.floor(progress * this.IMAGES_JUMPING.length);
     this.img = this.imageCache[this.IMAGES_JUMPING[Math.max(0, Math.min(frame, this.IMAGES_JUMPING.length - 1))]];
   }

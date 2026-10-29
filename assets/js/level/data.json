@@ -41,7 +41,8 @@
 				"height": 16,
 				"color": 14984818,
 				"customFields": {
-					"range": 5
+					"range": 5,
+					"type": "Boar"
 				}
 			},
 			{
@@ -54,7 +55,8 @@
 				"height": 16,
 				"color": 14984818,
 				"customFields": {
-					"range": 5
+					"range": 5,
+					"type": "DarkElf"
 				}
 			},
 			{
@@ -67,7 +69,8 @@
 				"height": 16,
 				"color": 14984818,
 				"customFields": {
-					"range": 5
+					"range": 5,
+					"type": "Skeleton"
 				}
 			},
 			{
@@ -80,7 +83,8 @@
 				"height": 16,
 				"color": 14984818,
 				"customFields": {
-					"range": 5
+					"range": 5,
+					"type": "Skeleton"
 				}
 			}
 		],

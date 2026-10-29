@@ -7,7 +7,6 @@ body {
 
 canvas {
     width: min(100%, var(--game-width));
-
     display: none;
 }
 
