@@ -58,7 +58,7 @@ export const FEMALE_CHARACTER_CONFIG = {
   extraAttackDamageFrame: 6,
   attackDamageFrame: 3,
   extraAttackReach: 150,
-  offset: { top: 48, right: 72, bottom: 8, left: 48 },
+  offset: { top: 90, right: 72, bottom: 8, left: 48 },
   spritePath: "assets/images/character/female/",
   sprites: {
     walking: { file: "walk.png", count: 8 },
