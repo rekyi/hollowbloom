@@ -8,7 +8,7 @@ const SKELETON_SETTINGS = {
   attackAnimationInterval: 30,
   deathAnimationInterval: 60,
   frozenAnimationInterval: 80,
-  position: { x: 2600, y: 861, width: 140, height: 140, speed: 1.8, minX: 2450, maxX: 2700 },
+  position: { x: 0, y: 0, width: 140, height: 140, speed: 1.8, minX: 0, maxX: 0 },
   hitbox: { top: 24, right: 34, bottom: 10, left: 34 },
   attackHitbox: { top: 30, right: 8, bottom: 12, left: 8 },
   attackHitStartFrame: 8,

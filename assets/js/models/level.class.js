@@ -21,7 +21,7 @@ export class Level {
   layers;
   collisionGrid = [];
   collisionTileSize = COLLISION_TILE_SIZE;
-  levelEndX = 6000;
+  levelEndX = 0;
   width = 0;
   height = 0;
 
@@ -33,7 +33,7 @@ export class Level {
     this.collisionGrid = collisionGrid ?? [];
     this.width = (data?.width ?? 0) * LEVEL_SCALE;
     this.height = (data?.height ?? 0) * LEVEL_SCALE;
-    if (data) this.levelEndX = this.width - PLAYER_END_MARGIN;
+    this.levelEndX = this.width - PLAYER_END_MARGIN;
   }
 
   getEntities(name) {

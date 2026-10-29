@@ -1,6 +1,5 @@
 import { ChargeItem } from "../models/charge-item.class.js";
 import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
-import { FinalBoss } from "../models/final-boss.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
@@ -92,5 +91,5 @@ export function createLevel1(levelAssets) {
   const entities = levelAssets.data.entities;
   const enemies = (entities.Enemy_Patrol ?? []).map(createEnemy);
   const items = (entities.Coin ?? []).map(createChargeItem);
-  return new Level([...enemies, new FinalBoss()], items, levelAssets);
+  return new Level(enemies, items, levelAssets);
 }
