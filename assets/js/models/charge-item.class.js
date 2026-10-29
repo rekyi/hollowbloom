@@ -1,5 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { DrawableObject } from "./drawable-object.class.js";
+import { GROUND_SHIFT } from "./level.class.js";
 
 export class ChargeItem extends DrawableObject {
   static FRAME_COUNT = 5;
@@ -9,7 +10,7 @@ export class ChargeItem extends DrawableObject {
     super();
     this.loadImage("assets/images/8_coin/item_charge.png");
     this.x = x;
-    this.y = 372;
+    this.y = 372 + GROUND_SHIFT;
     this.width = 36;
     this.height = 36;
   }

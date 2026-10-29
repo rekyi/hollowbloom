@@ -12,6 +12,7 @@ export class WorldLogic {
   ctx;
   keyboard;
   cameraX = 0;
+  cameraY = 0;
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;

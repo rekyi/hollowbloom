@@ -1,13 +1,14 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { DrawableObject } from "./drawable-object.class.js";
+import { GROUND_LEVEL } from "./level.class.js";
 
 export class MoveableObject extends DrawableObject {
   speed = 0.15;
   isOppositeDirection = false;
   speedY = 0;
   acceleration = 2;
-  groundLevel = 440;
+  groundLevel = GROUND_LEVEL;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
   isAttacking = false;

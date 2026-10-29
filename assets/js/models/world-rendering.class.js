@@ -1,22 +1,37 @@
 import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
+import { LEVEL_SCALE } from "./level.class.js";
 
-const LOGICAL_CANVAS_WIDTH = 720;
-const LOGICAL_CANVAS_HEIGHT = 480;
+const CANVAS_WIDTH = 1280;
+const CANVAS_HEIGHT = 720;
+const CAMERA_ZOOM = 0.65;
+const VIEWPORT_WIDTH = CANVAS_WIDTH / CAMERA_ZOOM;
+const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
 const BACKGROUND_COLOR = "#000";
+const CAMERA_SMOOTHING_Y = 0.1;
+const WORLD_LAYER_ORDER = ["Background.png", "Hills.png", "Ground.png", "Platforms.png", "Deco_Hazard.png"];
 
 export class WorldRendering extends WorldLogic {
   setupCanvasContext() {
     this.ctx.imageSmoothingEnabled = false;
-    this.ctx.setTransform(this.canvasRef.width / LOGICAL_CANVAS_WIDTH, 0, 0, this.canvasRef.height / LOGICAL_CANVAS_HEIGHT, 0, 0);
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  updateCamera(isInstant = false) {
+    const { x, y, width, height } = this.character;
+    const maxCameraX = Math.max(0, this.level.width - VIEWPORT_WIDTH);
+    const maxCameraY = Math.max(0, this.level.height - VIEWPORT_HEIGHT);
+    const targetX = Math.min(Math.max(x + width / 2 - VIEWPORT_WIDTH / 2, 0), maxCameraX);
+    const targetY = Math.min(Math.max(y + height / 2 - VIEWPORT_HEIGHT / 2, 0), maxCameraY);
+    this.cameraX = -targetX;
+    this.cameraY = isInstant ? -targetY : this.cameraY + (-targetY - this.cameraY) * CAMERA_SMOOTHING_Y;
   }
 
   draw() {
     const shake = this.getShakeOffset();
-    const cameraX = Math.round(this.cameraX);
     this.ctx.fillStyle = BACKGROUND_COLOR;
-    this.ctx.fillRect(0, 0, LOGICAL_CANVAS_WIDTH, LOGICAL_CANVAS_HEIGHT);
-    this.drawScene(cameraX + shake.x, shake.y);
+    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.drawScene(this.cameraX + shake.x, this.cameraY + shake.y);
     this.statusBar.draw(this.ctx);
     this.drawTimer();
     this.drawReadyMessage();
@@ -35,11 +50,23 @@ export class WorldRendering extends WorldLogic {
 
   drawScene(offsetX, offsetY) {
     this.ctx.save();
-    this.ctx.translate(offsetX, offsetY);
+    this.ctx.setTransform(CAMERA_ZOOM, 0, 0, CAMERA_ZOOM, Math.round(offsetX * CAMERA_ZOOM), Math.round(offsetY * CAMERA_ZOOM));
+    this.drawLayers(WORLD_LAYER_ORDER);
+    this.drawLayer("Hanging.png");
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
     this.ctx.restore();
+  }
+
+  drawLayers(layerNames) {
+    layerNames.forEach((layerName) => this.drawLayer(layerName));
+  }
+
+  drawLayer(layerName) {
+    const layer = this.level.layers.find((levelLayer) => levelLayer.name === layerName);
+    if (!layer) throw new Error(`Missing level layer: ${layerName}`);
+    this.ctx.drawImage(layer.image, 0, 0, layer.image.width * LEVEL_SCALE, layer.image.height * LEVEL_SCALE);
   }
 
   drawReadyMessage() {
@@ -51,8 +78,8 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 56px sans-serif";
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
-    this.ctx.strokeText("READY!", LOGICAL_CANVAS_WIDTH / 2, LOGICAL_CANVAS_HEIGHT / 2);
-    this.ctx.fillText("READY!", LOGICAL_CANVAS_WIDTH / 2, LOGICAL_CANVAS_HEIGHT / 2);
+    this.ctx.strokeText("READY!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.ctx.fillText("READY!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
     this.ctx.restore();
   }
 
@@ -74,8 +101,8 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 24px monospace";
     this.ctx.textAlign = "right";
     this.ctx.textBaseline = "top";
-    this.ctx.strokeText(text, LOGICAL_CANVAS_WIDTH - 20, 16);
-    this.ctx.fillText(text, LOGICAL_CANVAS_WIDTH - 20, 16);
+    this.ctx.strokeText(text, CANVAS_WIDTH - 20, 16);
+    this.ctx.fillText(text, CANVAS_WIDTH - 20, 16);
     this.ctx.restore();
   }
 

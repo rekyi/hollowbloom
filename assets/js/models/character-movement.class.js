@@ -63,7 +63,7 @@ export class CharacterMovement extends CharacterBase {
     this.updateMovement();
     this.applyKnockback();
     this.x = Math.max(0, Math.min(this.world.level.levelEndX, this.x));
-    this.world.cameraX = -this.x;
+    this.world.updateCamera();
   }
 
   updateMovement() {

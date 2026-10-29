@@ -1,6 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { MoveableObject } from "./movable-object.class.js";
+import { GROUND_SHIFT } from "./level.class.js";
 
 export class FinalBoss extends MoveableObject {
   IMAGES_IDLE = [];
@@ -9,8 +10,8 @@ export class FinalBoss extends MoveableObject {
   IMAGES_DEAD = [];
   width = 350;
   height = 315;
-  y = 90;
-  baseY = 90;
+  y = 90 + GROUND_SHIFT;
+  baseY = 90 + GROUND_SHIFT;
   floatAmplitude = 15;
   floatSpeed = 0.002;
   hp = 8;

@@ -1,3 +1,5 @@
+import { GROUND_SHIFT } from "./models/level.class.js";
+
 export const EXTRA_ATTACK_COIN_THRESHOLD = 5;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
 export const MOVE_LEFT_KEYS = ["ArrowLeft", "KeyA"];
@@ -26,7 +28,7 @@ export const CHARACTER_SETTING_KEYS = [
 export const MALE_CHARACTER_CONFIG = {
   width: 200,
   height: 200,
-  y: 240,
+  y: 240 + GROUND_SHIFT,
   hp: 300,
   walkSpeed: 7,
   runSpeedFactor: 1.5,
