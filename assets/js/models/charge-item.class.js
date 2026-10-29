@@ -5,13 +5,13 @@ export class ChargeItem extends DrawableObject {
   static FRAME_COUNT = 5;
   isCollected = false;
 
-  constructor(x) {
+  constructor(centerX, centerY) {
     super();
     this.loadImage("assets/images/8_coin/item_charge.png");
-    this.x = x;
-    this.y = 892;
     this.width = 36;
     this.height = 36;
+    this.x = centerX - this.width / 2;
+    this.y = centerY - this.height / 2;
   }
 
   draw(ctx) {

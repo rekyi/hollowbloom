@@ -1,9 +1,10 @@
 import { ChargeItem } from "../models/charge-item.class.js";
 import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
 import { FinalBoss } from "../models/final-boss.class.js";
-import { Level, COLLISION_TILE_SIZE } from "../models/level.class.js";
+import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 
-const CHARGE_ITEM_POSITIONS = [400, 850, 1300, 1750, 2200, 2700];
+const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
+const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
 let levelAssetsPromise = null;
 
 export function loadLevelAssets() {
@@ -73,20 +74,23 @@ function loadLayerImage(filename) {
   });
 }
 
+function createEnemy(entity, index) {
+  const EnemyClass = ENEMY_CLASSES[entity.customFields?.type] ?? ENEMY_ORDER[index % ENEMY_ORDER.length];
+  const enemy = new EnemyClass();
+  placeOnEntity(enemy, entity);
+  const halfRange = ((entity.customFields?.range ?? 0) * TILE_SIZE) / 2;
+  enemy.placeAt(enemy.x, enemy.y, enemy.x - halfRange, enemy.x + halfRange);
+  return enemy;
+}
+
+function createChargeItem(entity) {
+  const box = getEntityBox(entity);
+  return new ChargeItem(box.x + box.width / 2, box.y + box.height / 2);
+}
+
 export function createLevel1(levelAssets) {
-  const level = new Level(
-    [
-      new DarkElf({ x: 650, minX: 550, maxX: 800 }),
-      new Skeleton({ x: 1050, minX: 950, maxX: 1200 }),
-      new Boar({ x: 1350, minX: 1250, maxX: 1550 }),
-      new DarkElf({ x: 1850, minX: 1750, maxX: 2000 }),
-      new Boar({ x: 2200, minX: 2100, maxX: 2350 }),
-      new DarkElf({ x: 2500, minX: 2400, maxX: 2650 }),
-      new Skeleton({ x: 3000, minX: 2900, maxX: 3150 }),
-      new FinalBoss(),
-    ],
-    CHARGE_ITEM_POSITIONS.map((x) => new ChargeItem(x)),
-    levelAssets,
-  );
-  return level;
+  const entities = levelAssets.data.entities;
+  const enemies = (entities.Enemy_Patrol ?? []).map(createEnemy);
+  const items = (entities.Coin ?? []).map(createChargeItem);
+  return new Level([...enemies, new FinalBoss()], items, levelAssets);
 }

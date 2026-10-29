@@ -2,6 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { createLevel1 } from "../level/level1.js";
+import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";
 import { applyMusicVolume } from "../audio.js";
@@ -18,11 +19,17 @@ export class World extends WorldRendering {
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.level = createLevel1(levelAssets);
+    this.placeCharacterAtStart();
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
     this.setupGameplayMusic();
     this.setWorld();
     this.run();
+  }
+
+  placeCharacterAtStart() {
+    const [playerStart] = this.level.getEntities("Player");
+    if (playerStart) placeOnEntity(this.character, playerStart);
   }
 
   setupGameplayMusic() {

@@ -45,6 +45,11 @@ export class EnemyBehavior extends MoveableObject {
     this.maxX = maxX;
   }
 
+  placeAt(x, y, minX, maxX) {
+    this.spawnArgs = null;
+    this.setPosition(x, y, this.width, this.height, this.speed, minX, maxX);
+  }
+
   start() {
     this.attackHitEndFrame = this.IMAGES_ATTACK.length - 1;
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
