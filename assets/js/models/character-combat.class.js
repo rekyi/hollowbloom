@@ -3,6 +3,8 @@ import { gameLoop } from "./game-loop.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
 
+const HAZARD_BOUNCE_SPEED = 8;
+
 export class CharacterCombat extends CharacterMovement {
   attack() {
     this.updateState();
@@ -36,13 +38,36 @@ export class CharacterCombat extends CharacterMovement {
   }
 
   hitByEnemy(enemy) {
+    if (!this.applyDamage()) return false;
+    this.startKnockback(enemy);
+    this.updateState();
+    return true;
+  }
+
+  hitByHazard() {
+    if (!this.applyDamage()) return false;
+    this.speedY = HAZARD_BOUNCE_SPEED;
+    this.updateState();
+    return true;
+  }
+
+  applyDamage() {
     if (this.isDead() || this.isInvulnerable()) return false;
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.hit();
     this.isAttacking = false;
-    this.startKnockback(enemy);
-    this.updateState();
     return true;
+  }
+
+  respawn(spawnPoint) {
+    this.x = spawnPoint.x;
+    this.y = spawnPoint.y;
+    this.speedY = 0;
+    this.knockbackFrames = 0;
+    this.isAttacking = false;
+    this.hit();
+    this.invulnerableUntil = gameLoop.now() + 1000;
+    this.updateState();
   }
 
   startKnockback(enemy) {

@@ -13,7 +13,7 @@ const BOAR_SETTINGS = {
   animationInterval: 80,
   attackAnimationInterval: 30,
   runAnimationInterval: 45,
-  position: { x: 2300, y: 308, width: 180, height: 160, speed: 1.8, minX: 2150, maxX: 2550 },
+  position: { x: 2300, y: 828, width: 180, height: 160, speed: 1.8, minX: 2150, maxX: 2550 },
   hitbox: { top: 45, right: 30, bottom: 20, left: 30 },
   attackHitbox: { top: 35, right: 10, bottom: 20, left: 10 },
   attackHitStartFrame: 6,

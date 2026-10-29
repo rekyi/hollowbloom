@@ -12,7 +12,13 @@ export function setupInput() {
 function handleKeyDown(event) {
   if (!appState.world || appState.world.isGameOver || appState.world.isVictory) return;
   if (event.code === "Escape") handleEscape(event);
+  else if (event.code === "F2") handleDebugKey(event);
   else if (!gameLoop.isPaused) handleGameKey(event);
+}
+
+function handleDebugKey(event) {
+  event.preventDefault();
+  if (!event.repeat) appState.world.toggleCollisionOverlay();
 }
 
 function handleKeyUp(event) {

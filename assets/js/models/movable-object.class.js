@@ -1,7 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { DrawableObject } from "./drawable-object.class.js";
-import { GROUND_LEVEL } from "./level.class.js";
+import { hasGroundBelow, moveX, moveY } from "./tile-collision.js";
 
 export class MoveableObject extends DrawableObject {
   speed = 0.15;
@@ -9,7 +9,6 @@ export class MoveableObject extends DrawableObject {
   speedY = 0;
   acceleration = 0.3623;
   jumpSpeed = 11.3;
-  groundLevel = GROUND_LEVEL;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
   isAttacking = false;
@@ -58,13 +57,13 @@ export class MoveableObject extends DrawableObject {
   }
 
   moveRight() {
-    this.x += this.speed;
     this.isOppositeDirection = false;
+    moveX(this, this.world.level, this.speed);
   }
 
   moveLeft() {
-    this.x -= this.speed;
     this.isOppositeDirection = true;
+    moveX(this, this.world.level, -this.speed);
   }
 
   jump() {
@@ -79,25 +78,18 @@ export class MoveableObject extends DrawableObject {
   }
 
   applyGravity() {
-    const groundY = this.groundLevel - this.height;
-    const nextYPosition = this.y - this.speedY;
-    if (nextYPosition >= groundY) {
-      this.land(groundY);
+    const wasAboveGround = this.isAboveGround();
+    const isBlocked = moveY(this, this.world.level, -this.speedY);
+    if (!isBlocked) {
+      this.speedY -= this.acceleration;
       return;
     }
-    this.y = nextYPosition;
-    this.speedY -= this.acceleration;
-  }
-
-  land(groundY) {
-    const wasAboveGround = this.isAboveGround();
-    this.y = groundY;
+    if (this.speedY < 0 && wasAboveGround) playSfx("jumpingAfter");
     this.speedY = 0;
-    if (wasAboveGround) playSfx("jumpingAfter");
   }
 
   isAboveGround() {
-    return this.y + this.height < this.groundLevel;
+    return !hasGroundBelow(this, this.world.level);
   }
 
   draw(ctx) {

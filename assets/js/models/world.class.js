@@ -34,6 +34,7 @@ export class World extends WorldRendering {
 
   setWorld() {
     this.character.world = this;
+    this.spawnPoint = { x: this.character.x, y: this.character.y };
     this.updateCamera(true);
     this.level.enemies.forEach((enemy) => {
       if (enemy instanceof Enemy || enemy instanceof FinalBoss) enemy.target = this.character;

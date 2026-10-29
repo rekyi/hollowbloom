@@ -3,6 +3,7 @@ import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { playSfx } from "../sfx.js";
+import { isTouchingTile, TILE_HAZARD } from "./tile-collision.js";
 
 export class WorldLogic {
   character;
@@ -13,6 +14,8 @@ export class WorldLogic {
   keyboard;
   cameraX = 0;
   cameraY = 0;
+  spawnPoint;
+  isCollisionOverlayVisible = false;
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   shakeDurationMs = 180;
@@ -31,10 +34,27 @@ export class WorldLogic {
   update() {
     this.trackDefeatedEnemies();
     this.checkCollision();
+    this.checkHazards();
+    this.checkFall();
     this.checkItemCollection();
     this.checkTimerStop();
     this.checkVictory();
     this.checkGameOver();
+  }
+
+  checkHazards() {
+    if (this.character.isDead() || !isTouchingTile(this.character, this.level, TILE_HAZARD)) return;
+    if (!this.character.hitByHazard()) return;
+    this.statusBar.setHearts(this.character.hp);
+    this.triggerHitFeedback();
+  }
+
+  checkFall() {
+    if (this.character.isDead() || this.character.y <= this.level.height) return;
+    this.character.respawn(this.spawnPoint);
+    this.statusBar.setHearts(this.character.hp);
+    this.updateCamera(true);
+    this.triggerHitFeedback();
   }
 
   checkItemCollection() {

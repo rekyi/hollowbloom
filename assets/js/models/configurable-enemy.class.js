@@ -1,6 +1,5 @@
 import { Enemy } from "./enemy.class.js";
 import { gameLoop } from "./game-loop.class.js";
-import { GROUND_SHIFT } from "./level.class.js";
 
 const FROZEN_DURATION_MS = 2000;
 const SHOCK_DURATION_MS = 1000;
@@ -38,7 +37,7 @@ export class ConfigurableEnemy extends Enemy {
 
   setEnemySettings(settings) {
     const { x, y, width, height, speed, minX, maxX } = settings.position;
-    this.setPosition(x, y + GROUND_SHIFT, width, height, speed, minX, maxX);
+    this.setPosition(x, y, width, height, speed, minX, maxX);
     this.offset = settings.hitbox || this.offset;
     this.attackOffset = settings.attackHitbox || this.offset;
     this.attackHitStartFrame = settings.attackHitStartFrame ?? this.attackHitStartFrame;

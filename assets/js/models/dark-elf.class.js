@@ -6,7 +6,7 @@ function getDarkElfSprite(name, frameCount, frameSize = 300, frameHeight = 300, 
 }
 const DARK_ELF_SETTINGS = {
   attackAnimationInterval: 60,
-  position: { x: 2150, y: 300, width: 170, height: 190, speed: 2, minX: 2050, maxX: 2300 },
+  position: { x: 2150, y: 820, width: 170, height: 190, speed: 2, minX: 2050, maxX: 2300 },
   hitbox: { top: 28, right: 42, bottom: 20, left: 42 },
   attackHitbox: { top: 40, right: 14, bottom: 20, left: 14 },
   attackHitStartFrame: 3,

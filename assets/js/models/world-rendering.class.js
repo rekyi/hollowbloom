@@ -1,6 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
-import { LEVEL_SCALE } from "./level.class.js";
+import { LEVEL_SCALE, TILE_SIZE } from "./level.class.js";
 
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
@@ -10,6 +10,7 @@ const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
 const BACKGROUND_COLOR = "#000";
 const CAMERA_SMOOTHING_Y = 0.1;
 const WORLD_LAYER_ORDER = ["Background.png", "Hills.png", "Ground.png", "Platforms.png", "Deco_Hazard.png"];
+const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
 export class WorldRendering extends WorldLogic {
   setupCanvasContext() {
@@ -56,7 +57,24 @@ export class WorldRendering extends WorldLogic {
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addToMap(this.character);
     this.addObjectsToMap(this.level.enemies);
+    this.drawCollisionOverlay();
     this.ctx.restore();
+  }
+
+  toggleCollisionOverlay() {
+    this.isCollisionOverlayVisible = !this.isCollisionOverlayVisible;
+  }
+
+  drawCollisionOverlay() {
+    if (!this.isCollisionOverlayVisible) return;
+    this.level.collisionGrid.forEach((cells, row) => cells.forEach((value, column) => this.drawCollisionTile(value, column, row)));
+  }
+
+  drawCollisionTile(value, column, row) {
+    const color = COLLISION_OVERLAY_COLORS[value];
+    if (!color) return;
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 
   drawLayers(layerNames) {
