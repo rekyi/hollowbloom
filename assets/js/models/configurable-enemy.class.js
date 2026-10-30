@@ -1,3 +1,4 @@
+import { ENTITY_SCALE } from "../data.js";
 import { Enemy } from "./enemy.class.js";
 import { gameLoop } from "./game-loop.class.js";
 
@@ -37,9 +38,10 @@ export class ConfigurableEnemy extends Enemy {
 
   setEnemySettings(settings) {
     const { x, y, width, height, speed, minX, maxX } = settings.position;
-    this.setPosition(x, y, width, height, speed, minX, maxX);
-    this.offset = settings.hitbox || this.offset;
-    this.attackOffset = settings.attackHitbox || this.offset;
+    const scale = ENTITY_SCALE * (settings.scale ?? 1);
+    this.setPosition(x, y, width * scale, height * scale, speed * ENTITY_SCALE, minX, maxX);
+    this.offset = settings.hitbox ? this.scaleOffset(settings.hitbox, scale) : this.offset;
+    this.attackOffset = settings.attackHitbox ? this.scaleOffset(settings.attackHitbox, scale) : this.offset;
     this.attackHitStartFrame = settings.attackHitStartFrame ?? this.attackHitStartFrame;
     this.attackHitEndFrameOverride = settings.attackHitEndFrame ?? null;
     this.attackHitStartFrames = (settings.sprites.attack ?? []).map((sprite) => sprite.hitStartFrame ?? this.attackHitStartFrame);

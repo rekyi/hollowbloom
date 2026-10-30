@@ -10,6 +10,7 @@ const BOAR_SPRITES = {
 };
 const IDLE_ALERT_ANIMATION_DURATION = Math.max(BOAR_SPRITES.walk.frameCount, BOAR_SPRITES.alert.frameCount) * IDLE_ALERT_FRAME_DURATION;
 const BOAR_SETTINGS = {
+  scale: 1.15,
   animationInterval: 80,
   attackAnimationInterval: 30,
   runAnimationInterval: 45,

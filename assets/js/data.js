@@ -1,3 +1,4 @@
+export const ENTITY_SCALE = 0.7;
 export const EXTRA_ATTACK_COIN_THRESHOLD = 5;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
 export const MOVE_LEFT_KEYS = ["ArrowLeft", "KeyA"];
@@ -23,6 +24,8 @@ export const CHARACTER_SETTING_KEYS = [
   "extraAttackReach",
   "offset",
 ];
+
+export const SCALED_SETTING_KEYS = ["width", "height", "walkSpeed", "attackReach", "extraAttackReach"];
 
 export const MALE_CHARACTER_CONFIG = {
   width: 200,

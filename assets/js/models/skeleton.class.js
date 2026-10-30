@@ -5,6 +5,7 @@ function getSkeletonSprite(name, frameCount) {
   return { path: `${SKELETON_PATH}skeleton_${name}.webp`, frameCount, frameSize: 256, frameHeight: 256 };
 }
 const SKELETON_SETTINGS = {
+  scale: 1.75,
   attackAnimationInterval: 30,
   deathAnimationInterval: 60,
   frozenAnimationInterval: 80,

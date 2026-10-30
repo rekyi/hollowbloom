@@ -1,3 +1,4 @@
+import { ENTITY_SCALE } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterCombat } from "./character-combat.class.js";
 
@@ -116,7 +117,7 @@ export class CharacterVisuals extends CharacterCombat {
     ctx.save();
     ctx.translate(this.x + this.width / 2, 0);
     if (this.isOppositeDirection) ctx.scale(-1, 1);
-    ctx.drawImage(bubble, 20, this.y + 35, 40, 45);
+    ctx.drawImage(bubble, 20 * ENTITY_SCALE, this.y + 35 * ENTITY_SCALE, 40 * ENTITY_SCALE, 45 * ENTITY_SCALE);
     ctx.restore();
   }
 }

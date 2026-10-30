@@ -1,5 +1,8 @@
+import { ENTITY_SCALE } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
+
+const KNOCKBACK_SPEED = 4.5 * ENTITY_SCALE;
 
 export class EnemyBehavior extends MoveableObject {
   IMAGES_IDLE = [];
@@ -30,7 +33,7 @@ export class EnemyBehavior extends MoveableObject {
   isReturning = false;
   status = null;
   statusUntil = Number.NEGATIVE_INFINITY;
-  aggroRange = 300;
+  aggroRange = 300 * ENTITY_SCALE;
   target = null;
   drawHitbox = true;
 
@@ -98,7 +101,7 @@ export class EnemyBehavior extends MoveableObject {
   }
 
   applyKnockback() {
-    this.x += this.knockbackDirection * 4.5;
+    this.x += this.knockbackDirection * KNOCKBACK_SPEED;
     this.knockbackFrames--;
     this.isMoving = false;
   }

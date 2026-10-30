@@ -5,6 +5,7 @@ function getDarkElfSprite(name, frameCount, frameSize = 300, frameHeight = 300, 
   return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, frameSize, frameHeight, columns, placement };
 }
 const DARK_ELF_SETTINGS = {
+  scale: 1.35,
   attackAnimationInterval: 60,
   position: { x: 0, y: 0, width: 170, height: 190, speed: 2, minX: 0, maxX: 0 },
   hitbox: { top: 28, right: 42, bottom: 44, left: 42 },

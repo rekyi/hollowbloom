@@ -1,7 +1,10 @@
 import { playSfx } from "../sfx.js";
+import { ENTITY_SCALE } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterBase } from "./character-base.class.js";
 import { moveX } from "./tile-collision.js";
+
+const KNOCKBACK_SPEED = 2.5 * ENTITY_SCALE;
 
 export class CharacterMovement extends CharacterBase {
   animation() {
@@ -75,7 +78,7 @@ export class CharacterMovement extends CharacterBase {
 
   applyKnockback() {
     if (this.knockbackFrames <= 0) return;
-    moveX(this, this.world.level, this.knockbackDirection * 2.5);
+    moveX(this, this.world.level, this.knockbackDirection * KNOCKBACK_SPEED);
     this.knockbackFrames--;
   }
 

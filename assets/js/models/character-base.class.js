@@ -1,4 +1,4 @@
-import { CHARACTER_SETTING_KEYS, MALE_CHARACTER_CONFIG } from "../data.js";
+import { CHARACTER_SETTING_KEYS, ENTITY_SCALE, MALE_CHARACTER_CONFIG, SCALED_SETTING_KEYS } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 
@@ -72,7 +72,11 @@ export class CharacterBase extends MoveableObject {
     CHARACTER_SETTING_KEYS.forEach((key) => {
       this[key] = settings[key];
     });
-    this.speed = settings.walkSpeed;
+    SCALED_SETTING_KEYS.forEach((key) => {
+      this[key] = settings[key] * ENTITY_SCALE;
+    });
+    this.offset = this.scaleOffset(settings.offset);
+    this.speed = this.walkSpeed;
   }
 
   loadCharacterSprites(settings, name) {

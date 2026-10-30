@@ -1,9 +1,10 @@
-import { EXTRA_ATTACK_COIN_THRESHOLD } from "../data.js";
+import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
 
-const HAZARD_BOUNCE_SPEED = 8;
+const HAZARD_BOUNCE_SPEED = 8 * ENTITY_SCALE;
+const KNOCKBACK_SPEED_Y = 5.2 * ENTITY_SCALE;
 
 export class CharacterCombat extends CharacterMovement {
   attack() {
@@ -73,7 +74,7 @@ export class CharacterCombat extends CharacterMovement {
   startKnockback(enemy) {
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
     this.knockbackFrames = 10;
-    this.speedY = 5.2;
+    this.speedY = KNOCKBACK_SPEED_Y;
   }
 
   isInvulnerable() {

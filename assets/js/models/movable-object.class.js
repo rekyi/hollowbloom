@@ -1,5 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
+import { ENTITY_SCALE } from "../data.js";
 import { DrawableObject } from "./drawable-object.class.js";
 import { hasGroundBelow, moveX, moveY } from "./tile-collision.js";
 
@@ -7,8 +8,8 @@ export class MoveableObject extends DrawableObject {
   speed = 0.15;
   isOppositeDirection = false;
   speedY = 0;
-  acceleration = 0.3623;
-  jumpSpeed = 13;
+  acceleration = 0.3623 * ENTITY_SCALE;
+  jumpSpeed = 13 * ENTITY_SCALE;
   fallMultiplier = 1.7;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
@@ -17,6 +18,10 @@ export class MoveableObject extends DrawableObject {
   attackHitStartFrame = 2;
   attackHitEndFrame = Number.POSITIVE_INFINITY;
   hitFlashUntil = Number.NEGATIVE_INFINITY;
+
+  scaleOffset(offset, scale = ENTITY_SCALE) {
+    return Object.fromEntries(Object.entries(offset).map(([side, value]) => [side, value * scale]));
+  }
 
   isAttackFrameActive() {
     return this.isAttacking && this.currentImage >= this.attackHitStartFrame && this.currentImage <= this.attackHitEndFrame;
