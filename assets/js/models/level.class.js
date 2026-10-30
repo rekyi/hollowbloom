@@ -1,5 +1,5 @@
-export const COLLISION_TILE_SIZE = 16;
-export const LEVEL_SCALE = 4;
+export const COLLISION_TILE_SIZE = 32;
+export const LEVEL_SCALE = 1;
 export const TILE_SIZE = COLLISION_TILE_SIZE * LEVEL_SCALE;
 const PLAYER_END_MARGIN = 128;
 

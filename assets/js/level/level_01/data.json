@@ -3,171 +3,185 @@
 	"uniqueIdentifer": "b607d860-bde0-11f1-b236-39113c95a7ed",
 	"x": 0,
 	"y": 0,
-	"width": 1280,
-	"height": 288,
+	"width": 4096,
+	"height": 1024,
 	"bgColor": "#696A79",
 	"neighbourLevels": [],
 	"customFields" : {},
 	"layers": [
 		"Background.png",
-		"Hanging.png",
 		"Deco_Hazard.png",
-		"Ground.png",
 		"Hills.png",
-		"Platforms.png"
+		"Ground.png",
+		"Platforms.png",
+		"Hanging.png"
 	],
 	"entities": {
-		"Exit": [
+		"Player": [
 			{
-				"id": "Exit",
-				"iid": "263026f0-bde0-11f1-b236-23673d533703",
+				"id": "Player",
+				"iid": "6ab97540-bde0-11f1-910c-effcfcad18ec",
 				"layer": "Entities",
-				"x": 1264,
-				"y": 208,
-				"width": 16,
+				"x": 288,
+				"y": 864,
+				"width": 32,
 				"height": 32,
-				"color": 14120515,
+				"color": 12470831,
 				"customFields" : {}
 			}
 		],
 		"Enemy_Patrol": [
 			{
 				"id": "Enemy_Patrol",
-				"iid": "4f0a5fa0-bde0-11f1-b236-a9dae865199f",
+				"iid": "72c62850-bde0-11f1-910c-ebd92d8e1bda",
 				"layer": "Entities",
-				"x": 336,
-				"y": 224,
-				"width": 16,
-				"height": 16,
+				"x": 3808,
+				"y": 864,
+				"width": 32,
+				"height": 32,
 				"color": 14984818,
 				"customFields": {
-					"range": 5,
-					"type": "Boar"
-				}
-			},
-			{
-				"id": "Enemy_Patrol",
-				"iid": "5cd7b2e0-bde0-11f1-b236-af7372c2543e",
-				"layer": "Entities",
-				"x": 1200,
-				"y": 224,
-				"width": 16,
-				"height": 16,
-				"color": 14984818,
-				"customFields": {
-					"range": 5,
+					"range": 10,
 					"type": "DarkElf"
 				}
 			},
 			{
 				"id": "Enemy_Patrol",
-				"iid": "03e4f010-bde0-11f1-b236-43bf8829add2",
+				"iid": "789ce890-bde0-11f1-910c-3983d2b7ca02",
 				"layer": "Entities",
-				"x": 624,
-				"y": 224,
-				"width": 16,
-				"height": 16,
+				"x": 2656,
+				"y": 864,
+				"width": 32,
+				"height": 32,
 				"color": 14984818,
 				"customFields": {
-					"range": 5,
+					"range": 10,
 					"type": "Skeleton"
 				}
 			},
 			{
 				"id": "Enemy_Patrol",
-				"iid": "5493ff60-bde0-11f1-b236-59af042193b3",
+				"iid": "7b980020-bde0-11f1-910c-0ddd6cdbf970",
 				"layer": "Entities",
-				"x": 848,
-				"y": 224,
-				"width": 16,
-				"height": 16,
+				"x": 3072,
+				"y": 864,
+				"width": 32,
+				"height": 32,
 				"color": 14984818,
 				"customFields": {
-					"range": 5,
+					"range": 10,
 					"type": "Skeleton"
 				}
-			}
-		],
-		"Coin": [
-			{
-				"id": "Coin",
-				"iid": "78513cd0-bde0-11f1-b236-5b90c5052769",
-				"layer": "Entities",
-				"x": 1152,
-				"y": 224,
-				"width": 16,
-				"height": 16,
-				"color": 15389866,
-				"customFields" : {}
 			},
 			{
-				"id": "Coin",
-				"iid": "884826d0-bde0-11f1-b236-a96328423a7a",
+				"id": "Enemy_Patrol",
+				"iid": "800ce670-bde0-11f1-910c-91606c93a8e0",
 				"layer": "Entities",
-				"x": 304,
-				"y": 176,
-				"width": 16,
-				"height": 16,
-				"color": 15389866,
-				"customFields" : {}
+				"x": 1920,
+				"y": 864,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Boar"
+				}
 			},
 			{
-				"id": "Coin",
-				"iid": "3d698440-bde0-11f1-b236-d79722fb43e3",
+				"id": "Enemy_Patrol",
+				"iid": "826ef250-bde0-11f1-910c-57eda33240ac",
 				"layer": "Entities",
-				"x": 736,
-				"y": 192,
-				"width": 16,
-				"height": 16,
-				"color": 15389866,
-				"customFields" : {}
-			},
-			{
-				"id": "Coin",
-				"iid": "f0427cb0-bde0-11f1-8977-357d0cc9348c",
-				"layer": "Entities",
-				"x": 32,
-				"y": 64,
-				"width": 16,
-				"height": 16,
-				"color": 15389866,
-				"customFields" : {}
-			},
-			{
-				"id": "Coin",
-				"iid": "f74d7730-bde0-11f1-8977-cbab37079b7d",
-				"layer": "Entities",
-				"x": 96,
-				"y": 112,
-				"width": 16,
-				"height": 16,
-				"color": 15389866,
-				"customFields" : {}
-			}
-		],
-		"Player": [
-			{
-				"id": "Player",
-				"iid": "34b2cb00-bde0-11f1-b236-0dfd1de8fe32",
-				"layer": "Entities",
-				"x": 80,
-				"y": 224,
-				"width": 16,
-				"height": 16,
-				"color": 12470831,
-				"customFields" : {}
+				"x": 896,
+				"y": 864,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Boar"
+				}
 			}
 		],
 		"Key": [
 			{
 				"id": "Key",
-				"iid": "1a2cc790-bde0-11f1-910c-a10a1cf41586",
+				"iid": "90395f60-bde0-11f1-910c-9bdb87f0f2aa",
 				"layer": "Entities",
-				"x": 1022,
-				"y": 192,
-				"width": 16,
-				"height": 16,
+				"x": 3136,
+				"y": 768,
+				"width": 32,
+				"height": 32,
 				"color": 4073265,
+				"customFields" : {}
+			}
+		],
+		"Coin": [
+			{
+				"id": "Coin",
+				"iid": "94a4f6e0-bde0-11f1-910c-4b6e9d55d0b7",
+				"layer": "Entities",
+				"x": 64,
+				"y": 320,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "980ade30-bde0-11f1-910c-9bee1a184c9f",
+				"layer": "Entities",
+				"x": 256,
+				"y": 448,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "9e91b490-bde0-11f1-910c-9156d889d61e",
+				"layer": "Entities",
+				"x": 1376,
+				"y": 832,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "a3027c30-bde0-11f1-910c-091d2670cb4c",
+				"layer": "Entities",
+				"x": 3680,
+				"y": 832,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "a61a4380-bde0-11f1-910c-bd20b487e31e",
+				"layer": "Entities",
+				"x": 3104,
+				"y": 608,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			}
+		],
+		"Exit": [
+			{
+				"id": "Exit",
+				"iid": "be5575e0-bde0-11f1-910c-2d64a3352d5b",
+				"layer": "Entities",
+				"x": 4000,
+				"y": 768,
+				"width": 64,
+				"height": 128,
+				"color": 14120515,
 				"customFields" : {}
 			}
 		]
