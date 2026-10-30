@@ -54,6 +54,7 @@ export class WorldRendering extends WorldLogic {
     this.ctx.save();
     this.ctx.setTransform(CAMERA_ZOOM, 0, 0, CAMERA_ZOOM, Math.round(offsetX * CAMERA_ZOOM), Math.round(offsetY * CAMERA_ZOOM));
     this.drawLayers(BEHIND_ENTITIES_LAYERS);
+    this.addObjectsToMap(this.level.exits);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addObjectsToMap(this.level.keys.filter((key) => !key.isCollected));
     this.addObjectsToMap(this.level.enemies);

@@ -18,6 +18,7 @@ export class Level {
   enemies;
   items;
   keys;
+  exits;
   data;
   layers;
   collisionGrid = [];
@@ -26,10 +27,11 @@ export class Level {
   width = 0;
   height = 0;
 
-  constructor(enemies, items = [], { data, layers, collisionGrid } = {}, keys = []) {
+  constructor(enemies, items = [], { data, layers, collisionGrid } = {}, keys = [], exits = []) {
     this.enemies = enemies;
     this.items = items;
     this.keys = keys;
+    this.exits = exits;
     this.data = data;
     this.layers = layers ?? [];
     this.collisionGrid = collisionGrid ?? [];

@@ -1,5 +1,6 @@
 import { ChargeItem } from "../models/charge-item.class.js";
 import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
+import { ExitPortal } from "../models/exit-portal.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 
@@ -102,10 +103,15 @@ function createKey(entity) {
   return new KeyItem(getEntityBox(entity));
 }
 
+function createExit(entity) {
+  return new ExitPortal(getEntityBox(entity));
+}
+
 export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
   const enemies = (entities.Enemy_Patrol ?? []).map(createEnemy);
   const items = (entities.Coin ?? []).map(createChargeItem);
   const keys = (entities.Key ?? []).map(createKey);
-  return new Level(enemies, items, levelAssets, keys);
+  const exits = (entities.Exit ?? []).map(createExit);
+  return new Level(enemies, items, levelAssets, keys, exits);
 }
