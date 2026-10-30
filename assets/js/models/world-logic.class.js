@@ -84,8 +84,12 @@ export class WorldLogic {
     this.hasKey = true;
   }
 
+  isExitOpen() {
+    return this.hasKey || this.level.keys.length === 0;
+  }
+
   checkExit() {
-    if (this.isLevelLoading || this.isVictory || this.character.isDead()) return;
+    if (this.isLevelLoading || this.isVictory || this.character.isDead() || !this.isExitOpen()) return;
     const characterHitbox = this.character.getHitbox();
     const isAtExit = this.level.getEntities("Exit").some((exit) => this.hitboxesOverlap(characterHitbox, getEntityBox(exit)));
     if (isAtExit) this.loadNextLevel();
