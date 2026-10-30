@@ -3,6 +3,8 @@ import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 
 const KNOCKBACK_SPEED = 4.5 * ENTITY_SCALE;
+const AGGRO_MAX_FOOT_DIFF_HEIGHTS = 0.6;
+const FACE_DEAD_ZONE = 12 * ENTITY_SCALE;
 
 export class EnemyBehavior extends MoveableObject {
   IMAGES_IDLE = [];
@@ -125,13 +127,18 @@ export class EnemyBehavior extends MoveableObject {
 
   updateAggro() {
     if (!this.target || this.isDead()) return;
-    const distance = this.getDistanceToTarget();
-    if (!this.isAggro && distance <= this.aggroRange) {
+    const isInRange = this.getDistanceToTarget() <= this.aggroRange;
+    if (!this.isAggro && isInRange && this.isTargetReachable()) {
       this.isAggro = true;
       this.isReturning = false;
-    } else if (this.isAggro && distance > this.aggroRange) {
+    } else if (this.isAggro && !isInRange) {
       this.resetToSpawn();
     }
+  }
+
+  isTargetReachable() {
+    const feetDifference = Math.abs(this.target.y + this.target.height - (this.y + this.height));
+    return feetDifference <= this.height * AGGRO_MAX_FOOT_DIFF_HEIGHTS;
   }
 
   getActiveStatus() {
@@ -158,11 +165,15 @@ export class EnemyBehavior extends MoveableObject {
     this.faceTarget();
     const targetHitbox = this.target.getHitbox();
     const attackHitbox = this.getAttackHitbox();
-    if (this.hitboxesOverlap(targetHitbox, attackHitbox)) {
+    if (this.isHorizontallyAligned(targetHitbox, attackHitbox)) {
       this.isMoving = false;
       return;
     }
     this.moveTowards(targetHitbox, attackHitbox);
+  }
+
+  isHorizontallyAligned(a, b) {
+    return a.x < b.x + b.width && a.x + a.width > b.x;
   }
 
   moveTowards(targetHitbox, attackHitbox) {
@@ -175,8 +186,9 @@ export class EnemyBehavior extends MoveableObject {
 
   faceTarget() {
     const enemyCenter = this.x + this.width / 2;
-    const targetCenter = this.target.x + this.target.width / 2;
-    this.isOppositeDirection = targetCenter < enemyCenter;
+    const offsetX = this.target.x + this.target.width / 2 - enemyCenter;
+    if (Math.abs(offsetX) <= FACE_DEAD_ZONE) return;
+    this.isOppositeDirection = offsetX < 0;
   }
 
   hitboxesOverlap(a, b) {
