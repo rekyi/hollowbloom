@@ -1,7 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
-import { FinalBoss } from "./final-boss.class.js";
 import { playSfx } from "../sfx.js";
 import { isTouchingTile, TILE_HAZARD } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
@@ -130,7 +129,7 @@ export class WorldLogic {
   }
 
   checkVictory() {
-    this.dyingBoss ??= this.level.enemies.find((enemy) => enemy instanceof FinalBoss && enemy.isDead());
+    this.dyingBoss ??= this.level.enemies.find((enemy) => enemy.isFinalBoss && enemy.isDead());
     if (this.isVictory || !this.dyingBoss?.isDeathAnimationFinished) return;
     this.triggerVictory();
   }
@@ -148,7 +147,7 @@ export class WorldLogic {
   }
 
   checkTimerStop() {
-    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
+    const boss = this.level.enemies.find((enemy) => enemy.isFinalBoss);
     if (!boss || !boss.isDead()) return;
     this.stopGameplayMusic();
     if (this.timerStartMs !== null && this.timerStopMs === null) this.timerStopMs = gameLoop.now();
@@ -186,6 +185,6 @@ export class WorldLogic {
 
   removeDeadEnemies() {
     this.trackDefeatedEnemies();
-    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy instanceof FinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()));
+    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy.isFinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()));
   }
 }

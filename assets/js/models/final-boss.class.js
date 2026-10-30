@@ -17,6 +17,7 @@ export class FinalBoss extends MoveableObject {
   maxHp = 8;
   offset = { top: 95, right: 105, bottom: 65, left: 95 };
   target = null;
+  isFinalBoss = true;
   attackHitStartFrame = 6;
   attackHitEndFrame = 10;
   phase = "normal";

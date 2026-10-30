@@ -3,6 +3,7 @@ import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
 import { ExitPortal } from "../models/exit-portal.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
+import { VerdanBoss } from "../models/verdan-boss.class.js";
 import { LEVEL_COUNT } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
@@ -116,6 +117,13 @@ function createEnemy(entity, index) {
   return enemy;
 }
 
+function createBoss(entity) {
+  const boss = new VerdanBoss();
+  placeOnEntity(boss, entity);
+  boss.setArena((entity.customFields?.range ?? 0) * TILE_SIZE);
+  return boss;
+}
+
 function createChargeItem(entity) {
   const box = getEntityBox(entity);
   return new ChargeItem(box.x + box.width / 2, box.y + box.height / 2);
@@ -131,7 +139,7 @@ function createExit(entity) {
 
 export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
-  const enemies = (entities.Enemy_Patrol ?? []).map(createEnemy);
+  const enemies = [...(entities.Enemy_Patrol ?? []).map(createEnemy), ...(entities.Boss ?? []).map(createBoss)];
   const items = (entities.Coin ?? []).map(createChargeItem);
   const keys = (entities.Key ?? []).map(createKey);
   const exits = (entities.Exit ?? []).map(createExit);

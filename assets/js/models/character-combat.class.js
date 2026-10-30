@@ -1,6 +1,5 @@
 import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
-import { FinalBoss } from "./final-boss.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
 
 const HAZARD_BOUNCE_SPEED = 8 * ENTITY_SCALE;
@@ -105,7 +104,7 @@ export class CharacterCombat extends CharacterMovement {
     const box = this.getHitbox();
     this.world.level.enemies.forEach((enemy) => {
       if (enemy.isDead()) return;
-      const reach = enemy instanceof FinalBoss ? this.getBossReach(box) : this.getReach(box);
+      const reach = enemy.isFinalBoss ? this.getBossReach(box) : this.getReach(box);
       if (!this.world.hitboxesOverlap(reach, enemy.getHitbox())) return;
       if (enemy.hit({ character: this.characterType, attackType: this.activeAttackType })) this.world.triggerHitFeedback();
     });

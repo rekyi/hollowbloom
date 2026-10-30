@@ -1,6 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
-import { FinalBoss } from "./final-boss.class.js";
 import { createLevel, loadLevelAssets } from "../level/level-loader.js";
 import { LEVEL_COUNT } from "../data.js";
 import { placeOnEntity } from "./level.class.js";
@@ -72,7 +71,7 @@ export class World extends WorldRendering {
 
   setEnemyTargets() {
     this.level.enemies.forEach((enemy) => {
-      if (enemy instanceof Enemy || enemy instanceof FinalBoss) enemy.target = this.character;
+      if (enemy instanceof Enemy || enemy.isFinalBoss) enemy.target = this.character;
     });
   }
 
@@ -94,7 +93,7 @@ export class World extends WorldRendering {
   }
 
   resumeGameplayMusic() {
-    const boss = this.level.enemies.find((enemy) => enemy instanceof FinalBoss);
+    const boss = this.level.enemies.find((enemy) => enemy.isFinalBoss);
     if (this.character.isDead() || boss?.isDead()) return;
     this.startGameplayMusic();
   }

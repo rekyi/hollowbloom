@@ -227,6 +227,21 @@
 				"color": 7552569,
 				"customFields" : {}
 			}
+		],
+		"Boss": [
+			{
+				"id": "Boss",
+				"iid": "b4129130-bde0-11f1-910c-ef6013b1465e",
+				"layer": "Entities",
+				"x": 3424,
+				"y": 608,
+				"width": 64,
+				"height": 224,
+				"color": 16705377,
+				"customFields": {
+					"range": 12
+				}
+			}
 		]
 	}
 }
