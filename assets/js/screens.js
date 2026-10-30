@@ -3,7 +3,7 @@ import { gameLoop } from "./models/game-loop.class.js";
 import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
-import { getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
+import { countLevelCoins, getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 
@@ -115,16 +115,26 @@ function showVictory() {
   runScreenTransition(showVictoryAtBlackout);
 }
 
-function showVictoryAtBlackout() {
-  renderVictoryStats();
+async function showVictoryAtBlackout() {
+  await renderVictoryStats();
   document.getElementById("victory-screen").hidden = false;
   document.getElementById("victory-restart-button").focus();
 }
 
-function renderVictoryStats() {
+async function renderVictoryStats() {
   document.getElementById("victory-play-time").textContent = appState.world.getTimerText();
-  document.getElementById("victory-coins").textContent = String(appState.world.character.coins);
+  document.getElementById("victory-coins").textContent = await getVictoryCoinsText();
   document.getElementById("victory-defeated-enemies").textContent = String(appState.world.defeatedEnemies);
+}
+
+async function getVictoryCoinsText() {
+  const collectedCoins = appState.world.character.coins;
+  try {
+    return `${collectedCoins} / ${await countLevelCoins()}`;
+  } catch (error) {
+    console.error(error);
+    return String(collectedCoins);
+  }
 }
 
 function drawGameOverCharacter() {

@@ -3,6 +3,7 @@ import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
 import { ExitPortal } from "../models/exit-portal.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
+import { LEVEL_COUNT } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
@@ -16,6 +17,11 @@ export function loadLevelAssets(levelIndex) {
   });
   levelAssetsPromises.set(levelIndex, levelAssetsPromise);
   return levelAssetsPromise;
+}
+
+export async function countLevelCoins() {
+  const allLevelAssets = await Promise.all(Array.from({ length: LEVEL_COUNT }, (_, levelIndex) => loadLevelAssets(levelIndex)));
+  return allLevelAssets.reduce((total, levelAssets) => total + (levelAssets.data.entities.Coin ?? []).length, 0);
 }
 
 export function getStartLevelIndex(startLevel) {
