@@ -185,6 +185,12 @@ export class WorldLogic {
 
   removeDeadEnemies() {
     this.trackDefeatedEnemies();
-    this.level.enemies = this.level.enemies.filter((enemy) => !(enemy instanceof Enemy || enemy.isFinalBoss ? enemy.isDeathAnimationFinished : enemy.isDead()));
+    this.level.enemies = this.level.enemies.filter((enemy) => !this.isRemovable(enemy));
+  }
+
+  isRemovable(enemy) {
+    if (enemy.isKeptAfterDeath) return false;
+    if (enemy instanceof Enemy || enemy.isFinalBoss) return enemy.isDeathAnimationFinished;
+    return enemy.isDead();
   }
 }

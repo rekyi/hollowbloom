@@ -1,4 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
+import { playSfx } from "../sfx.js";
 import { MoveableObject } from "./movable-object.class.js";
 
 const VERDAN_PATH = "assets/images/4_final_boss/verdan/verdan_";
@@ -33,6 +34,8 @@ export const VERDAN_SETTINGS = {
 
 export class VerdanBoss extends MoveableObject {
   IMAGES_IDLE = [];
+  IMAGES_HURT = [];
+  IMAGES_DEATH = [];
   width = VERDAN_FRAME_WIDTH;
   height = VERDAN_FRAME_HEIGHT;
   hp = 8;
@@ -41,6 +44,8 @@ export class VerdanBoss extends MoveableObject {
   isOppositeDirection = true;
   isFinalBoss = true;
   isDeathAnimationFinished = false;
+  isKeptAfterDeath = true;
+  state = "idle";
   target = null;
   arena = null;
   animationStartedAt = 0;
@@ -49,6 +54,8 @@ export class VerdanBoss extends MoveableObject {
   constructor() {
     super();
     this.IMAGES_IDLE = this.loadSheet(VERDAN_SETTINGS.idle);
+    this.IMAGES_HURT = this.loadSheet(VERDAN_SETTINGS.hurt);
+    this.IMAGES_DEATH = this.loadSheet(VERDAN_SETTINGS.death);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animationStartedAt = gameLoop.now();
     gameLoop.runEvery(1000 / 60, () => this.updateBoss());
@@ -64,11 +71,50 @@ export class VerdanBoss extends MoveableObject {
   }
 
   updateBoss() {
-    this.playLoop(this.IMAGES_IDLE, VERDAN_SETTINGS.idle.frameDuration);
+    if (this.state === "death") this.playDeath();
+    else if (this.state === "hurt") this.playHurt();
+    else this.playLoop(this.IMAGES_IDLE, VERDAN_SETTINGS.idle.frameDuration);
+  }
+
+  hit() {
+    if (!super.hit()) return false;
+    playSfx("enemyHit");
+    if (this.isDead()) this.startDeath();
+    else this.startAnimation("hurt");
+    return true;
+  }
+
+  startDeath() {
+    playSfx("finalBossDeath");
+    this.startAnimation("death");
+  }
+
+  startAnimation(state) {
+    this.state = state;
+    this.animationStartedAt = gameLoop.now();
+  }
+
+  playHurt() {
+    const frame = this.getElapsedFrame(VERDAN_SETTINGS.hurt.frameDuration);
+    if (frame < this.IMAGES_HURT.length) this.setFrame(this.IMAGES_HURT, frame);
+    else this.startAnimation("idle");
+  }
+
+  playDeath() {
+    const frame = this.getElapsedFrame(VERDAN_SETTINGS.death.frameDuration);
+    this.setFrame(this.IMAGES_DEATH, Math.min(frame, this.IMAGES_DEATH.length - 1));
+    this.isDeathAnimationFinished = frame >= this.IMAGES_DEATH.length;
   }
 
   playLoop(images, frameDuration) {
-    const frame = Math.floor((gameLoop.now() - this.animationStartedAt) / frameDuration) % images.length;
+    this.setFrame(images, this.getElapsedFrame(frameDuration) % images.length);
+  }
+
+  getElapsedFrame(frameDuration) {
+    return Math.floor((gameLoop.now() - this.animationStartedAt) / frameDuration);
+  }
+
+  setFrame(images, frame) {
     this.currentImage = frame;
     this.img = this.imageCache[images[frame]];
   }
