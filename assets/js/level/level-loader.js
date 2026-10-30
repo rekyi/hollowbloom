@@ -1,32 +1,42 @@
-import { ChargeItem } from "../../models/charge-item.class.js";
-import { DarkElf, Boar, Skeleton } from "../../models/enemies.class.js";
-import { KeyItem } from "../../models/key-item.class.js";
-import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../../models/level.class.js";
+import { ChargeItem } from "../models/charge-item.class.js";
+import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
+import { KeyItem } from "../models/key-item.class.js";
+import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
-let levelAssetsPromise = null;
+const levelAssetsPromises = new Map();
 
-export function loadLevelAssets() {
-  if (levelAssetsPromise) return levelAssetsPromise;
-  levelAssetsPromise = fetchLevelAssets().catch((error) => {
-    levelAssetsPromise = null;
+export function loadLevelAssets(levelIndex) {
+  if (levelAssetsPromises.has(levelIndex)) return levelAssetsPromises.get(levelIndex);
+  const levelAssetsPromise = fetchLevelAssets(getLevelFolderUrl(levelIndex)).catch((error) => {
+    levelAssetsPromises.delete(levelIndex);
     throw error;
   });
+  levelAssetsPromises.set(levelIndex, levelAssetsPromise);
   return levelAssetsPromise;
 }
 
-async function fetchLevelAssets() {
-  const dataUrl = new URL("./data.json", import.meta.url);
+function getLevelFolderUrl(levelIndex) {
+  const folderName = `level_${String(levelIndex + 1).padStart(2, "0")}`;
+  return new URL(`./${folderName}/`, import.meta.url);
+}
+
+async function fetchLevelAssets(folderUrl) {
+  const dataUrl = new URL("data.json", folderUrl);
   const response = await fetch(dataUrl);
   if (!response.ok) throw new Error(`Failed to load level data (${response.status}): ${dataUrl}`);
   const data = await response.json();
-  const [layers, collisionGrid] = await Promise.all([Promise.all(data.layers.map(loadLayerImage)), loadCollisionGrid(data)]);
+  const [layers, collisionGrid] = await Promise.all([loadLayerImages(data, folderUrl), loadCollisionGrid(data, folderUrl)]);
   return { data, layers, collisionGrid };
 }
 
-async function loadCollisionGrid(data) {
-  const collisionUrl = new URL("./Collisions.csv", import.meta.url);
+function loadLayerImages(data, folderUrl) {
+  return Promise.all(data.layers.map((filename) => loadLayerImage(filename, folderUrl)));
+}
+
+async function loadCollisionGrid(data, folderUrl) {
+  const collisionUrl = new URL("Collisions.csv", folderUrl);
   const response = await fetch(collisionUrl);
   if (!response.ok) throw new Error(`Failed to load collision data (${response.status}): ${collisionUrl}`);
   const csvText = await response.text();
@@ -65,12 +75,12 @@ function isValidCell(value) {
   return Number.isInteger(value) && value >= 0;
 }
 
-function loadLayerImage(filename) {
+function loadLayerImage(filename, folderUrl) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve({ name: filename, image });
     image.onerror = () => reject(new Error(`Failed to load level layer: ${image.src}`));
-    image.src = new URL(`./${filename}`, import.meta.url).href;
+    image.src = new URL(filename, folderUrl).href;
   });
 }
 
@@ -92,7 +102,7 @@ function createKey(entity) {
   return new KeyItem(getEntityBox(entity));
 }
 
-export function createLevel1(levelAssets) {
+export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
   const enemies = (entities.Enemy_Patrol ?? []).map(createEnemy);
   const items = (entities.Coin ?? []).map(createChargeItem);

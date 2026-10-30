@@ -3,7 +3,7 @@ import { gameLoop } from "./models/game-loop.class.js";
 import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
-import { loadLevelAssets } from "./level/level_01/level1.js";
+import { loadLevelAssets } from "./level/level-loader.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 
@@ -15,7 +15,7 @@ export function setupScreens() {
   document.getElementById("pre-start-button").addEventListener("click", revealStartMenu, { once: true });
   document.getElementById("character-choices").addEventListener("click", handleCharacterChoice);
   document.getElementById("start-button").addEventListener("click", startGame);
-  document.getElementById("restart-button").addEventListener("click", startGame);
+  document.getElementById("restart-button").addEventListener("click", restartLevel);
   document.getElementById("victory-restart-button").addEventListener("click", startGame);
   document.getElementById("pause-restart-button").addEventListener("click", startGame);
   document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
@@ -47,37 +47,57 @@ function updateCharacterChoices(containerRef, selectedRef) {
   });
 }
 
-async function startGame() {
+function startGame() {
+  return startLevel(0);
+}
+
+function restartLevel() {
+  return startLevel(appState.world?.levelIndex ?? 0);
+}
+
+async function startLevel(levelIndex) {
   if (isScreenTransitioning || isLevelLoading) return;
   isLevelLoading = true;
-  resetKeyboard();
-  stopDeathScreenMusic();
-  appState.world?.stopGameplayMusic();
-  gameLoop.stop();
-  const loadStatusRef = document.getElementById("level-load-status");
-  loadStatusRef.textContent = "Level wird geladen ...";
-  loadStatusRef.hidden = false;
+  prepareLevelLoad();
   try {
-    const levelAssets = await loadLevelAssets();
-    await runScreenTransition(() => startGameAtBlackout(levelAssets));
+    const levelAssets = await loadLevelAssets(levelIndex);
+    await runScreenTransition(() => startGameAtBlackout(levelAssets, levelIndex));
   } catch (error) {
-    console.error("Level could not be loaded.", error);
-    appState.canvasRef.classList.remove("ready");
-    document.getElementById("start-screen").hidden = false;
-    loadStatusRef.textContent = "Level konnte nicht geladen werden. Bitte erneut versuchen.";
+    handleLevelLoadError(error);
   } finally {
     isLevelLoading = false;
   }
 }
 
-function startGameAtBlackout(levelAssets) {
+function prepareLevelLoad() {
+  resetKeyboard();
+  stopDeathScreenMusic();
+  appState.world?.stopGameplayMusic();
+  gameLoop.stop();
+  setLevelLoadStatus("Level wird geladen ...");
+}
+
+function handleLevelLoadError(error) {
+  console.error("Level could not be loaded.", error);
+  appState.canvasRef.classList.remove("ready");
+  document.getElementById("start-screen").hidden = false;
+  setLevelLoadStatus("Level konnte nicht geladen werden. Bitte erneut versuchen.");
+}
+
+function setLevelLoadStatus(text) {
+  const loadStatusRef = document.getElementById("level-load-status");
+  loadStatusRef.textContent = text;
+  loadStatusRef.hidden = false;
+}
+
+function startGameAtBlackout(levelAssets, levelIndex) {
   document.getElementById("start-screen").hidden = true;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   document.getElementById("victory-screen").hidden = true;
   appState.canvasRef.classList.add("ready");
   document.getElementById("level-load-status").hidden = true;
-  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets);
+  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets, levelIndex);
   stopStartScreenMusic();
 }
 

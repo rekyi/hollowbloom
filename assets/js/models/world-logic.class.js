@@ -4,6 +4,7 @@ import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { playSfx } from "../sfx.js";
 import { isTouchingTile, TILE_HAZARD } from "./tile-collision.js";
+import { getEntityBox } from "./level.class.js";
 
 export class WorldLogic {
   character;
@@ -29,6 +30,8 @@ export class WorldLogic {
   isGameOver = false;
   isVictory = false;
   hasKey = false;
+  levelIndex = 0;
+  isLevelLoading = false;
   onGameOver;
   onVictory;
 
@@ -39,6 +42,7 @@ export class WorldLogic {
     this.checkFall();
     this.checkItemCollection();
     this.checkKeyCollection();
+    this.checkExit();
     this.checkTimerStop();
     this.checkVictory();
     this.checkGameOver();
@@ -80,6 +84,13 @@ export class WorldLogic {
     this.hasKey = true;
   }
 
+  checkExit() {
+    if (this.isLevelLoading || this.isVictory || this.character.isDead()) return;
+    const characterHitbox = this.character.getHitbox();
+    const isAtExit = this.level.getEntities("Exit").some((exit) => this.hitboxesOverlap(characterHitbox, getEntityBox(exit)));
+    if (isAtExit) this.loadNextLevel();
+  }
+
   checkGameOver() {
     if (this.isGameOver || this.isVictory || !this.character.isDead()) return;
     this.stopGameplayMusic();
@@ -103,6 +114,10 @@ export class WorldLogic {
   checkVictory() {
     this.dyingBoss ??= this.level.enemies.find((enemy) => enemy instanceof FinalBoss && enemy.isDead());
     if (this.isVictory || !this.dyingBoss?.isDeathAnimationFinished) return;
+    this.triggerVictory();
+  }
+
+  triggerVictory() {
     this.isVictory = true;
     this.stopGameplayMusic();
     this.timerStopMs ??= gameLoop.now();

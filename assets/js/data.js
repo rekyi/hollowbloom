@@ -1,4 +1,5 @@
 export const ENTITY_SCALE = 0.7;
+export const LEVEL_COUNT = 2;
 export const EXTRA_ATTACK_COIN_THRESHOLD = 5;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
 export const MOVE_LEFT_KEYS = ["ArrowLeft", "KeyA"];
