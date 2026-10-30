@@ -6,15 +6,20 @@
 	"width": 4096,
 	"height": 1024,
 	"bgColor": "#696A79",
-	"neighbourLevels": [],
+	"neighbourLevels": [
+		{
+			"levelIid": "ff3a0f20-bde0-11f1-910c-51fd69d5206b",
+			"dir": "e"
+		}
+	],
 	"customFields" : {},
 	"layers": [
 		"Background.png",
-		"Deco_Hazard.png",
-		"Hills.png",
-		"Ground.png",
 		"Platforms.png",
-		"Hanging.png"
+		"Deco_Hazard.png",
+		"Hanging.png",
+		"Ground.png",
+		"Hills.png"
 	],
 	"entities": {
 		"Player": [
@@ -109,8 +114,8 @@
 				"layer": "Entities",
 				"x": 3136,
 				"y": 768,
-				"width": 32,
-				"height": 32,
+				"width": 64,
+				"height": 64,
 				"color": 4073265,
 				"customFields" : {}
 			}

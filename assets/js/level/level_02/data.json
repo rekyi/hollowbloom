@@ -15,36 +15,216 @@
 	"customFields" : {},
 	"layers": [
 		"Background.png",
-		"Deco_Hazard.png",
-		"Hills.png",
-		"Ground.png",
 		"Platforms.png",
-		"Hanging.png"
+		"Deco_Hazard.png",
+		"Hanging.png",
+		"Ground.png",
+		"Hills.png"
 	],
 	"entities": {
-		"Checkpoint": [
+		"Exit": [
 			{
-				"id": "Checkpoint",
-				"iid": "ee5d2560-bde0-11f1-910c-f741d16bbb5e",
+				"id": "Exit",
+				"iid": "a7cf0220-bde0-11f1-910c-e96b8dae845a",
 				"layer": "Entities",
-				"x": 0,
-				"y": 512,
+				"x": 4000,
+				"y": 704,
 				"width": 64,
 				"height": 128,
-				"color": 7552569,
+				"color": 14120515,
 				"customFields" : {}
+			}
+		],
+		"Key": [
+			{
+				"id": "Key",
+				"iid": "aec1b9b0-bde0-11f1-910c-2bb1788762fe",
+				"layer": "Entities",
+				"x": 1824,
+				"y": 864,
+				"width": 64,
+				"height": 64,
+				"color": 4073265,
+				"customFields" : {}
+			}
+		],
+		"Coin": [
+			{
+				"id": "Coin",
+				"iid": "b3231800-bde0-11f1-910c-87abc57e2d7a",
+				"layer": "Entities",
+				"x": 992,
+				"y": 352,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "bbbffd20-bde0-11f1-910c-89e2dfaed015",
+				"layer": "Entities",
+				"x": 544,
+				"y": 736,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "c0ca45a0-bde0-11f1-910c-6357f7092a62",
+				"layer": "Entities",
+				"x": 1664,
+				"y": 608,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "c12b9f80-bde0-11f1-910c-c1a5a3e083b3",
+				"layer": "Entities",
+				"x": 1920,
+				"y": 608,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "ff1366c0-bde0-11f1-910c-c568b7c6200a",
+				"layer": "Entities",
+				"x": 2656,
+				"y": 768,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "011466e0-bde0-11f1-910c-c5d6715ae148",
+				"layer": "Entities",
+				"x": 3296,
+				"y": 640,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			}
+		],
+		"Enemy_Patrol": [
+			{
+				"id": "Enemy_Patrol",
+				"iid": "0a7a1a40-bde0-11f1-910c-312d13f1ffc0",
+				"layer": "Entities",
+				"x": 1312,
+				"y": 800,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Boar"
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "0e5b9a30-bde0-11f1-910c-01cbbb030648",
+				"layer": "Entities",
+				"x": 1504,
+				"y": 800,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "DarkElf"
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "19e4f0e0-bde0-11f1-910c-93b81cee9c54",
+				"layer": "Entities",
+				"x": 2496,
+				"y": 800,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "DarkElf"
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "2502b480-bde0-11f1-910c-41dc4fc07fb4",
+				"layer": "Entities",
+				"x": 1792,
+				"y": 640,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Skeleton"
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "2e368270-bde0-11f1-910c-41978f48f2f0",
+				"layer": "Entities",
+				"x": 3680,
+				"y": 800,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Skeleton"
+				}
+			},
+			{
+				"id": "Enemy_Patrol",
+				"iid": "497625c0-bde0-11f1-910c-a5eab29f918f",
+				"layer": "Entities",
+				"x": 3136,
+				"y": 800,
+				"width": 32,
+				"height": 32,
+				"color": 14984818,
+				"customFields": {
+					"range": 10,
+					"type": "Boar"
+				}
 			}
 		],
 		"Player": [
 			{
 				"id": "Player",
-				"iid": "efa89120-bde0-11f1-910c-a39930415f4f",
+				"iid": "f6902eb0-bde0-11f1-910c-1d5324b15276",
 				"layer": "Entities",
-				"x": 96,
-				"y": 608,
+				"x": 224,
+				"y": 800,
 				"width": 32,
 				"height": 32,
 				"color": 12470831,
+				"customFields" : {}
+			}
+		],
+		"Checkpoint": [
+			{
+				"id": "Checkpoint",
+				"iid": "036c4420-bde0-11f1-910c-c152090a2ce7",
+				"layer": "Entities",
+				"x": 960,
+				"y": 320,
+				"width": 64,
+				"height": 128,
+				"color": 7552569,
 				"customFields" : {}
 			}
 		]

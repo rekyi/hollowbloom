@@ -7,11 +7,19 @@ export function getEntityBox(entity) {
   return { x: entity.x * LEVEL_SCALE, y: entity.y * LEVEL_SCALE, width: entity.width * LEVEL_SCALE, height: entity.height * LEVEL_SCALE };
 }
 
-export function placeOnEntity(object, entity) {
+export function getPlacementOnEntity(object, entity) {
   const box = getEntityBox(entity);
   const hitbox = object.getHitbox();
-  object.x += box.x + box.width / 2 - (hitbox.x + hitbox.width / 2);
-  object.y += box.y + box.height - (hitbox.y + hitbox.height);
+  return {
+    x: object.x + box.x + box.width / 2 - (hitbox.x + hitbox.width / 2),
+    y: object.y + box.y + box.height - (hitbox.y + hitbox.height),
+  };
+}
+
+export function placeOnEntity(object, entity) {
+  const { x, y } = getPlacementOnEntity(object, entity);
+  object.x = x;
+  object.y = y;
 }
 
 export class Level {

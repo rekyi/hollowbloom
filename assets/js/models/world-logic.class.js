@@ -4,7 +4,7 @@ import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
 import { playSfx } from "../sfx.js";
 import { isTouchingTile, TILE_HAZARD } from "./tile-collision.js";
-import { getEntityBox } from "./level.class.js";
+import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
 
 export class WorldLogic {
   character;
@@ -16,6 +16,7 @@ export class WorldLogic {
   cameraX = 0;
   cameraY = 0;
   spawnPoint;
+  activeCheckpoint = null;
   isCollisionOverlayVisible = false;
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
@@ -39,6 +40,7 @@ export class WorldLogic {
     this.trackDefeatedEnemies();
     this.checkCollision();
     this.checkHazards();
+    this.checkCheckpoints();
     this.checkFall();
     this.checkItemCollection();
     this.checkKeyCollection();
@@ -53,6 +55,18 @@ export class WorldLogic {
     if (!this.character.hitByHazard()) return;
     this.statusBar.setHearts(this.character.hp);
     this.triggerHitFeedback();
+  }
+
+  checkCheckpoints() {
+    if (this.character.isDead()) return;
+    const characterHitbox = this.character.getHitbox();
+    const touchedCheckpoint = this.level.getEntities("Checkpoint").find((checkpoint) => checkpoint !== this.activeCheckpoint && this.hitboxesOverlap(characterHitbox, getEntityBox(checkpoint)));
+    if (touchedCheckpoint) this.activateCheckpoint(touchedCheckpoint);
+  }
+
+  activateCheckpoint(checkpoint) {
+    this.activeCheckpoint = checkpoint;
+    this.spawnPoint = getPlacementOnEntity(this.character, checkpoint);
   }
 
   checkFall() {

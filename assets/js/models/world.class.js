@@ -31,6 +31,7 @@ export class World extends WorldRendering {
     this.levelIndex = levelIndex;
     this.level = createLevel(levelAssets);
     this.hasKey = false;
+    this.activeCheckpoint = null;
     this.placeCharacterAtStart();
     this.character.speedY = 0;
     this.spawnPoint = { x: this.character.x, y: this.character.y };

@@ -1,9 +1,9 @@
-import { appState } from "./data.js";
+import { appState, START_LEVEL } from "./data.js";
 import { gameLoop } from "./models/game-loop.class.js";
 import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
-import { loadLevelAssets } from "./level/level-loader.js";
+import { getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 
@@ -48,19 +48,19 @@ function updateCharacterChoices(containerRef, selectedRef) {
 }
 
 function startGame() {
-  return startLevel(0);
+  return startLevel(getStartLevelIndex(START_LEVEL));
 }
 
 function restartLevel() {
   return startLevel(appState.world?.levelIndex ?? 0);
 }
 
-async function startLevel(levelIndex) {
+async function startLevel(requestedLevelIndex) {
   if (isScreenTransitioning || isLevelLoading) return;
   isLevelLoading = true;
   prepareLevelLoad();
   try {
-    const levelAssets = await loadLevelAssets(levelIndex);
+    const { levelAssets, levelIndex } = await loadLevelWithFallback(requestedLevelIndex);
     await runScreenTransition(() => startGameAtBlackout(levelAssets, levelIndex));
   } catch (error) {
     handleLevelLoadError(error);

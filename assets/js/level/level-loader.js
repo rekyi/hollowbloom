@@ -18,6 +18,22 @@ export function loadLevelAssets(levelIndex) {
   return levelAssetsPromise;
 }
 
+export function getStartLevelIndex(startLevel) {
+  if (Number.isInteger(startLevel) && startLevel >= 1) return startLevel - 1;
+  console.error(`Invalid START_LEVEL "${startLevel}": expected an integer >= 1. Falling back to level 1.`);
+  return 0;
+}
+
+export async function loadLevelWithFallback(levelIndex) {
+  try {
+    return { levelAssets: await loadLevelAssets(levelIndex), levelIndex };
+  } catch (error) {
+    if (levelIndex === 0) throw error;
+    console.error(`Level ${levelIndex + 1} could not be loaded. Falling back to level 1.`, error);
+    return { levelAssets: await loadLevelAssets(0), levelIndex: 0 };
+  }
+}
+
 function getLevelFolderUrl(levelIndex) {
   const folderName = `level_${String(levelIndex + 1).padStart(2, "0")}`;
   return new URL(`./${folderName}/`, import.meta.url);
