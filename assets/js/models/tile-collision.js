@@ -6,6 +6,7 @@ export const TILE_ONEWAY = 3;
 const FLOOR_TILES = [TILE_SOLID, TILE_ONEWAY];
 const EDGE_EPSILON = 0.01;
 const GROUND_PROBE_DISTANCE = 1;
+const STEP_HEIGHT = 32;
 
 function getFirstTile(start) {
   return Math.floor((start + EDGE_EPSILON) / TILE_SIZE);
@@ -33,14 +34,50 @@ function isTileInArea(level, columns, rows, tileTypes) {
 
 export function moveX(obj, level, dx) {
   if (dx === 0) return;
+  const wasGrounded = isGrounded(obj, level);
+  slideX(obj, level, dx, wasGrounded);
+  if (wasGrounded) snapToGround(obj, level);
+}
+
+function isGrounded(obj, level) {
+  return obj.speedY <= 0 && hasGroundBelow(obj, level);
+}
+
+function slideX(obj, level, dx, canStep) {
   const box = obj.getHitbox();
   const column = dx > 0 ? getLastTile(box.x + box.width + dx) : getFirstTile(box.x + dx);
-  const isBlocked = isTileInArea(level, [column], getRows(box), [TILE_SOLID]);
-  obj.x += isBlocked ? getWallDistance(box, column, dx) : dx;
+  if (!isTileInArea(level, [column], getRows(box), [TILE_SOLID])) {
+    obj.x += dx;
+    return;
+  }
+  if (canStep && stepUp(obj, level, box, column, dx)) return;
+  obj.x += getWallDistance(box, column, dx);
 }
 
 function getWallDistance(box, column, dx) {
   return dx > 0 ? column * TILE_SIZE - (box.x + box.width) : (column + 1) * TILE_SIZE - box.x;
+}
+
+function stepUp(obj, level, box, column, dx) {
+  const rise = getStepRise(level, box, column);
+  if (rise > STEP_HEIGHT) return false;
+  const target = { ...box, x: box.x + dx, y: box.y - rise };
+  if (isTileInArea(level, getColumns(target), getRows(target), [TILE_SOLID])) return false;
+  obj.x += dx;
+  obj.y -= rise;
+  return true;
+}
+
+function getStepRise(level, box, column) {
+  const topRow = getRows(box).find((row) => level.tileAt(column, row) === TILE_SOLID);
+  return box.y + box.height - topRow * TILE_SIZE;
+}
+
+function snapToGround(obj, level) {
+  if (hasGroundBelow(obj, level)) return;
+  const box = obj.getHitbox();
+  const row = findFloorRow(level, box, STEP_HEIGHT);
+  if (row !== undefined) obj.y += row * TILE_SIZE - (box.y + box.height);
 }
 
 export function moveY(obj, level, dy) {
