@@ -3,7 +3,7 @@ import { gameLoop } from "./models/game-loop.class.js";
 import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
-import { loadLevelAssets } from "./level/level1.js";
+import { loadLevelAssets } from "./level/level_01/level1.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 

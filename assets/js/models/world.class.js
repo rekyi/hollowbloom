@@ -1,7 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
 import { FinalBoss } from "./final-boss.class.js";
-import { createLevel1 } from "../level/level1.js";
+import { createLevel1 } from "../level/level_01/level1.js";
 import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";

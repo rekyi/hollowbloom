@@ -1,6 +1,6 @@
-import { ChargeItem } from "../models/charge-item.class.js";
-import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
-import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
+import { ChargeItem } from "../../models/charge-item.class.js";
+import { DarkElf, Boar, Skeleton } from "../../models/enemies.class.js";
+import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../../models/level.class.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
