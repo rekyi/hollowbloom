@@ -28,6 +28,7 @@ export class WorldLogic {
   gameOverDelayMs = 1000;
   isGameOver = false;
   isVictory = false;
+  hasKey = false;
   onGameOver;
   onVictory;
 
@@ -37,6 +38,7 @@ export class WorldLogic {
     this.checkHazards();
     this.checkFall();
     this.checkItemCollection();
+    this.checkKeyCollection();
     this.checkTimerStop();
     this.checkVictory();
     this.checkGameOver();
@@ -67,6 +69,15 @@ export class WorldLogic {
       this.character.collectCoin();
       this.statusBar.setCoins(this.character.coins);
     });
+  }
+
+  checkKeyCollection() {
+    if (this.character.isDead()) return;
+    const characterHitbox = this.character.getHitbox();
+    const touchedKey = this.level.keys.find((key) => !key.isCollected && this.hitboxesOverlap(characterHitbox, key.getHitbox()));
+    if (!touchedKey) return;
+    touchedKey.isCollected = true;
+    this.hasKey = true;
   }
 
   checkGameOver() {

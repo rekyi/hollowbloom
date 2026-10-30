@@ -58,6 +58,7 @@ export class WorldRendering extends WorldLogic {
     this.addToMap(this.character);
     this.drawLayers(TERRAIN_LAYER_ORDER);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
+    this.addObjectsToMap(this.level.keys.filter((key) => !key.isCollected));
     this.addObjectsToMap(this.level.enemies);
     this.drawLayers(FRONT_LAYER_ORDER);
     this.drawCollisionOverlay();
