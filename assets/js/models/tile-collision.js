@@ -39,6 +39,28 @@ export function moveX(obj, level, dx) {
   if (wasGrounded) snapToGround(obj, level);
 }
 
+export function moveXOnGround(obj, level, dx) {
+  const box = obj.getHitbox();
+  const column = dx > 0 ? getLastTile(box.x + box.width + dx) : getFirstTile(box.x + dx);
+  if (isTileInArea(level, [column], getRows(box), [TILE_SOLID])) return stepUp(obj, level, box, column, dx);
+  return stepDown(obj, level, box, column, dx);
+}
+
+function stepDown(obj, level, box, column, dx) {
+  const row = findGroundRow(level, column, box);
+  if (row === undefined) return false;
+  obj.x += dx;
+  obj.y += row * TILE_SIZE - (box.y + box.height);
+  return true;
+}
+
+function findGroundRow(level, column, box) {
+  const bottom = box.y + box.height;
+  const rows = rangeOf(getLastTile(bottom) + 1, Math.floor((bottom + STEP_HEIGHT) / TILE_SIZE));
+  const row = rows.find((candidate) => level.tileAt(column, candidate) !== 0);
+  return FLOOR_TILES.includes(level.tileAt(column, row)) ? row : undefined;
+}
+
 function isGrounded(obj, level) {
   return obj.speedY <= 0 && hasGroundBelow(obj, level);
 }

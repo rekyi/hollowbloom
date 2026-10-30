@@ -37,6 +37,11 @@ export class World extends WorldRendering {
     this.spawnPoint = { x: this.character.x, y: this.character.y };
     this.updateCamera(true);
     this.setEnemyTargets();
+    this.prepareEnemyWorld();
+  }
+
+  prepareEnemyWorld() {
+    this.level.enemies.forEach((enemy) => (enemy.world = this));
   }
 
   async loadNextLevel() {

@@ -1,6 +1,7 @@
 import { ENTITY_SCALE } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
+import { moveXOnGround } from "./tile-collision.js";
 
 const KNOCKBACK_SPEED = 4.5 * ENTITY_SCALE;
 const AGGRO_MAX_FOOT_DIFF_HEIGHTS = 0.6;
@@ -114,9 +115,9 @@ export class EnemyBehavior extends MoveableObject {
 
   patrol() {
     if (!this.isMovable || !this.isMoving || this.isDead() || this.isAttacking) return;
-    this.x += this.speed * this.movementDirection;
     this.isOppositeDirection = this.movementDirection < 0;
-    if (this.x <= this.minX || this.x >= this.maxX) this.turnAtPatrolEnd();
+    const isStepDone = moveXOnGround(this, this.world.level, this.speed * this.movementDirection);
+    if (!isStepDone || this.x <= this.minX || this.x >= this.maxX) this.turnAtPatrolEnd();
   }
 
   turnAtPatrolEnd() {
