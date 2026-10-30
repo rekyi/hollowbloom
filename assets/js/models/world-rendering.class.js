@@ -9,7 +9,8 @@ const VIEWPORT_WIDTH = CANVAS_WIDTH / CAMERA_ZOOM;
 const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
 const BACKGROUND_COLOR = "#000";
 const CAMERA_SMOOTHING_Y = 0.1;
-const BACK_LAYER_ORDER = ["Background.png", "Ground.png", "Platforms.png", "Deco_Hazard.png"];
+const BACKGROUND_LAYER = "Background.png";
+const TERRAIN_LAYER_ORDER = ["Ground.png", "Platforms.png", "Deco_Hazard.png"];
 const FRONT_LAYER_ORDER = ["Hills.png", "Hanging.png"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
@@ -53,9 +54,10 @@ export class WorldRendering extends WorldLogic {
   drawScene(offsetX, offsetY) {
     this.ctx.save();
     this.ctx.setTransform(CAMERA_ZOOM, 0, 0, CAMERA_ZOOM, Math.round(offsetX * CAMERA_ZOOM), Math.round(offsetY * CAMERA_ZOOM));
-    this.drawLayers(BACK_LAYER_ORDER);
-    this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
+    this.drawLayer(BACKGROUND_LAYER);
     this.addToMap(this.character);
+    this.drawLayers(TERRAIN_LAYER_ORDER);
+    this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addObjectsToMap(this.level.enemies);
     this.drawLayers(FRONT_LAYER_ORDER);
     this.drawCollisionOverlay();

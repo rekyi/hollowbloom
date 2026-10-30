@@ -8,7 +8,8 @@ export class MoveableObject extends DrawableObject {
   isOppositeDirection = false;
   speedY = 0;
   acceleration = 0.3623;
-  jumpSpeed = 11.3;
+  jumpSpeed = 13;
+  fallMultiplier = 1.7;
   hp = 3;
   lastHit = Number.NEGATIVE_INFINITY;
   isAttacking = false;
@@ -81,11 +82,15 @@ export class MoveableObject extends DrawableObject {
     const wasAboveGround = this.isAboveGround();
     const isBlocked = moveY(this, this.world.level, -this.speedY);
     if (!isBlocked) {
-      this.speedY -= this.acceleration;
+      this.speedY -= this.getGravity();
       return;
     }
     if (this.speedY < 0 && wasAboveGround) playSfx("jumpingAfter");
     this.speedY = 0;
+  }
+
+  getGravity() {
+    return this.speedY < 0 ? this.acceleration * this.fallMultiplier : this.acceleration;
   }
 
   isAboveGround() {
