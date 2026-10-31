@@ -11,7 +11,7 @@ const IS_SMOOTHING_ENABLED = true;
 const ATTACK_RANGE = 150;
 const FACE_DEAD_ZONE = 8;
 const IS_DEBUG_ATTACK_ENABLED = true;
-const DEBUG_ATTACK_KEYS = { Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
+const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
 const TEST_ARROW_MOTION = { speedX: 375, speedY: -143, gravity: 255 };
 
 export const VERDAN_SETTINGS = {
@@ -21,8 +21,8 @@ export const VERDAN_SETTINGS = {
   walkRage: { file: "walk_rage", frames: 8, frameDuration: 83, speed: 2.4 },
   attackBow: { file: "attack_bow", frames: 14, frameDuration: 83, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 88, y: -170 } },
   attackBowRage: { file: "attack_bow_rage", frames: 14, frameDuration: 71, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 95, y: -163 } },
-  attackRoots: { file: "attack_roots", frames: 14, frameDuration: 83, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 } },
-  attackRootsRage: { file: "attack_roots_rage", frames: 14, frameDuration: 71, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 } },
+  attackRoots: { file: "attack_roots", frames: 14, frameDuration: 83, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 }, spikes: { count: 5, spacing: 48, interval: 110 } },
+  attackRootsRage: { file: "attack_roots_rage", frames: 14, frameDuration: 71, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 }, spikes: { count: 7, spacing: 42, interval: 110 } },
   attackPulse: { file: "attack_pulse", frames: 16, frameDuration: 83, warningFrames: [2, 8], actionFrame: 9, spawn: { x: -2, y: -165 } },
   hurt: { file: "hurt", frames: 5, frameDuration: 83 },
   hurtRage: { file: "hurt_rage", frames: 5, frameDuration: 83 },
@@ -64,6 +64,9 @@ export class VerdanBoss extends MoveableObject {
   arena = null;
   animationStartedAt = 0;
   effectFrames = {};
+  attackFrames = {};
+  currentAttack = null;
+  spikeRow = null;
   drawHitbox = true;
 
   constructor() {
@@ -76,7 +79,8 @@ export class VerdanBoss extends MoveableObject {
     this.IMAGES_WALK_RAGE = this.loadSheet(VERDAN_SETTINGS.walkRage);
     this.IMAGES_HURT_RAGE = this.loadSheet(VERDAN_SETTINGS.hurtRage);
     this.IMAGES_TRANSITION = this.loadSheet(VERDAN_SETTINGS.phaseTransition);
-    this.effectFrames = this.loadEffectSheets();
+    this.effectFrames = this.loadSheetGroup("fx");
+    this.attackFrames = this.loadSheetGroup("attack");
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animationStartedAt = gameLoop.now();
     gameLoop.runEvery(1000 / 60, () => this.updateBoss());
@@ -87,9 +91,9 @@ export class VerdanBoss extends MoveableObject {
     return this.loadSpriteSheet(`${VERDAN_PATH}${file}.webp`, frames, width, height, null, columns);
   }
 
-  loadEffectSheets() {
-    const effectKeys = Object.keys(VERDAN_SETTINGS).filter((key) => key.startsWith("fx"));
-    return Object.fromEntries(effectKeys.map((key) => [key, this.loadSheet(VERDAN_SETTINGS[key])]));
+  loadSheetGroup(prefix) {
+    const keys = Object.keys(VERDAN_SETTINGS).filter((key) => key.startsWith(prefix));
+    return Object.fromEntries(keys.map((key) => [key, this.loadSheet(VERDAN_SETTINGS[key])]));
   }
 
   setArena(range) {
@@ -100,7 +104,9 @@ export class VerdanBoss extends MoveableObject {
     if (this.state === "death") this.playDeath();
     else if (this.state === "transition") this.playTransition();
     else if (this.state === "hurt") this.playHurt();
+    else if (this.state === "attack") this.playAttack();
     else this.updateMovement();
+    this.updateSpikeRow();
   }
 
   updateMovement() {
@@ -139,8 +145,12 @@ export class VerdanBoss extends MoveableObject {
     else this.playLoop(this.IMAGES_IDLE, this.getPhaseSettings("idle").frameDuration);
   }
 
+  getPhaseKey(key) {
+    return this.isRage ? `${key}Rage` : key;
+  }
+
   getPhaseSettings(key) {
-    return VERDAN_SETTINGS[this.isRage ? `${key}Rage` : key];
+    return VERDAN_SETTINGS[this.getPhaseKey(key)];
   }
 
   hit() {
@@ -158,14 +168,19 @@ export class VerdanBoss extends MoveableObject {
   }
 
   startTransition() {
-    this.world?.clearBossEffects();
+    this.clearAttackEffects();
     this.startAnimation("transition");
   }
 
   startDeath() {
     playSfx("finalBossDeath");
-    this.world?.clearBossEffects();
+    this.clearAttackEffects();
     this.startAnimation("death");
+  }
+
+  clearAttackEffects() {
+    this.spikeRow = null;
+    this.world?.clearBossEffects();
   }
 
   startAnimation(state) {
@@ -229,6 +244,50 @@ export class VerdanBoss extends MoveableObject {
     return false;
   }
 
+  startRootsAttack() {
+    this.startAttack("attackRoots", (settings) => this.startSpikeRow(settings));
+  }
+
+  startAttack(key, onAction) {
+    if (this.state === "attack") return;
+    this.currentAttack = { key, onAction, isActionTriggered: false };
+    this.startAnimation("attack");
+  }
+
+  playAttack() {
+    const phaseKey = this.getPhaseKey(this.currentAttack.key);
+    const settings = VERDAN_SETTINGS[phaseKey];
+    const frame = this.getElapsedFrame(settings.frameDuration);
+    if (frame >= settings.frames) return this.startAnimation("idle");
+    this.setFrame(this.attackFrames[phaseKey], frame);
+    if (frame >= settings.actionFrame) this.triggerAttackAction(settings);
+  }
+
+  triggerAttackAction(settings) {
+    if (this.currentAttack.isActionTriggered) return;
+    this.currentAttack.isActionTriggered = true;
+    this.currentAttack.onAction(settings);
+  }
+
+  startSpikeRow({ spawn, spikes }) {
+    this.spikeRow = { spawn, spikes, spawnedCount: 0, startedAt: gameLoop.now(), origin: this.getFootPoint(), isLeft: this.isOppositeDirection, effectKey: this.getPhaseKey("fxRootSpike") };
+  }
+
+  updateSpikeRow() {
+    if (!this.spikeRow) return;
+    const { spikes, startedAt, spawnedCount } = this.spikeRow;
+    const dueCount = Math.floor((gameLoop.now() - startedAt) / spikes.interval) + 1;
+    if (spawnedCount < dueCount) this.spawnRowSpike();
+    if (this.spikeRow.spawnedCount >= spikes.count) this.spikeRow = null;
+  }
+
+  spawnRowSpike() {
+    const { spawn, spikes, spawnedCount, origin, isLeft, effectKey } = this.spikeRow;
+    const spikeSpawn = { x: spawn.x + spawnedCount * spikes.spacing, y: spawn.y };
+    this.spawnEffect(effectKey, { origin, spawn: spikeSpawn, isLeft });
+    this.spikeRow.spawnedCount++;
+  }
+
   handleDebugKey(code) {
     const action = DEBUG_ATTACK_KEYS[code];
     if (!IS_DEBUG_ATTACK_ENABLED || !action || !this.canSpawnEffects()) return;
@@ -247,10 +306,9 @@ export class VerdanBoss extends MoveableObject {
     this.spawnEffect("fxSeedArrow", { ...TEST_ARROW_MOTION, spawn: VERDAN_SETTINGS.attackBow.spawn, isLooping: true, isRotating: true });
   }
 
-  spawnEffect(key, { spawn = { x: 0, y: 0 }, isLeft = this.isOppositeDirection, speedX = 0, ...motion } = {}) {
-    const footPoint = this.getFootPoint();
-    const pivotX = footPoint.x + (isLeft ? -spawn.x : spawn.x);
-    const pivotY = footPoint.y + spawn.y;
+  spawnEffect(key, { origin = this.getFootPoint(), spawn = { x: 0, y: 0 }, isLeft = this.isOppositeDirection, speedX = 0, ...motion } = {}) {
+    const pivotX = origin.x + (isLeft ? -spawn.x : spawn.x);
+    const pivotY = origin.y + spawn.y;
     const effect = new BossEffect(VERDAN_SETTINGS[key], this.effectFrames[key], this.imageCache, { ...motion, pivotX, pivotY, isLeft, speedX: isLeft ? -speedX : speedX });
     this.world.level.bossEffects.push(effect);
   }
