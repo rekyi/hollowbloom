@@ -22,7 +22,7 @@ export const VERDAN_SETTINGS = {
   attackPulse: { file: "attack_pulse", frames: 16, frameDuration: 83, warningFrames: [2, 8], actionFrame: 9, spawn: { x: -2, y: -165 } },
   hurt: { file: "hurt", frames: 5, frameDuration: 83 },
   hurtRage: { file: "hurt_rage", frames: 5, frameDuration: 83 },
-  phaseTransition: { file: "phase_transition", frames: 22, frameDuration: 100, rageFrame: 12 },
+  phaseTransition: { file: "phase_transition", frames: 22, frameDuration: 100, rageFrame: 12, roarFrame: 14 },
   death: { file: "death", frames: 26, frameDuration: 100, decayFrame: 11 },
   fxSeedArrow: { file: "fx_seed_arrow", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 } },
   fxSeedArrowRage: { file: "fx_seed_arrow_rage", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 } },
@@ -39,6 +39,10 @@ export class VerdanBoss extends MoveableObject {
   IMAGES_WALK = [];
   IMAGES_HURT = [];
   IMAGES_DEATH = [];
+  IMAGES_IDLE_RAGE = [];
+  IMAGES_WALK_RAGE = [];
+  IMAGES_HURT_RAGE = [];
+  IMAGES_TRANSITION = [];
   width = VERDAN_FRAME_WIDTH;
   height = VERDAN_FRAME_HEIGHT;
   hp = 8;
@@ -49,6 +53,8 @@ export class VerdanBoss extends MoveableObject {
   isFinalBoss = true;
   isDeathAnimationFinished = false;
   isKeptAfterDeath = true;
+  isRage = false;
+  isRoarTriggered = false;
   state = "idle";
   target = null;
   arena = null;
@@ -61,6 +67,10 @@ export class VerdanBoss extends MoveableObject {
     this.IMAGES_WALK = this.loadSheet(VERDAN_SETTINGS.walk);
     this.IMAGES_HURT = this.loadSheet(VERDAN_SETTINGS.hurt);
     this.IMAGES_DEATH = this.loadSheet(VERDAN_SETTINGS.death);
+    this.IMAGES_IDLE_RAGE = this.loadSheet(VERDAN_SETTINGS.idleRage);
+    this.IMAGES_WALK_RAGE = this.loadSheet(VERDAN_SETTINGS.walkRage);
+    this.IMAGES_HURT_RAGE = this.loadSheet(VERDAN_SETTINGS.hurtRage);
+    this.IMAGES_TRANSITION = this.loadSheet(VERDAN_SETTINGS.phaseTransition);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animationStartedAt = gameLoop.now();
     gameLoop.runEvery(1000 / 60, () => this.updateBoss());
@@ -77,6 +87,7 @@ export class VerdanBoss extends MoveableObject {
 
   updateBoss() {
     if (this.state === "death") this.playDeath();
+    else if (this.state === "transition") this.playTransition();
     else if (this.state === "hurt") this.playHurt();
     else this.updateMovement();
   }
@@ -113,16 +124,26 @@ export class VerdanBoss extends MoveableObject {
   }
 
   playMovementLoop() {
-    if (this.state === "walk") this.playLoop(this.IMAGES_WALK, VERDAN_SETTINGS.walk.frameDuration);
-    else this.playLoop(this.IMAGES_IDLE, VERDAN_SETTINGS.idle.frameDuration);
+    if (this.state === "walk") this.playLoop(this.IMAGES_WALK, this.getPhaseSettings("walk").frameDuration);
+    else this.playLoop(this.IMAGES_IDLE, this.getPhaseSettings("idle").frameDuration);
+  }
+
+  getPhaseSettings(key) {
+    return VERDAN_SETTINGS[this.isRage ? `${key}Rage` : key];
   }
 
   hit() {
+    if (this.state === "transition") return false;
     if (!super.hit()) return false;
     playSfx("enemyHit");
     if (this.isDead()) this.startDeath();
+    else if (this.shouldEnterRage()) this.startAnimation("transition");
     else this.startAnimation("hurt");
     return true;
+  }
+
+  shouldEnterRage() {
+    return !this.isRage && this.hp <= this.maxHp / 2;
   }
 
   startDeath() {
@@ -135,8 +156,31 @@ export class VerdanBoss extends MoveableObject {
     this.animationStartedAt = gameLoop.now();
   }
 
+  playTransition() {
+    const { frameDuration, roarFrame } = VERDAN_SETTINGS.phaseTransition;
+    const frame = this.getElapsedFrame(frameDuration);
+    if (frame >= this.IMAGES_TRANSITION.length) return this.enterRage();
+    this.setFrame(this.IMAGES_TRANSITION, frame);
+    if (frame >= roarFrame) this.triggerRoarShake();
+  }
+
+  triggerRoarShake() {
+    if (this.isRoarTriggered || !this.world) return;
+    this.isRoarTriggered = true;
+    this.world.shakeStartedAt = gameLoop.now();
+  }
+
+  enterRage() {
+    this.isRage = true;
+    this.IMAGES_IDLE = this.IMAGES_IDLE_RAGE;
+    this.IMAGES_WALK = this.IMAGES_WALK_RAGE;
+    this.IMAGES_HURT = this.IMAGES_HURT_RAGE;
+    this.speed = VERDAN_SETTINGS.walkRage.speed;
+    this.startAnimation("idle");
+  }
+
   playHurt() {
-    const frame = this.getElapsedFrame(VERDAN_SETTINGS.hurt.frameDuration);
+    const frame = this.getElapsedFrame(this.getPhaseSettings("hurt").frameDuration);
     if (frame < this.IMAGES_HURT.length) this.setFrame(this.IMAGES_HURT, frame);
     else this.startAnimation("idle");
   }
