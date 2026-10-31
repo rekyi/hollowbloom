@@ -11,7 +11,7 @@ const IS_SMOOTHING_ENABLED = true;
 const ATTACK_RANGE = 150;
 const FACE_DEAD_ZONE = 8;
 const IS_DEBUG_ATTACK_ENABLED = true;
-const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit2: "startBowAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
+const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit2: "startBowAttack", Digit3: "startPulseAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
 const TEST_ARROW_MOTION = { speedX: 375, speedY: -143, gravity: 255 };
 
 export const VERDAN_SETTINGS = {
@@ -34,9 +34,7 @@ export const VERDAN_SETTINGS = {
   fxSeedImpactRage: { file: "fx_seed_impact_rage", frames: 12, frameDuration: 83, width: 108, height: 96, pivot: { x: 54, y: 87 }, damageFrames: [3, 8], hitbox: { width: 39, height: 45 } },
   fxRootSpike: { file: "fx_root_spike", frames: 14, frameDuration: 71, width: 84, height: 180, pivot: { x: 42, y: 171 }, warningFrames: [0, 3], damageFrames: [4, 10], hitbox: { width: 24, height: 135 } },
   fxRootSpikeRage: { file: "fx_root_spike_rage", frames: 14, frameDuration: 71, width: 84, height: 180, pivot: { x: 42, y: 171 }, warningFrames: [0, 3], damageFrames: [4, 10], hitbox: { width: 24, height: 135 } },
-  fxPulseBurst: { file: "fx_pulse_burst", frames: 12, frameDuration: 71, width: 384, height: 384, pivot: { x: 192, y: 192 }, maxRadius: 159 },
-  fxPulseWave: { file: "fx_pulse_wave", frames: 6, frameDuration: 83, width: 108, height: 96, pivot: { x: 54, y: 90 }, hitbox: { width: 30, height: 45 } },
-};
+  fxPulseBurst: { file: "fx_pulse_burst", frames: 12, frameDuration: 71, width: 384, height: 384, pivot: { x: 192, y: 192 }, ring: { minRadius: 15, maxRadius: 159, width: 20 } },};
 
 export class VerdanBoss extends MoveableObject {
   IMAGES_IDLE = [];
@@ -146,7 +144,8 @@ export class VerdanBoss extends MoveableObject {
   }
 
   getPhaseKey(key) {
-    return this.isRage ? `${key}Rage` : key;
+    const rageKey = `${key}Rage`;
+    return this.isRage && VERDAN_SETTINGS[rageKey] ? rageKey : key;
   }
 
   getPhaseSettings(key) {
@@ -250,6 +249,10 @@ export class VerdanBoss extends MoveableObject {
 
   startBowAttack() {
     this.startAttack("attackBow", (settings) => this.spawnArrowVolley(settings));
+  }
+
+  startPulseAttack() {
+    this.startAttack("attackPulse", ({ spawn }) => this.spawnEffect("fxPulseBurst", { spawn }));
   }
 
   spawnArrowVolley({ spawn, arrows }) {

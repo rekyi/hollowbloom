@@ -176,8 +176,13 @@ export class WorldLogic {
 
   checkBossEffectHit(effect) {
     if (!effect.isDamageActive()) return;
-    if (!this.hitboxesOverlap(this.character.getHitbox(), effect.getHitbox())) return;
+    if (!this.isBossEffectHitting(effect, this.character.getHitbox())) return;
     this.handleAttackHit(effect);
+  }
+
+  isBossEffectHitting(effect, hitbox) {
+    if (effect.ring) return effect.isRingTouching(hitbox);
+    return this.hitboxesOverlap(hitbox, effect.getHitbox());
   }
 
   handleAttackHit(source) {

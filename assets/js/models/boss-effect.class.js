@@ -9,6 +9,7 @@ export class BossEffect extends DrawableObject {
   frameDuration = 0;
   damageFrames = null;
   damageSize = null;
+  ring = null;
   speedX = 0;
   speedY = 0;
   gravity = 0;
@@ -32,6 +33,7 @@ export class BossEffect extends DrawableObject {
     this.frameDuration = settings.frameDuration;
     this.damageFrames = settings.damageFrames ?? null;
     this.damageSize = settings.hitbox ?? null;
+    this.ring = settings.ring ?? null;
     this.isOppositeDirection = isLeft;
     this.isLooping = isLooping;
     this.isRotating = isRotating;
@@ -79,10 +81,27 @@ export class BossEffect extends DrawableObject {
   }
 
   isDamageActive() {
-    if (!this.damageSize || this.isFinished || this.isAttackHitRegistered) return false;
+    if ((!this.damageSize && !this.ring) || this.isFinished || this.isAttackHitRegistered) return false;
     if (!this.damageFrames) return true;
     const [firstFrame, lastFrame] = this.damageFrames;
     return this.currentImage >= firstFrame && this.currentImage <= lastFrame;
+  }
+
+  getRingRadius() {
+    const { minRadius, maxRadius } = this.ring;
+    const progress = (this.currentImage + 1) / this.frames.length;
+    return minRadius + (maxRadius - minRadius) * (1 - (1 - progress) ** 2);
+  }
+
+  isRingTouching({ x, y, width, height }) {
+    const center = this.getPivotPoint();
+    const radius = this.getRingRadius();
+    const halfWidth = this.ring.width / 2;
+    const nearestX = Math.min(Math.max(center.x, x), x + width) - center.x;
+    const nearestY = Math.min(Math.max(center.y, y), y + height) - center.y;
+    const farthestX = Math.max(Math.abs(x - center.x), Math.abs(x + width - center.x));
+    const farthestY = Math.max(Math.abs(y - center.y), Math.abs(y + height - center.y));
+    return Math.hypot(nearestX, nearestY) <= radius + halfWidth && Math.hypot(farthestX, farthestY) >= radius - halfWidth;
   }
 
   getHitbox() {
@@ -106,5 +125,16 @@ export class BossEffect extends DrawableObject {
     ctx.translate(pivotX, pivotY);
     ctx.rotate(Math.atan2(this.speedY, Math.abs(this.speedX)));
     ctx.translate(-pivotX, -pivotY);
+  }
+
+  drawFrame(ctx) {
+    if (!this.ring) return super.drawFrame(ctx);
+    if (!this.drawHitbox || this.isFinished) return;
+    const center = this.getPivotPoint();
+    ctx.beginPath();
+    ctx.lineWidth = this.ring.width;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.arc(center.x, center.y, this.getRingRadius(), 0, Math.PI * 2);
+    ctx.stroke();
   }
 }
