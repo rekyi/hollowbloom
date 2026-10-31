@@ -3,34 +3,36 @@ import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const IDLE_ALERT_FRAME_DURATION = 120;
 const BOAR_PATH = "assets/images/3_enemies/boar/";
+const BOAR_FRAME = { frameSize: 248, frameHeight: 97 };
+function getBoarSprite(name, frameCount) {
+  return { path: `${BOAR_PATH}boar_${name}.webp`, frameCount, ...BOAR_FRAME, columns: Math.min(10, frameCount) };
+}
 const BOAR_SPRITES = {
-  walk: { path: `${BOAR_PATH}boar_walk.webp`, frameCount: 74, frameSize: 500, frameHeight: 200, columns: 10 },
-  alert: { path: `${BOAR_PATH}boar_alert.webp`, frameCount: 82, frameSize: 500, frameHeight: 200, columns: 10 },
-  defense: { path: `${BOAR_PATH}boar_defense.webp`, frameCount: 67, frameSize: 500, frameHeight: 200, columns: 10 },
+  walk: getBoarSprite("walk", 74),
+  alert: getBoarSprite("alert", 82),
+  defense: getBoarSprite("defense", 67),
 };
 const IDLE_ALERT_ANIMATION_DURATION = Math.max(BOAR_SPRITES.walk.frameCount, BOAR_SPRITES.alert.frameCount) * IDLE_ALERT_FRAME_DURATION;
 const BOAR_SETTINGS = {
-  scale: 1.15,
+  pixelScale: 1,
   animationInterval: 80,
   attackAnimationInterval: 30,
   runAnimationInterval: 45,
-  position: { x: 0, y: 0, width: 180, height: 160, speed: 1.8, minX: 0, maxX: 0 },
-  hitbox: { top: 45, right: 30, bottom: 20, left: 30 },
-  attackHitbox: { top: 35, right: 10, bottom: 20, left: 10 },
+  chaseSpeedFactor: 2,
+  aggroFootTolerance: 77,
+  position: { x: 0, y: 0, width: BOAR_FRAME.frameSize, height: BOAR_FRAME.frameHeight, speed: 1.8, minX: 0, maxX: 0 },
+  hitbox: { top: 25, right: 75, bottom: 4, left: 75 },
+  attackHitbox: { top: 15, right: 8, bottom: 4, left: 59 },
   attackHitStartFrame: 6,
   sprites: {
     idle: BOAR_SPRITES.walk,
     walk: BOAR_SPRITES.walk,
-    run: { path: `${BOAR_PATH}boar_run.webp`, frameCount: 60, frameSize: 500, frameHeight: 200, columns: 10 },
-    attack: [{ path: `${BOAR_PATH}boar_attack_0.webp`, frameCount: 46, frameSize: 500, frameHeight: 200, columns: 10, hitStartFrame: 25 }],
-    hurt: [
-      { path: `${BOAR_PATH}boar_hurt_0.webp`, frameCount: 22, frameSize: 500, frameHeight: 200, columns: 10 },
-      { path: `${BOAR_PATH}boar_hurt_1.webp`, frameCount: 13, frameSize: 500, frameHeight: 200, columns: 10 },
-      { path: `${BOAR_PATH}boar_hurt_2.webp`, frameCount: 43, frameSize: 500, frameHeight: 200, columns: 10 },
-    ],
-    death: { path: `${BOAR_PATH}boar_death.webp`, frameCount: 29, frameSize: 500, frameHeight: 200, columns: 10 },
-    frozen: { path: `${BOAR_PATH}boar_frozen.webp`, frameCount: 53, frameSize: 500, frameHeight: 200, columns: 10 },
-    shock: { path: `${BOAR_PATH}boar_shock.webp`, frameCount: 65, frameSize: 500, frameHeight: 200, columns: 10 },
+    run: getBoarSprite("run", 60),
+    attack: [{ ...getBoarSprite("attack_0", 46), hitStartFrame: 25 }],
+    hurt: [getBoarSprite("hurt_0", 8), getBoarSprite("hurt_1", 8), getBoarSprite("hurt_2", 8)],
+    death: getBoarSprite("death", 29),
+    frozen: getBoarSprite("frozen", 53),
+    shock: getBoarSprite("shock", 33),
   },
 };
 
@@ -70,6 +72,10 @@ export class Boar extends ConfigurableEnemy {
   arriveAtSpawn() {
     super.arriveAtSpawn();
     this.resetIdleAlertLoop();
+  }
+
+  getReturnSpeed() {
+    return this.speed * this.chaseSpeedFactor;
   }
 
   getAnimationState() {

@@ -37,6 +37,8 @@ export class EnemyBehavior extends MoveableObject {
   status = null;
   statusUntil = Number.NEGATIVE_INFINITY;
   aggroRange = 300 * ENTITY_SCALE;
+  aggroFootTolerance = null;
+  chaseSpeedFactor = 1;
   target = null;
   drawHitbox = true;
 
@@ -139,7 +141,7 @@ export class EnemyBehavior extends MoveableObject {
 
   isTargetReachable() {
     const feetDifference = Math.abs(this.target.y + this.target.height - (this.y + this.height));
-    return feetDifference <= this.height * AGGRO_MAX_FOOT_DIFF_HEIGHTS;
+    return feetDifference <= (this.aggroFootTolerance ?? this.height * AGGRO_MAX_FOOT_DIFF_HEIGHTS);
   }
 
   getActiveStatus() {
@@ -180,7 +182,7 @@ export class EnemyBehavior extends MoveableObject {
   moveTowards(targetHitbox, attackHitbox) {
     const direction = this.isOppositeDirection ? -1 : 1;
     const distance = direction < 0 ? attackHitbox.x - (targetHitbox.x + targetHitbox.width) : targetHitbox.x - (attackHitbox.x + attackHitbox.width);
-    const movement = Math.min(this.speed, Math.max(0, distance) + 1);
+    const movement = Math.min(this.speed * this.chaseSpeedFactor, Math.max(0, distance) + 1);
     this.isMoving = movement > 0;
     this.x += direction * movement;
   }
@@ -203,8 +205,13 @@ export class EnemyBehavior extends MoveableObject {
     const dx = spawnX - this.x;
     const dy = spawnY - this.y;
     const distance = Math.hypot(dx, dy);
-    if (distance <= this.speed) this.arriveAtSpawn();
-    else this.stepToSpawn(dx, dy, distance);
+    const returnSpeed = this.getReturnSpeed();
+    if (distance <= returnSpeed) this.arriveAtSpawn();
+    else this.stepToSpawn(dx, dy, distance, returnSpeed);
+  }
+
+  getReturnSpeed() {
+    return this.speed;
   }
 
   arriveAtSpawn() {
@@ -213,10 +220,10 @@ export class EnemyBehavior extends MoveableObject {
     this.isMoving = this.isMovable;
   }
 
-  stepToSpawn(dx, dy, distance) {
+  stepToSpawn(dx, dy, distance, speed) {
     this.isMoving = true;
     this.isOppositeDirection = dx < 0;
-    this.x += (dx / distance) * this.speed;
-    this.y += (dy / distance) * this.speed;
+    this.x += (dx / distance) * speed;
+    this.y += (dy / distance) * speed;
   }
 }

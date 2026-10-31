@@ -1,3 +1,5 @@
+const SHEET_CACHE = new Map();
+
 export class DrawableObject {
   img;
   x = 120;
@@ -23,29 +25,35 @@ export class DrawableObject {
   }
 
   loadSpriteSheet(path, frameCount, frameSize = 128, frameHeight = frameSize, placement = null, columns = frameCount) {
+    const layout = { frameSize, frameHeight, placement, columns, canvasWidth: placement?.width ?? frameSize, canvasHeight: placement?.height ?? frameHeight };
+    const cacheId = [path, frameCount, frameSize, frameHeight, layout.canvasWidth, layout.canvasHeight, placement?.x ?? 0, placement?.y ?? 0, columns].join("|");
+    if (!SHEET_CACHE.has(cacheId)) SHEET_CACHE.set(cacheId, this.createSharedSheet(path, frameCount, layout));
+    const shared = SHEET_CACHE.get(cacheId);
+    shared.keys.forEach((key, index) => (this.imageCache[key] = shared.canvases[index]));
+    return [...shared.keys];
+  }
+
+  createSharedSheet(path, frameCount, layout) {
+    const canvases = Array.from({ length: frameCount }, () => this.createFrameCanvas(layout.canvasWidth, layout.canvasHeight));
+    const keys = canvases.map((_, index) => `${path}#${index}`);
     const sheet = new Image();
-    const keys = this.createFrameCanvases(path, frameCount, placement?.width ?? frameSize, placement?.height ?? frameHeight);
-    sheet.onload = () => this.copySheetFrames(sheet, keys, frameSize, frameHeight, placement, columns);
+    sheet.onload = () => this.copySheetFrames(sheet, canvases, layout);
     sheet.src = path;
-    return keys;
+    return { keys, canvases };
   }
 
-  createFrameCanvases(path, frameCount, canvasWidth, canvasHeight) {
-    return Array.from({ length: frameCount }, (_, index) => {
-      const canvasRef = document.createElement("canvas");
-      canvasRef.width = canvasWidth;
-      canvasRef.height = canvasHeight;
-      const key = `${path}#${index}`;
-      this.imageCache[key] = canvasRef;
-      return key;
-    });
+  createFrameCanvas(canvasWidth, canvasHeight) {
+    const canvasRef = document.createElement("canvas");
+    canvasRef.width = canvasWidth;
+    canvasRef.height = canvasHeight;
+    return canvasRef;
   }
 
-  copySheetFrames(sheet, keys, frameSize, frameHeight, placement = null, columns = keys.length) {
-    keys.forEach((key, index) => {
+  copySheetFrames(sheet, canvases, { frameSize, frameHeight, placement, columns }) {
+    canvases.forEach((canvasRef, index) => {
       const sourceX = (index % columns) * frameSize;
       const sourceY = Math.floor(index / columns) * frameHeight;
-      this.imageCache[key].getContext("2d").drawImage(sheet, sourceX, sourceY, frameSize, frameHeight, placement?.x ?? 0, placement?.y ?? 0, frameSize, frameHeight);
+      canvasRef.getContext("2d").drawImage(sheet, sourceX, sourceY, frameSize, frameHeight, placement?.x ?? 0, placement?.y ?? 0, frameSize, frameHeight);
     });
   }
 

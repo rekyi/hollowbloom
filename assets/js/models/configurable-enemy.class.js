@@ -10,7 +10,11 @@ export class ConfigurableEnemy extends Enemy {
   hurtAnimations = [];
   attackHitEndFrameOverride = null;
   attackHitStartFrames = [];
+  attackWeights = [];
+  attackBag = [];
+  recentAttackPicks = [];
   frozenAnimationInterval = 120;
+  shockAnimationInterval = 120;
 
   constructor(settings, positionOverrides = {}) {
     super();
@@ -23,12 +27,14 @@ export class ConfigurableEnemy extends Enemy {
     this.IMAGES_RUN = this.loadAnimation(settings.sprites.run || settings.sprites.walk || settings.sprites.idle);
     this.attackAnimations = this.loadAnimationVariants(settings.sprites.attack);
     this.hurtAnimations = this.loadAnimationVariants(settings.sprites.hurt);
+    this.attackWeights = (settings.sprites.attack ?? []).map((sprite) => sprite.weight ?? 1);
     this.IMAGES_ATTACK = this.attackAnimations[0] || [];
     this.IMAGES_HURT = this.hurtAnimations[0] || [];
     this.IMAGES_DEAD = this.loadAnimation(settings.sprites.death);
     this.IMAGES_FROZEN = this.loadAnimation(settings.sprites.frozen);
     this.IMAGES_SHOCK = this.loadAnimation(settings.sprites.shock);
     this.frozenAnimationInterval = settings.frozenAnimationInterval ?? (this.IMAGES_FROZEN.length ? FROZEN_DURATION_MS / this.IMAGES_FROZEN.length : this.animationInterval);
+    this.shockAnimationInterval = this.IMAGES_SHOCK.length ? SHOCK_DURATION_MS / this.IMAGES_SHOCK.length : this.animationInterval;
     this.setEnemySettings({
       ...settings,
       position: { ...settings.position, ...positionOverrides },
@@ -38,10 +44,12 @@ export class ConfigurableEnemy extends Enemy {
 
   setEnemySettings(settings) {
     const { x, y, width, height, speed, minX, maxX } = settings.position;
-    const scale = ENTITY_SCALE * (settings.scale ?? 1);
+    const scale = settings.pixelScale ?? ENTITY_SCALE * (settings.scale ?? 1);
     this.setPosition(x, y, width * scale, height * scale, speed * ENTITY_SCALE, minX, maxX);
     this.offset = settings.hitbox ? this.scaleOffset(settings.hitbox, scale) : this.offset;
     this.attackOffset = settings.attackHitbox ? this.scaleOffset(settings.attackHitbox, scale) : this.offset;
+    this.chaseSpeedFactor = settings.chaseSpeedFactor ?? 1;
+    this.aggroFootTolerance = settings.aggroFootTolerance ?? null;
     this.attackHitStartFrame = settings.attackHitStartFrame ?? this.attackHitStartFrame;
     this.attackHitEndFrameOverride = settings.attackHitEndFrame ?? null;
     this.attackHitStartFrames = (settings.sprites.attack ?? []).map((sprite) => sprite.hitStartFrame ?? this.attackHitStartFrame);
@@ -75,17 +83,17 @@ export class ConfigurableEnemy extends Enemy {
   applyStatus(status, duration) {
     const statusDuration = status === "frozen" ? Math.max(duration, this.IMAGES_FROZEN.length * this.frozenAnimationInterval) : duration;
     super.applyStatus(status, statusDuration);
-    if (status !== "frozen") return;
     this.lastAnimationAt = gameLoop.now();
     this.updateAnimation();
   }
 
   getAnimationSchedulerInterval() {
-    return Math.min(super.getAnimationSchedulerInterval(), this.frozenAnimationInterval);
+    return Math.min(super.getAnimationSchedulerInterval(), this.frozenAnimationInterval, this.shockAnimationInterval);
   }
 
   getAnimationInterval() {
     if (this.currentAnimation === "frozen") return this.frozenAnimationInterval;
+    if (this.currentAnimation === "shock") return this.shockAnimationInterval;
     return super.getAnimationInterval();
   }
 
@@ -96,10 +104,36 @@ export class ConfigurableEnemy extends Enemy {
   }
 
   selectAttackAnimation() {
-    this.IMAGES_ATTACK = this.selectRandomAnimation(this.attackAnimations);
-    const variantIndex = Math.max(0, this.attackAnimations.indexOf(this.IMAGES_ATTACK));
+    const variantIndex = this.pickAttackVariant();
+    this.IMAGES_ATTACK = this.attackAnimations[variantIndex] ?? [];
     this.attackHitStartFrame = this.attackHitStartFrames[variantIndex] ?? this.attackHitStartFrame;
     this.attackHitEndFrame = this.attackHitEndFrameOverride ?? this.IMAGES_ATTACK.length - 1;
+  }
+
+  // Zufall mit Beutel: Jede Variante kommt pro Durchgang so oft vor wie ihr `weight`, die Reihenfolge ist gemischt.
+  // So gibt es keine langen Serien derselben Attacke (max. 2 hintereinander), und die Verteilung stimmt auf Dauer.
+  pickAttackVariant() {
+    if (this.attackAnimations.length < 2) return 0;
+    if (!this.attackBag.length) this.attackBag = this.createAttackBag();
+    const [lastA, lastB] = this.recentAttackPicks.slice(-2);
+    const isStreak = (index) => lastA === index && lastB === index;
+    let bagPosition = this.attackBag.length - 1;
+    if (isStreak(this.attackBag[bagPosition])) {
+      const other = this.attackBag.findIndex((index) => !isStreak(index));
+      if (other !== -1) bagPosition = other;
+    }
+    const [variantIndex] = this.attackBag.splice(bagPosition, 1);
+    this.recentAttackPicks = [...this.recentAttackPicks, variantIndex].slice(-2);
+    return variantIndex;
+  }
+
+  createAttackBag() {
+    const bag = this.attackWeights.flatMap((weight, index) => Array(Math.max(0, Math.round(weight))).fill(index));
+    for (let i = bag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [bag[i], bag[j]] = [bag[j], bag[i]];
+    }
+    return bag.length ? bag : [0];
   }
 
   selectRandomAnimation(animations) {

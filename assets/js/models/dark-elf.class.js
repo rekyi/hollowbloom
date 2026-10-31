@@ -1,26 +1,30 @@
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const DARK_ELF_PATH = "assets/images/3_enemies/dark_elf/";
-function getDarkElfSprite(name, frameCount, frameSize = 300, frameHeight = 300, columns = 10, placement = { width: frameSize, height: 384 }) {
-  return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, frameSize, frameHeight, columns, placement };
+// Sheets sind auf Spielgroesse normalisiert (tools/normalize_enemy_sheets.py): Frame = Entity-Box, 1:1 gezeichnet.
+const DARK_ELF_FRAME = { frameSize: 162, frameHeight: 128 };
+function getDarkElfSprite(name, frameCount) {
+  return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, ...DARK_ELF_FRAME, columns: Math.min(10, frameCount) };
 }
 const DARK_ELF_SETTINGS = {
-  scale: 1.35,
+  pixelScale: 1,
   attackAnimationInterval: 60,
-  position: { x: 0, y: 0, width: 170, height: 190, speed: 2, minX: 0, maxX: 0 },
-  hitbox: { top: 28, right: 42, bottom: 44, left: 42 },
-  attackHitbox: { top: 40, right: 14, bottom: 44, left: 14 },
+  chaseSpeedFactor: 1.8,
+  aggroFootTolerance: 108,
+  position: { x: 0, y: 0, width: DARK_ELF_FRAME.frameSize, height: DARK_ELF_FRAME.frameHeight, speed: 2, minX: 0, maxX: 0 },
+  hitbox: { top: 25, right: 46, bottom: 4, left: 46 },
+  attackHitbox: { top: 36, right: 16, bottom: 4, left: 30 },
   attackHitStartFrame: 3,
   sprites: {
-    idle: getDarkElfSprite("walk", 13),
+    idle: getDarkElfSprite("idle", 12),
     walk: getDarkElfSprite("walk", 13),
     run: getDarkElfSprite("run", 9),
     attack: [
-      { ...getDarkElfSprite("attack_0", 14), hitStartFrame: 7 },
-      { ...getDarkElfSprite("attack_1", 20, 400, 300, 10, { width: 400, height: 384 }), hitStartFrame: 3 },
+      { ...getDarkElfSprite("attack_0", 14), hitStartFrame: 7, weight: 3 },
+      { ...getDarkElfSprite("attack_1", 20), hitStartFrame: 6, weight: 2 },
     ],
-    hurt: [getDarkElfSprite("hurt_0", 8), getDarkElfSprite("hurt_1", 6), getDarkElfSprite("hurt_2", 13)],
-    death: getDarkElfSprite("death", 10, 400, 400, 10, { width: 400, height: 400 }),
+    hurt: [getDarkElfSprite("hurt_0", 5), getDarkElfSprite("hurt_1", 5), getDarkElfSprite("hurt_2", 5)],
+    death: getDarkElfSprite("death", 10),
     frozen: getDarkElfSprite("frozen", 10),
     shock: getDarkElfSprite("shock", 16),
   },
