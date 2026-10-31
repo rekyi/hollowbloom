@@ -31,12 +31,6 @@ export class MoveableObject extends DrawableObject {
     return this.getHitbox();
   }
 
-  isColliding(obj) {
-    const a = this.getHitbox();
-    const b = obj.getHitbox();
-    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
-  }
-
   hit() {
     if (this.isDead()) return false;
     this.hp--;

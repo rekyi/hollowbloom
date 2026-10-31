@@ -192,10 +192,6 @@ export class EnemyBehavior extends MoveableObject {
     this.isOppositeDirection = offsetX < 0;
   }
 
-  hitboxesOverlap(a, b) {
-    return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
-  }
-
   resetToSpawn() {
     this.isAggro = false;
     this.isAttacking = false;

@@ -31,7 +31,6 @@ export class Level {
   data;
   layers;
   collisionGrid = [];
-  collisionTileSize = COLLISION_TILE_SIZE;
   levelEndX = 0;
   width = 0;
   height = 0;

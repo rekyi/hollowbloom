@@ -32,7 +32,7 @@ export class Enemy extends EnemyBehavior {
   tryStartAttack() {
     if (!this.isAggro || this.isDead() || this.isAttacking || this.gettingHit() || this.getActiveStatus() || !this.IMAGES_ATTACK.length) return;
     this.faceTarget();
-    if (!this.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
+    if (!this.world.hitboxesOverlap(this.target.getHitbox(), this.getAttackHitbox())) return;
     if (gameLoop.now() < this.nextAttackAt) return;
     this.isAttacking = true;
     this.isAttackHitRegistered = false;

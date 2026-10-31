@@ -138,16 +138,6 @@
     filter: brightness(1.1) drop-shadow(0 0 5px var(--color-accent)) drop-shadow(0 0 20px rgba(236, 206, 95, 0.7));
 }
 
-@keyframes bounce-arrow {
-    from {
-        transform: translate(-50%, 0);
-    }
-
-    to {
-        transform: translate(-50%, -0.5rem);
-    }
-}
-
 .character-choices:has(.character-choice.selected) .character-choice:not(.selected) {
     transform: translateX(-50%) scale(0.95);
     filter: brightness(0.55) saturate(0.7);
@@ -195,6 +185,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .pre-start-prompt,
     .start-menu,
     .character-choices,

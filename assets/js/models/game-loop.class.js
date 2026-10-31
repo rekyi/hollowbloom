@@ -1,4 +1,4 @@
-export class GameLoop {
+class GameLoop {
   fixedStepSeconds = 1 / 60;
   fixedStepMs = 1000 / 60;
   maxFrameDurationMs = 250;
@@ -26,14 +26,6 @@ export class GameLoop {
     const task = { intervalMs, callback, elapsedMs: 0, isActive: true };
     this.scheduledTasks.push(task);
     return () => (task.isActive = false);
-  }
-
-  runOnceAfter(delayMs, callback) {
-    const cancel = this.runEvery(delayMs, () => {
-      cancel();
-      callback();
-    });
-    return cancel;
   }
 
   start(updateCallback, renderCallback, startDelayMs = 0) {
