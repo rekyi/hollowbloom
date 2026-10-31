@@ -2,7 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
-import { isTouchingTile, TILE_HAZARD } from "./tile-collision.js";
+import { isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
 
 export class WorldLogic {
@@ -189,7 +189,12 @@ export class WorldLogic {
 
   updateBossEffects(dt) {
     this.level.bossEffects.forEach((effect) => effect.update(dt));
-    this.level.bossEffects = this.level.bossEffects.filter((effect) => !effect.isFinished && !this.isOutsideLevel(effect));
+    this.level.bossEffects = this.level.bossEffects.filter((effect) => this.isBossEffectActive(effect));
+  }
+
+  isBossEffectActive(effect) {
+    if (effect.isFinished || this.isOutsideLevel(effect)) return false;
+    return !effect.isDestroyedOnGround || !isTouchingTile(effect, this.level, TILE_SOLID);
   }
 
   isOutsideLevel(object) {

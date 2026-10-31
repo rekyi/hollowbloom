@@ -16,11 +16,12 @@ export class BossEffect extends DrawableObject {
   isOppositeDirection = false;
   isLooping = false;
   isRotating = false;
+  isDestroyedOnGround = false;
   isFinished = false;
   isAttackHitRegistered = false;
   drawHitbox = true;
 
-  constructor(settings, frames, imageCache, { pivotX, pivotY, isLeft = false, isLooping = false, isRotating = false, speedX = 0, speedY = 0, gravity = 0 }) {
+  constructor(settings, frames, imageCache, { pivotX, pivotY, isLeft = false, isLooping = false, isRotating = false, isDestroyedOnGround = false, speedX = 0, speedY = 0, gravity = 0 }) {
     super();
     this.frames = frames;
     this.imageCache = imageCache;
@@ -33,6 +34,7 @@ export class BossEffect extends DrawableObject {
     this.isOppositeDirection = isLeft;
     this.isLooping = isLooping;
     this.isRotating = isRotating;
+    this.isDestroyedOnGround = isDestroyedOnGround;
     this.speedX = speedX;
     this.speedY = speedY;
     this.gravity = gravity;
@@ -77,9 +79,10 @@ export class BossEffect extends DrawableObject {
   }
 
   getHitbox() {
-    const { width, height } = this.damageSize ?? EMPTY_DAMAGE_SIZE;
+    const { width, height, isCentered = false } = this.damageSize ?? EMPTY_DAMAGE_SIZE;
     const pivotPoint = this.getPivotPoint();
-    return { x: pivotPoint.x - width / 2, y: pivotPoint.y - height, width, height };
+    const top = isCentered ? pivotPoint.y - height / 2 : pivotPoint.y - height;
+    return { x: pivotPoint.x - width / 2, y: top, width, height };
   }
 
   draw(ctx) {

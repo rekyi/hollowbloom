@@ -11,7 +11,7 @@ const IS_SMOOTHING_ENABLED = true;
 const ATTACK_RANGE = 150;
 const FACE_DEAD_ZONE = 8;
 const IS_DEBUG_ATTACK_ENABLED = true;
-const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
+const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit2: "startBowAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
 const TEST_ARROW_MOTION = { speedX: 375, speedY: -143, gravity: 255 };
 
 export const VERDAN_SETTINGS = {
@@ -19,8 +19,8 @@ export const VERDAN_SETTINGS = {
   idleRage: { file: "idle_rage", frames: 8, frameDuration: 100 },
   walk: { file: "walk", frames: 8, frameDuration: 100, speed: 1.75 },
   walkRage: { file: "walk_rage", frames: 8, frameDuration: 83, speed: 2.4 },
-  attackBow: { file: "attack_bow", frames: 14, frameDuration: 83, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 88, y: -170 } },
-  attackBowRage: { file: "attack_bow_rage", frames: 14, frameDuration: 71, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 95, y: -163 } },
+  attackBow: { file: "attack_bow", frames: 14, frameDuration: 83, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 88, y: -170 }, arrows: { speedX: 375, speedsY: [-143, -53, 38], gravity: 255 } },
+  attackBowRage: { file: "attack_bow_rage", frames: 14, frameDuration: 71, warningFrames: [5, 8], actionFrame: 9, spawn: { x: 95, y: -163 }, arrows: { speedX: 375, speedsY: [-180, -105, -38, 30, 90], gravity: 255 } },
   attackRoots: { file: "attack_roots", frames: 14, frameDuration: 83, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 }, spikes: { count: 5, spacing: 48, interval: 110 } },
   attackRootsRage: { file: "attack_roots_rage", frames: 14, frameDuration: 71, warningFrames: [2, 6], actionFrame: 7, spawn: { x: 63, y: 0 }, spikes: { count: 7, spacing: 42, interval: 110 } },
   attackPulse: { file: "attack_pulse", frames: 16, frameDuration: 83, warningFrames: [2, 8], actionFrame: 9, spawn: { x: -2, y: -165 } },
@@ -28,8 +28,8 @@ export const VERDAN_SETTINGS = {
   hurtRage: { file: "hurt_rage", frames: 5, frameDuration: 83 },
   phaseTransition: { file: "phase_transition", frames: 22, frameDuration: 100, rageFrame: 12, roarFrame: 14 },
   death: { file: "death", frames: 26, frameDuration: 100, decayFrame: 11 },
-  fxSeedArrow: { file: "fx_seed_arrow", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 } },
-  fxSeedArrowRage: { file: "fx_seed_arrow_rage", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 } },
+  fxSeedArrow: { file: "fx_seed_arrow", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 }, hitbox: { width: 36, height: 16, isCentered: true } },
+  fxSeedArrowRage: { file: "fx_seed_arrow_rage", frames: 4, frameDuration: 83, width: 126, height: 60, pivot: { x: 78, y: 30 }, hitbox: { width: 36, height: 16, isCentered: true } },
   fxSeedImpact: { file: "fx_seed_impact", frames: 12, frameDuration: 83, width: 108, height: 96, pivot: { x: 54, y: 87 }, damageFrames: [3, 8], hitbox: { width: 39, height: 45 } },
   fxSeedImpactRage: { file: "fx_seed_impact_rage", frames: 12, frameDuration: 83, width: 108, height: 96, pivot: { x: 54, y: 87 }, damageFrames: [3, 8], hitbox: { width: 39, height: 45 } },
   fxRootSpike: { file: "fx_root_spike", frames: 14, frameDuration: 71, width: 84, height: 180, pivot: { x: 42, y: 171 }, warningFrames: [0, 3], damageFrames: [4, 10], hitbox: { width: 24, height: 135 } },
@@ -246,6 +246,16 @@ export class VerdanBoss extends MoveableObject {
 
   startRootsAttack() {
     this.startAttack("attackRoots", (settings) => this.startSpikeRow(settings));
+  }
+
+  startBowAttack() {
+    this.startAttack("attackBow", (settings) => this.spawnArrowVolley(settings));
+  }
+
+  spawnArrowVolley({ spawn, arrows }) {
+    const { speedX, speedsY, gravity } = arrows;
+    const effectKey = this.getPhaseKey("fxSeedArrow");
+    speedsY.forEach((speedY) => this.spawnEffect(effectKey, { spawn, speedX, speedY, gravity, isLooping: true, isRotating: true, isDestroyedOnGround: true }));
   }
 
   startAttack(key, onAction) {
