@@ -46,6 +46,7 @@ function handleGameKey(event) {
   if (ATTACK_KEYS.includes(event.code) && !event.repeat) appState.world.character.attack();
   if (EXTRA_ATTACK_KEYS.includes(event.code) && !event.repeat) appState.world.character.extraAttack();
   if (JUMP_KEYS.includes(event.code)) handleJumpKey(event);
+  if (!event.repeat) appState.world.handleBossDebugKey(event.code);
 }
 
 function handleJumpKey(event) {

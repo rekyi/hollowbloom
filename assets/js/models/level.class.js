@@ -27,6 +27,7 @@ export class Level {
   items;
   keys;
   exits;
+  bossEffects = [];
   data;
   layers;
   collisionGrid = [];

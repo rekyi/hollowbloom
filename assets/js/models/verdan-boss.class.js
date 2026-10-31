@@ -1,6 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { MoveableObject } from "./movable-object.class.js";
+import { BossEffect } from "./boss-effect.class.js";
 
 const VERDAN_PATH = "assets/images/4_final_boss/verdan/verdan_";
 const VERDAN_FRAME_WIDTH = 360;
@@ -9,6 +10,9 @@ const MAX_SHEET_COLUMNS = 8;
 const IS_SMOOTHING_ENABLED = true;
 const ATTACK_RANGE = 150;
 const FACE_DEAD_ZONE = 8;
+const IS_DEBUG_ATTACK_ENABLED = true;
+const DEBUG_ATTACK_KEYS = { Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
+const TEST_ARROW_MOTION = { speedX: 375, speedY: -143, gravity: 255 };
 
 export const VERDAN_SETTINGS = {
   idle: { file: "idle", frames: 8, frameDuration: 125 },
@@ -59,6 +63,8 @@ export class VerdanBoss extends MoveableObject {
   target = null;
   arena = null;
   animationStartedAt = 0;
+  effectFrames = {};
+  isTestArrowLeft = false;
   drawHitbox = true;
 
   constructor() {
@@ -71,14 +77,20 @@ export class VerdanBoss extends MoveableObject {
     this.IMAGES_WALK_RAGE = this.loadSheet(VERDAN_SETTINGS.walkRage);
     this.IMAGES_HURT_RAGE = this.loadSheet(VERDAN_SETTINGS.hurtRage);
     this.IMAGES_TRANSITION = this.loadSheet(VERDAN_SETTINGS.phaseTransition);
+    this.effectFrames = this.loadEffectSheets();
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
     this.animationStartedAt = gameLoop.now();
     gameLoop.runEvery(1000 / 60, () => this.updateBoss());
   }
 
-  loadSheet({ file, frames }) {
+  loadSheet({ file, frames, width = VERDAN_FRAME_WIDTH, height = VERDAN_FRAME_HEIGHT }) {
     const columns = Math.min(frames, MAX_SHEET_COLUMNS);
-    return this.loadSpriteSheet(`${VERDAN_PATH}${file}.webp`, frames, VERDAN_FRAME_WIDTH, VERDAN_FRAME_HEIGHT, null, columns);
+    return this.loadSpriteSheet(`${VERDAN_PATH}${file}.webp`, frames, width, height, null, columns);
+  }
+
+  loadEffectSheets() {
+    const effectKeys = Object.keys(VERDAN_SETTINGS).filter((key) => key.startsWith("fx"));
+    return Object.fromEntries(effectKeys.map((key) => [key, this.loadSheet(VERDAN_SETTINGS[key])]));
   }
 
   setArena(range) {
@@ -137,7 +149,7 @@ export class VerdanBoss extends MoveableObject {
     if (!super.hit()) return false;
     playSfx("enemyHit");
     if (this.isDead()) this.startDeath();
-    else if (this.shouldEnterRage()) this.startAnimation("transition");
+    else if (this.shouldEnterRage()) this.startTransition();
     else this.startAnimation("hurt");
     return true;
   }
@@ -146,8 +158,14 @@ export class VerdanBoss extends MoveableObject {
     return !this.isRage && this.hp <= this.maxHp / 2;
   }
 
+  startTransition() {
+    this.world?.clearBossEffects();
+    this.startAnimation("transition");
+  }
+
   startDeath() {
     playSfx("finalBossDeath");
+    this.world?.clearBossEffects();
     this.startAnimation("death");
   }
 
@@ -210,6 +228,37 @@ export class VerdanBoss extends MoveableObject {
 
   isAttackFrameActive() {
     return false;
+  }
+
+  handleDebugKey(code) {
+    const action = DEBUG_ATTACK_KEYS[code];
+    if (!IS_DEBUG_ATTACK_ENABLED || !action || !this.canSpawnEffects()) return;
+    this[action]();
+  }
+
+  canSpawnEffects() {
+    return Boolean(this.world) && !this.isDead() && this.state !== "transition";
+  }
+
+  spawnTestSpike() {
+    this.spawnEffect("fxRootSpike", { spawn: VERDAN_SETTINGS.attackRoots.spawn });
+  }
+
+  spawnTestArrow() {
+    this.spawnEffect("fxSeedArrow", { ...TEST_ARROW_MOTION, spawn: VERDAN_SETTINGS.attackBow.spawn, isLeft: this.isTestArrowLeft, isLooping: true, isRotating: true });
+    this.isTestArrowLeft = !this.isTestArrowLeft;
+  }
+
+  spawnEffect(key, { spawn = { x: 0, y: 0 }, isLeft = this.isOppositeDirection, speedX = 0, ...motion } = {}) {
+    const footPoint = this.getFootPoint();
+    const pivotX = footPoint.x + (isLeft ? -spawn.x : spawn.x);
+    const pivotY = footPoint.y + spawn.y;
+    const effect = new BossEffect(VERDAN_SETTINGS[key], this.effectFrames[key], this.imageCache, { ...motion, pivotX, pivotY, isLeft, speedX: isLeft ? -speedX : speedX });
+    this.world.level.bossEffects.push(effect);
+  }
+
+  getFootPoint() {
+    return { x: this.x + this.width / 2, y: this.y + this.height - this.offset.bottom };
   }
 
   draw(ctx) {

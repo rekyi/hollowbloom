@@ -34,9 +34,11 @@ export class WorldLogic {
   isLevelLoading = false;
   onGameOver;
   onVictory;
+  bossEffectMargin = 200;
 
-  update() {
+  update(dt) {
     this.trackDefeatedEnemies();
+    this.updateBossEffects(dt);
     this.checkCollision();
     this.checkHazards();
     this.checkCheckpoints();
@@ -163,15 +165,44 @@ export class WorldLogic {
 
   checkCollision() {
     this.level.enemies.forEach((enemy) => this.checkEnemyAttack(enemy));
+    this.level.bossEffects.forEach((effect) => this.checkBossEffectHit(effect));
   }
 
   checkEnemyAttack(enemy) {
     if (enemy.isDead() || !enemy.isAttackFrameActive() || enemy.isAttackHitRegistered) return;
     if (!this.hitboxesOverlap(this.character.getHitbox(), enemy.getAttackHitbox())) return;
-    if (!this.character.hitByEnemy(enemy)) return;
+    this.handleAttackHit(enemy);
+  }
+
+  checkBossEffectHit(effect) {
+    if (!effect.isDamageActive()) return;
+    if (!this.hitboxesOverlap(this.character.getHitbox(), effect.getHitbox())) return;
+    this.handleAttackHit(effect);
+  }
+
+  handleAttackHit(source) {
+    if (!this.character.hitByEnemy(source)) return;
     this.statusBar.setHearts(this.character.hp);
-    enemy.isAttackHitRegistered = true;
+    source.isAttackHitRegistered = true;
     this.triggerHitFeedback();
+  }
+
+  updateBossEffects(dt) {
+    this.level.bossEffects.forEach((effect) => effect.update(dt));
+    this.level.bossEffects = this.level.bossEffects.filter((effect) => !effect.isFinished && !this.isOutsideLevel(effect));
+  }
+
+  isOutsideLevel(object) {
+    const margin = this.bossEffectMargin;
+    return object.x + object.width < -margin || object.x > this.level.width + margin || object.y + object.height < -margin || object.y > this.level.height + margin;
+  }
+
+  clearBossEffects() {
+    this.level.bossEffects = [];
+  }
+
+  handleBossDebugKey(code) {
+    this.level.enemies.find((enemy) => enemy.isFinalBoss)?.handleDebugKey?.(code);
   }
 
   triggerHitFeedback() {

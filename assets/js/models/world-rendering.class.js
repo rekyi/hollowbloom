@@ -58,6 +58,7 @@ export class WorldRendering extends WorldLogic {
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addObjectsToMap(this.level.keys.filter((key) => !key.isCollected));
     this.addObjectsToMap(this.level.enemies);
+    this.addObjectsToMap(this.level.bossEffects);
     this.addToMap(this.character);
     this.drawLayers(FRONT_LAYERS);
     this.drawCollisionOverlay();
