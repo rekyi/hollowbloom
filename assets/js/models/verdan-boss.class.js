@@ -7,6 +7,8 @@ const VERDAN_FRAME_WIDTH = 360;
 const VERDAN_FRAME_HEIGHT = 336;
 const MAX_SHEET_COLUMNS = 8;
 const IS_SMOOTHING_ENABLED = true;
+const ATTACK_RANGE = 150;
+const FACE_DEAD_ZONE = 8;
 
 export const VERDAN_SETTINGS = {
   idle: { file: "idle", frames: 8, frameDuration: 125 },
@@ -34,6 +36,7 @@ export const VERDAN_SETTINGS = {
 
 export class VerdanBoss extends MoveableObject {
   IMAGES_IDLE = [];
+  IMAGES_WALK = [];
   IMAGES_HURT = [];
   IMAGES_DEATH = [];
   width = VERDAN_FRAME_WIDTH;
@@ -41,6 +44,7 @@ export class VerdanBoss extends MoveableObject {
   hp = 8;
   maxHp = 8;
   offset = { top: 98, right: 146, bottom: 18, left: 146 };
+  speed = VERDAN_SETTINGS.walk.speed;
   isOppositeDirection = true;
   isFinalBoss = true;
   isDeathAnimationFinished = false;
@@ -54,6 +58,7 @@ export class VerdanBoss extends MoveableObject {
   constructor() {
     super();
     this.IMAGES_IDLE = this.loadSheet(VERDAN_SETTINGS.idle);
+    this.IMAGES_WALK = this.loadSheet(VERDAN_SETTINGS.walk);
     this.IMAGES_HURT = this.loadSheet(VERDAN_SETTINGS.hurt);
     this.IMAGES_DEATH = this.loadSheet(VERDAN_SETTINGS.death);
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
@@ -73,6 +78,42 @@ export class VerdanBoss extends MoveableObject {
   updateBoss() {
     if (this.state === "death") this.playDeath();
     else if (this.state === "hurt") this.playHurt();
+    else this.updateMovement();
+  }
+
+  updateMovement() {
+    const offsetX = this.getTargetOffsetX();
+    this.faceTarget(offsetX);
+    const nextX = this.getNextX();
+    const isWalking = Math.abs(offsetX) > ATTACK_RANGE && nextX !== this.x;
+    this.changeState(isWalking ? "walk" : "idle");
+    if (isWalking) this.x = nextX;
+    this.playMovementLoop();
+  }
+
+  getTargetOffsetX() {
+    if (!this.target) return 0;
+    const targetHitbox = this.target.getHitbox();
+    return targetHitbox.x + targetHitbox.width / 2 - (this.x + this.width / 2);
+  }
+
+  faceTarget(offsetX) {
+    if (Math.abs(offsetX) <= FACE_DEAD_ZONE) return;
+    this.faceDirection(offsetX < 0);
+  }
+
+  getNextX() {
+    if (!this.arena) return this.x;
+    const step = this.isOppositeDirection ? -this.speed : this.speed;
+    return Math.min(Math.max(this.x + step, this.arena.minX), this.arena.maxX);
+  }
+
+  changeState(state) {
+    if (this.state !== state) this.startAnimation(state);
+  }
+
+  playMovementLoop() {
+    if (this.state === "walk") this.playLoop(this.IMAGES_WALK, VERDAN_SETTINGS.walk.frameDuration);
     else this.playLoop(this.IMAGES_IDLE, VERDAN_SETTINGS.idle.frameDuration);
   }
 
