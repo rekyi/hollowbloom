@@ -1,3 +1,9 @@
+:fullscreen {
+    --game-width: 100vw;
+
+    background: #000;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -11,7 +17,7 @@ canvas {
 }
 
 #canvas {
-    width: min(100vw, 1280px, 177.7778dvh);
+    width: min(100vw, var(--game-width), 177.7778dvh);
     aspect-ratio: 16 / 9;
     image-rendering: pixelated;
 }

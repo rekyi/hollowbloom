@@ -82,7 +82,8 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     padding: 1.5rem;
 }
 
-.settings-audio {
+.settings-audio,
+.settings-display {
     width: 100%;
     margin-block-end: 1.5rem;
     padding: 1rem;
@@ -99,13 +100,19 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     }
 }
 
-.settings-audio legend {
+.settings-display[hidden] {
+    display: none;
+}
+
+.settings-audio legend,
+.settings-display legend {
     padding-inline: 0.5rem;
     color: var(--color-accent);
     font-weight: 600;
 }
 
-.audio-setting {
+.audio-setting,
+.display-setting {
     display: grid;
     grid-template-columns: 1fr;
     align-items: center;
@@ -116,6 +123,28 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
         grid-column: 1 / -1;
         grid-template-columns: subgrid;
         row-gap: normal;
+    }
+}
+
+.display-setting select {
+    width: 100%;
+    padding-block: 0.5rem;
+    padding-inline: 0.75rem;
+    border: 1px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0.375rem;
+
+    background: #0a1418;
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        border-color: var(--color-accent);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 0.125rem;
     }
 }
 

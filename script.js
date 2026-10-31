@@ -4,6 +4,7 @@ import { setupSfx } from "./assets/js/sfx.js";
 import { setupInput } from "./assets/js/input.js";
 import { setupScreens } from "./assets/js/screens.js";
 import { setupDialogs } from "./assets/js/dialogs.js";
+import { setupFullscreen } from "./assets/js/fullscreen.js";
 import { Keyboard } from "./assets/js/models/keyboard.class.js";
 import { FemaleCharacter } from "./assets/js/models/female-character.class.js";
 
@@ -17,5 +18,6 @@ function init() {
   setupScreens();
   setupDialogs();
   setupAudioSettings();
+  setupFullscreen();
 }
 init();
