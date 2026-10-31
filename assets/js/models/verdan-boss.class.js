@@ -64,7 +64,6 @@ export class VerdanBoss extends MoveableObject {
   arena = null;
   animationStartedAt = 0;
   effectFrames = {};
-  isTestArrowLeft = false;
   drawHitbox = true;
 
   constructor() {
@@ -245,8 +244,7 @@ export class VerdanBoss extends MoveableObject {
   }
 
   spawnTestArrow() {
-    this.spawnEffect("fxSeedArrow", { ...TEST_ARROW_MOTION, spawn: VERDAN_SETTINGS.attackBow.spawn, isLeft: this.isTestArrowLeft, isLooping: true, isRotating: true });
-    this.isTestArrowLeft = !this.isTestArrowLeft;
+    this.spawnEffect("fxSeedArrow", { ...TEST_ARROW_MOTION, spawn: VERDAN_SETTINGS.attackBow.spawn, isLooping: true, isRotating: true });
   }
 
   spawnEffect(key, { spawn = { x: 0, y: 0 }, isLeft = this.isOppositeDirection, speedX = 0, ...motion } = {}) {
