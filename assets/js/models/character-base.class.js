@@ -82,7 +82,8 @@ export class CharacterBase extends MoveableObject {
   loadCharacterSprites(settings, name) {
     const sprite = settings.sprites[name];
     if (!sprite) return [];
-    return this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, sprite.frameSize, sprite.frameHeight);
+    const frameSize = sprite.frameSize ?? settings.spriteFrameSize;
+    return this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, frameSize, sprite.frameHeight);
   }
 
   loadMovementSprites(settings) {

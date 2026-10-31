@@ -51,7 +51,6 @@ export class World extends WorldRendering {
       this.enterLevel(await loadLevelAssets(nextLevelIndex), nextLevelIndex);
       this.isLevelLoading = false;
     } catch (error) {
-      // Flag bleibt gesetzt, sonst würde jeder Frame das Laden erneut auslösen.
       console.error(error);
       alert("Das nächste Level konnte nicht geladen werden. Bitte die Seite neu laden.");
     }

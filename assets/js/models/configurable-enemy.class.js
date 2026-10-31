@@ -110,8 +110,6 @@ export class ConfigurableEnemy extends Enemy {
     this.attackHitEndFrame = this.attackHitEndFrameOverride ?? this.IMAGES_ATTACK.length - 1;
   }
 
-  // Zufall mit Beutel: Jede Variante kommt pro Durchgang so oft vor wie ihr `weight`, die Reihenfolge ist gemischt.
-  // So gibt es keine langen Serien derselben Attacke (max. 2 hintereinander), und die Verteilung stimmt auf Dauer.
   pickAttackVariant() {
     if (this.attackAnimations.length < 2) return 0;
     if (!this.attackBag.length) this.attackBag = this.createAttackBag();

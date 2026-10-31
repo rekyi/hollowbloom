@@ -153,13 +153,13 @@
 }
 
 .character-sprite-female {
-    background-image: url("../images/character/female/idle.png");
+    background-image: url("../images/character/female/idle.webp");
     background-size: 500% 100%;
     animation: female-idle 900ms steps(5, end) infinite;
 }
 
 .character-sprite-male {
-    background-image: url("../images/character/male/idle.png");
+    background-image: url("../images/character/male/idle.webp");
     background-size: 600% 100%;
     animation: male-idle 900ms steps(6, end) infinite;
 }

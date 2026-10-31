@@ -1,7 +1,6 @@
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const DARK_ELF_PATH = "assets/images/3_enemies/dark_elf/";
-// Sheets sind auf Spielgroesse normalisiert (tools/normalize_enemy_sheets.py): Frame = Entity-Box, 1:1 gezeichnet.
 const DARK_ELF_FRAME = { frameSize: 162, frameHeight: 128 };
 function getDarkElfSprite(name, frameCount) {
   return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, ...DARK_ELF_FRAME, columns: Math.min(10, frameCount) };
