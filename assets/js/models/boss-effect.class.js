@@ -19,9 +19,10 @@ export class BossEffect extends DrawableObject {
   isDestroyedOnGround = false;
   isFinished = false;
   isAttackHitRegistered = false;
+  onGroundHit = null;
   drawHitbox = true;
 
-  constructor(settings, frames, imageCache, { pivotX, pivotY, isLeft = false, isLooping = false, isRotating = false, isDestroyedOnGround = false, speedX = 0, speedY = 0, gravity = 0 }) {
+  constructor(settings, frames, imageCache, { pivotX, pivotY, isLeft = false, isLooping = false, isRotating = false, isDestroyedOnGround = false, onGroundHit = null, speedX = 0, speedY = 0, gravity = 0 }) {
     super();
     this.frames = frames;
     this.imageCache = imageCache;
@@ -35,6 +36,7 @@ export class BossEffect extends DrawableObject {
     this.isLooping = isLooping;
     this.isRotating = isRotating;
     this.isDestroyedOnGround = isDestroyedOnGround;
+    this.onGroundHit = onGroundHit;
     this.speedX = speedX;
     this.speedY = speedY;
     this.gravity = gravity;
@@ -54,6 +56,11 @@ export class BossEffect extends DrawableObject {
 
   getPivotPoint() {
     return { x: this.x + this.getPivotOffsetX(), y: this.y + this.pivot.y };
+  }
+
+  handleGroundHit(groundY) {
+    const origin = { x: this.getPivotPoint().x, y: groundY };
+    this.onGroundHit?.({ origin, isLeft: this.isOppositeDirection });
   }
 
   update(dt) {

@@ -134,3 +134,10 @@ export function isTouchingTile(obj, level, tileType) {
   const box = obj.getHitbox();
   return isTileInArea(level, getColumns(box), getRows(box), [tileType]);
 }
+
+export function getTouchedTileTop(obj, level, tileType) {
+  const box = obj.getHitbox();
+  const columns = getColumns(box);
+  const row = getRows(box).find((candidate) => isTileInArea(level, columns, [candidate], [tileType]));
+  return row * TILE_SIZE;
+}

@@ -2,7 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
-import { isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
+import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
 
 export class WorldLogic {
@@ -188,13 +188,22 @@ export class WorldLogic {
   }
 
   updateBossEffects(dt) {
-    this.level.bossEffects.forEach((effect) => effect.update(dt));
-    this.level.bossEffects = this.level.bossEffects.filter((effect) => this.isBossEffectActive(effect));
+    const effects = this.level.bossEffects;
+    effects.forEach((effect) => effect.update(dt));
+    this.level.bossEffects = effects.filter((effect) => this.isBossEffectActive(effect));
+    effects.filter((effect) => this.isBossEffectGrounded(effect)).forEach((effect) => this.handleBossEffectGroundHit(effect));
   }
 
   isBossEffectActive(effect) {
-    if (effect.isFinished || this.isOutsideLevel(effect)) return false;
-    return !effect.isDestroyedOnGround || !isTouchingTile(effect, this.level, TILE_SOLID);
+    return !effect.isFinished && !this.isOutsideLevel(effect) && !this.isBossEffectGrounded(effect);
+  }
+
+  isBossEffectGrounded(effect) {
+    return effect.isDestroyedOnGround && isTouchingTile(effect, this.level, TILE_SOLID);
+  }
+
+  handleBossEffectGroundHit(effect) {
+    effect.handleGroundHit(getTouchedTileTop(effect, this.level, TILE_SOLID));
   }
 
   isOutsideLevel(object) {

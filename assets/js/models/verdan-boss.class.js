@@ -255,7 +255,9 @@ export class VerdanBoss extends MoveableObject {
   spawnArrowVolley({ spawn, arrows }) {
     const { speedX, speedsY, gravity } = arrows;
     const effectKey = this.getPhaseKey("fxSeedArrow");
-    speedsY.forEach((speedY) => this.spawnEffect(effectKey, { spawn, speedX, speedY, gravity, isLooping: true, isRotating: true, isDestroyedOnGround: true }));
+    const impactKey = this.getPhaseKey("fxSeedImpact");
+    const onGroundHit = (placement) => this.spawnEffect(impactKey, placement);
+    speedsY.forEach((speedY) => this.spawnEffect(effectKey, { spawn, speedX, speedY, gravity, isLooping: true, isRotating: true, isDestroyedOnGround: true, onGroundHit }));
   }
 
   startAttack(key, onAction) {
