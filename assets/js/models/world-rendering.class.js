@@ -125,8 +125,8 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 24px monospace";
     this.ctx.textAlign = "right";
     this.ctx.textBaseline = "top";
-    this.ctx.strokeText(text, CANVAS_WIDTH - 20, 16);
-    this.ctx.fillText(text, CANVAS_WIDTH - 20, 16);
+    this.ctx.strokeText(text, CANVAS_WIDTH - 20, 36);
+    this.ctx.fillText(text, CANVAS_WIDTH - 20, 36);
     this.ctx.restore();
   }
 

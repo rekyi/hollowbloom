@@ -264,7 +264,7 @@ canvas.ready {
     justify-items: center;
     gap: 1rem;
 
-    @media (orientation: portrait) {
+    @media (orientation: portrait) and (max-width: 600px) {
         display: grid;
     }
 
@@ -292,7 +292,7 @@ canvas.ready {
 }
 
 dialog[open] {
-    @media (orientation: portrait) {
+    @media (orientation: portrait) and (max-width: 600px) {
         display: none;
     }
 

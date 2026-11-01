@@ -17,7 +17,7 @@ export class StatusBar extends DrawableObject {
   constructor() {
     super();
     this.x = 15;
-    this.y = 15;
+    this.y = 35;
     this.loadImages(Object.values(this.IMAGES));
   }
 
@@ -45,14 +45,15 @@ export class StatusBar extends DrawableObject {
 
   drawCoinText(ctx) {
     const text = `${translate("coins")} ${this.coins}/${EXTRA_ATTACK_COIN_THRESHOLD}`;
+    const textY = this.y + this.heartSize / 2;
     ctx.save();
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
     ctx.lineWidth = 3;
     ctx.font = "bold 18px monospace";
     ctx.textBaseline = "middle";
-    ctx.strokeText(text, 190, 35);
-    ctx.fillText(text, 190, 35);
+    ctx.strokeText(text, 190, textY);
+    ctx.fillText(text, 190, textY);
     ctx.restore();
   }
 
