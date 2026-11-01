@@ -5,6 +5,7 @@ import { setupInput } from "./assets/js/input.js";
 import { setupScreens } from "./assets/js/screens.js";
 import { setupDialogs } from "./assets/js/dialogs.js";
 import { setupFullscreen } from "./assets/js/fullscreen.js";
+import { setupTouchControls } from "./assets/js/touch-controls.js";
 import { Keyboard } from "./assets/js/models/keyboard.class.js";
 import { FemaleCharacter } from "./assets/js/models/female-character.class.js";
 
@@ -19,5 +20,6 @@ function init() {
   setupDialogs();
   setupAudioSettings();
   setupFullscreen();
+  setupTouchControls();
 }
 init();

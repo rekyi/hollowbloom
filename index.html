@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="assets/css/standard.css" />
     <link rel="stylesheet" href="assets/css/start-screen.css" />
     <link rel="stylesheet" href="assets/css/dialogs.css" />
+    <link rel="stylesheet" href="assets/css/touch-controls.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -59,6 +60,7 @@
       <section class="pause-screen-content" aria-label="Game paused" data-i18n-aria-label="pause.label">
         <h1 data-i18n="pause.title">Paused</h1>
         <p data-i18n="pause.hint">Press Esc or P to resume</p>
+        <button id="pause-resume-button" type="button" data-i18n="pause.resume">Resume</button>
         <button id="pause-settings-button" type="button" data-i18n="menu.settings">Settings</button>
         <button id="pause-restart-button" type="button" data-i18n="pause.restart">Restart</button>
         <button id="pause-main-menu-button" type="button" data-i18n="common.mainMenu">Main menu</button>
@@ -199,6 +201,33 @@
           <button id="victory-credits-button" type="button" data-i18n="menu.credits">Credits</button>
         </div>
       </section>
+    </div>
+    <div id="touch-controls" class="touch-controls">
+      <div class="touch-group touch-group-move">
+        <button id="touch-run-button" class="touch-button touch-run" type="button" aria-label="Run" data-i18n-aria-label="controls.run" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7l5 5-5 5M12 7l5 5-5 5" /></svg>
+        </button>
+        <button class="touch-button touch-left" type="button" data-touch-key="ArrowLeft" aria-label="Left arrow" data-i18n-aria-label="controls.arrowLeft">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 6l-6 6 6 6" /></svg>
+        </button>
+        <button class="touch-button touch-right" type="button" data-touch-key="ArrowRight" aria-label="Right arrow" data-i18n-aria-label="controls.arrowRight">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6l6 6-6 6" /></svg>
+        </button>
+      </div>
+      <div class="touch-group touch-group-action">
+        <button class="touch-button touch-special" type="button" data-touch-key="KeyK" aria-label="Special attack" data-i18n-aria-label="controls.special">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L3.3 9.3l6.1-.7z" /></svg>
+        </button>
+        <button class="touch-button touch-attack" type="button" data-touch-key="KeyJ" aria-label="Attack" data-i18n-aria-label="controls.attack">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5 9 15M6 12l6 6M9 15l-4 4" /></svg>
+        </button>
+        <button class="touch-button touch-jump" type="button" data-touch-key="Space" aria-label="Jump" data-i18n-aria-label="controls.jump">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" /></svg>
+        </button>
+      </div>
+        <button class="touch-button touch-pause" type="button" data-touch-key="Escape" aria-label="Pause" data-i18n-aria-label="controls.pause">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+        </button>
     </div>
     <div id="screen-transition" aria-hidden="true"></div>
     <section class="orientation-hint" aria-labelledby="orientation-hint-title">

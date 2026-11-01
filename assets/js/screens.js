@@ -4,7 +4,7 @@ import { FemaleCharacter } from "./models/female-character.class.js";
 import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
 import { countLevelCoins, getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
-import { resetKeyboard } from "./input.js";
+import { resetKeyboard, togglePause } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
 import { translate } from "./translation.js";
 
@@ -18,6 +18,7 @@ export function setupScreens() {
   document.getElementById("start-button").addEventListener("click", startGame);
   document.getElementById("restart-button").addEventListener("click", restartLevel);
   document.getElementById("victory-restart-button").addEventListener("click", startGame);
+  document.getElementById("pause-resume-button").addEventListener("click", togglePause);
   document.getElementById("pause-restart-button").addEventListener("click", startGame);
   document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
   document.getElementById("victory-main-menu-button").addEventListener("click", returnToMainMenu);
@@ -149,7 +150,7 @@ function drawGameOverCharacter() {
 
 export function syncPauseScreen() {
   document.getElementById("pause-screen").hidden = !gameLoop.isPaused;
-  const buttonRef = document.getElementById("pause-restart-button");
+  const buttonRef = document.getElementById("pause-resume-button");
   if (gameLoop.isPaused) buttonRef.focus();
   else buttonRef.blur();
 }

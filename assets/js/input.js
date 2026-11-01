@@ -33,6 +33,10 @@ function handleVisibilityChange() {
 function handlePauseKey(event) {
   if (event.repeat) return;
   if (event.code !== "Escape" && (event.ctrlKey || event.metaKey || document.querySelector("dialog[open]"))) return;
+  togglePause();
+}
+
+export function togglePause() {
   gameLoop.togglePause();
   if (gameLoop.isPaused) appState.world.pauseGameplayMusic();
   else appState.world.resumeGameplayMusic();

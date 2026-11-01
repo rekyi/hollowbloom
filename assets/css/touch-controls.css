@@ -1,0 +1,115 @@
+.touch-controls {
+    --touch-button-size: clamp(2.75rem, 15dvh, 4.5rem);
+    --touch-gap: 0.75rem;
+
+    position: fixed;
+    inset: 0;
+    z-index: 8;
+
+    display: none;
+    pointer-events: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+    body:has(#canvas.ready):not(:has(.pause-screen:not([hidden]), .game-over:not([hidden]), .victory-screen:not([hidden]))) .touch-controls {
+        display: block;
+    }
+
+    .pause-screen-content p {
+        display: none;
+    }
+}
+
+.touch-group {
+    position: absolute;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+
+    display: grid;
+    grid-template-columns: repeat(2, var(--touch-button-size));
+    gap: var(--touch-gap);
+}
+
+.touch-group-move {
+    left: max(1rem, env(safe-area-inset-left));
+    grid-template-areas:
+        "run ."
+        "left right";
+}
+
+.touch-group-action {
+    right: max(1rem, env(safe-area-inset-right));
+    grid-template-areas:
+        ". special"
+        "attack jump";
+}
+
+.touch-run {
+    grid-area: run;
+}
+
+.touch-left {
+    grid-area: left;
+}
+
+.touch-right {
+    grid-area: right;
+}
+
+.touch-special {
+    grid-area: special;
+}
+
+.touch-attack {
+    grid-area: attack;
+}
+
+.touch-jump {
+    grid-area: jump;
+}
+
+.touch-button {
+    width: var(--touch-button-size);
+    height: var(--touch-button-size);
+    padding: 0;
+    border: 2px solid rgba(255, 226, 122, 0.7);
+    border-radius: 50%;
+
+    background: rgba(10, 20, 24, 0.55);
+    color: var(--color-accent);
+
+    display: grid;
+    place-items: center;
+    pointer-events: auto;
+
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-button svg {
+    width: 55%;
+    height: 55%;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.touch-button.is-pressed,
+.touch-button[aria-pressed="true"] {
+    background: var(--color-accent);
+    color: #101719;
+}
+
+.touch-pause {
+    position: absolute;
+    top: max(0.5rem, env(safe-area-inset-top));
+    left: 50%;
+    width: calc(var(--touch-button-size) * 0.7);
+    height: calc(var(--touch-button-size) * 0.7);
+    transform: translateX(-50%);
+}

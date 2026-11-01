@@ -21,6 +21,7 @@ const TEXTS = {
   "pause.label": { en: "Game paused", de: "Spiel pausiert" },
   "pause.title": { en: "Paused", de: "Pause" },
   "pause.hint": { en: "Press Esc or P to resume", de: "Esc oder P zum Fortsetzen" },
+  "pause.resume": { en: "Resume", de: "Fortsetzen" },
   "pause.restart": { en: "Restart", de: "Neustart" },
 
   "settings.audio": { en: "Audio", de: "Audio" },
