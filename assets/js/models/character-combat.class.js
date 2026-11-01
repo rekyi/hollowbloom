@@ -4,10 +4,14 @@ import { CharacterMovement } from "./character-movement.class.js";
 
 const HAZARD_BOUNCE_SPEED = 8 * ENTITY_SCALE;
 const KNOCKBACK_SPEED_Y = 5.2 * ENTITY_SCALE;
+const ATTACK_BUFFER_MS = 150;
 
 export class CharacterCombat extends CharacterMovement {
+  bufferedAttack = null;
+
   attack() {
     this.updateState();
+    if (this.bufferAttackWhileAttacking("attack")) return;
     if (!this.canPerformAction("attack")) return;
     this.playAttackStartSfx();
     this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach, "attack_1");
@@ -15,8 +19,21 @@ export class CharacterCombat extends CharacterMovement {
 
   extraAttack() {
     this.updateState();
+    if (this.bufferAttackWhileAttacking("extraAttack")) return;
     if (!this.canPerformAction("attack") || this.coins < EXTRA_ATTACK_COIN_THRESHOLD) return;
     this.startAttack(this.IMAGES_EXTRA_ATTACK, this.extraAttackDamageFrame, this.extraAttackReach, this.extraAttackType);
+  }
+
+  bufferAttackWhileAttacking(action) {
+    if (!this.isAttacking) return false;
+    this.bufferedAttack = { action, until: gameLoop.now() + ATTACK_BUFFER_MS };
+    return true;
+  }
+
+  runBufferedAttack() {
+    const buffered = this.bufferedAttack;
+    this.bufferedAttack = null;
+    if (buffered && gameLoop.now() <= buffered.until) this[buffered.action]();
   }
 
   startAttack(images, damageFrame, reach, attackType) {
@@ -56,6 +73,7 @@ export class CharacterCombat extends CharacterMovement {
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.hit();
     this.isAttacking = false;
+    this.bufferedAttack = null;
     return true;
   }
 
@@ -65,6 +83,7 @@ export class CharacterCombat extends CharacterMovement {
     this.speedY = 0;
     this.knockbackFrames = 0;
     this.isAttacking = false;
+    this.bufferedAttack = null;
     this.hit();
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.updateState();
@@ -98,6 +117,7 @@ export class CharacterCombat extends CharacterMovement {
     this.isAttacking = false;
     this.activeAttackType = "attack_1";
     this.setActiveAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach);
+    this.runBufferedAttack();
   }
 
   damageEnemiesInReach() {

@@ -1,4 +1,4 @@
-import { appState, ATTACK_KEYS, EXTRA_ATTACK_KEYS, JUMP_KEYS, MOVE_LEFT_KEYS, MOVE_RIGHT_KEYS, pressedKeys, RUN_KEYS, TIMER_START_KEYS } from "./data.js";
+import { appState, ATTACK_KEYS, EXTRA_ATTACK_KEYS, JUMP_KEYS, MOVE_LEFT_KEYS, MOVE_RIGHT_KEYS, PAUSE_KEYS, pressedKeys, RUN_KEYS, TIMER_START_KEYS } from "./data.js";
 import { gameLoop } from "./models/game-loop.class.js";
 import { syncPauseScreen } from "./screens.js";
 
@@ -11,7 +11,7 @@ export function setupInput() {
 
 function handleKeyDown(event) {
   if (!appState.world || appState.world.isGameOver || appState.world.isVictory) return;
-  if (event.code === "Escape") handleEscape(event);
+  if (PAUSE_KEYS.includes(event.code)) handlePauseKey(event);
   else if (event.code === "F2") handleDebugKey(event);
   else if (!gameLoop.isPaused) handleGameKey(event);
 }
@@ -30,8 +30,9 @@ function handleVisibilityChange() {
   if (document.hidden) resetKeyboard();
 }
 
-function handleEscape(event) {
+function handlePauseKey(event) {
   if (event.repeat) return;
+  if (event.code !== "Escape" && (event.ctrlKey || event.metaKey || document.querySelector("dialog[open]"))) return;
   gameLoop.togglePause();
   if (gameLoop.isPaused) appState.world.pauseGameplayMusic();
   else appState.world.resumeGameplayMusic();

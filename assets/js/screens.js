@@ -6,6 +6,7 @@ import { World } from "./models/world.class.js";
 import { countLevelCoins, getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
 import { resetKeyboard } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, stopStartScreenMusic } from "./audio.js";
+import { translate } from "./translation.js";
 
 const SCREEN_FADE_DURATION_MS = 350;
 let isScreenTransitioning = false;
@@ -74,14 +75,14 @@ function prepareLevelLoad() {
   stopDeathScreenMusic();
   appState.world?.stopGameplayMusic();
   gameLoop.stop();
-  setLevelLoadStatus("Level wird geladen ...");
+  setLevelLoadStatus(translate("message.levelLoading"));
 }
 
 function handleLevelLoadError(error) {
   console.error("Level could not be loaded.", error);
   appState.canvasRef.classList.remove("ready");
   document.getElementById("start-screen").hidden = false;
-  setLevelLoadStatus("Level konnte nicht geladen werden. Bitte erneut versuchen.");
+  setLevelLoadStatus(translate("message.levelLoadFailed"));
 }
 
 function setLevelLoadStatus(text) {

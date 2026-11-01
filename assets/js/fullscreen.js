@@ -1,3 +1,5 @@
+import { translate } from "./translation.js";
+
 export function setupFullscreen() {
   if (!document.fullscreenEnabled) {
     document.getElementById("display-settings").hidden = true;
@@ -12,7 +14,7 @@ async function handleScreenModeChange(event) {
     await changeScreenMode(event.target.value);
   } catch (error) {
     console.error(error);
-    alert("Der Bildschirmmodus konnte nicht gewechselt werden.");
+    alert(translate("message.screenModeFailed"));
     syncScreenMode();
   }
 }

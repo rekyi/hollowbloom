@@ -2,6 +2,7 @@ import { appState, deathScreenMusic, startScreenMusic } from "./data.js";
 import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
 import { applySfxSettings } from "./sfx.js";
+import { onLanguageChange, translate } from "./translation.js";
 
 const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
 const START_SCREEN_MUSIC_PAUSE_MS = 3000;
@@ -71,6 +72,7 @@ export function setupAudioSettings() {
   document.getElementById("sound-effects-volume").addEventListener("input", handleSoundEffectsVolumeInput);
   document.getElementById("audio-mute-button").addEventListener("click", toggleAudioMute);
   document.addEventListener("visibilitychange", handleVisibilityChange);
+  onLanguageChange(updateAudioMuteButton);
 }
 
 function handleMasterVolumeInput(event) {
@@ -107,7 +109,7 @@ function updateAudioMuteButton() {
   const muteButtonRef = document.getElementById("audio-mute-button");
   const settingsAudioRef = document.querySelector(".settings-audio");
   muteButtonRef.setAttribute("aria-pressed", String(appState.isAudioMuted));
-  muteButtonRef.setAttribute("aria-label", appState.isAudioMuted ? "Ton einschalten" : "Ton ausschalten");
+  muteButtonRef.setAttribute("aria-label", translate(appState.isAudioMuted ? "audio.unmute" : "audio.mute"));
   settingsAudioRef.classList.toggle("is-muted", appState.isAudioMuted);
   settingsAudioRef.querySelectorAll('input[type="range"]').forEach((sliderRef) => {
     sliderRef.disabled = appState.isAudioMuted;

@@ -6,6 +6,33 @@ export function setupDialogs() {
   document.getElementById("pause-settings-button").addEventListener("click", openSettings);
   document.getElementById("settings-back-button").addEventListener("click", closeSettings);
   document.getElementById("settings-overlay").addEventListener("click", onBackdropClick);
+  setupSettingsTabs();
+}
+
+function setupSettingsTabs() {
+  document.querySelectorAll(".settings-tab").forEach((tabRef) => {
+    tabRef.addEventListener("click", () => selectSettingsTab(tabRef));
+    tabRef.addEventListener("keydown", onSettingsTabKeydown);
+  });
+}
+
+function selectSettingsTab(selectedTabRef, shouldFocus = false) {
+  document.querySelectorAll(".settings-tab").forEach((tabRef) => {
+    const isSelected = tabRef === selectedTabRef;
+    tabRef.setAttribute("aria-selected", String(isSelected));
+    tabRef.tabIndex = isSelected ? 0 : -1;
+    document.getElementById(tabRef.getAttribute("aria-controls")).hidden = !isSelected;
+  });
+  if (shouldFocus) selectedTabRef.focus();
+}
+
+function onSettingsTabKeydown(event) {
+  if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return;
+  event.preventDefault();
+  const tabRefs = [...document.querySelectorAll(".settings-tab")];
+  const step = event.code === "ArrowRight" ? 1 : -1;
+  const nextIndex = (tabRefs.indexOf(event.currentTarget) + step + tabRefs.length) % tabRefs.length;
+  selectSettingsTab(tabRefs[nextIndex], true);
 }
 
 function setupDialog(buttonId, dialogId, titleId, backId) {

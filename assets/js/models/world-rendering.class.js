@@ -1,6 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
 import { LEVEL_SCALE, TILE_SIZE } from "./level.class.js";
+import { translate } from "../translation.js";
 
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
@@ -100,8 +101,9 @@ export class WorldRendering extends WorldLogic {
     this.ctx.font = "bold 56px sans-serif";
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
-    this.ctx.strokeText("READY!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    this.ctx.fillText("READY!", CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const text = translate("game.ready");
+    this.ctx.strokeText(text, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.ctx.fillText(text, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
     this.ctx.restore();
   }
 

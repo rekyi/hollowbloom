@@ -1,5 +1,6 @@
 import { EXTRA_ATTACK_COIN_THRESHOLD } from "../data.js";
 import { DrawableObject } from "./drawable-object.class.js";
+import { translate } from "../translation.js";
 
 export class StatusBar extends DrawableObject {
   IMAGES = {
@@ -43,7 +44,7 @@ export class StatusBar extends DrawableObject {
   }
 
   drawCoinText(ctx) {
-    const text = `Münzen ${this.coins}/${EXTRA_ATTACK_COIN_THRESHOLD}`;
+    const text = `${translate("coins")} ${this.coins}/${EXTRA_ATTACK_COIN_THRESHOLD}`;
     ctx.save();
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";

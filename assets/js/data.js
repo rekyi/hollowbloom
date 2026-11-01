@@ -4,11 +4,12 @@ export const START_LEVEL = 2;
 export const EXTRA_ATTACK_COIN_THRESHOLD = 5;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
 export const MOVE_LEFT_KEYS = ["ArrowLeft", "KeyA"];
-export const JUMP_KEYS = ["ArrowUp", "Space"];
+export const JUMP_KEYS = ["ArrowUp", "KeyW", "Space"];
 export const RUN_KEYS = ["ShiftLeft", "ShiftRight"];
-export const ATTACK_KEYS = ["KeyF", "KeyJ"];
-export const EXTRA_ATTACK_KEYS = ["KeyG", "KeyK"];
-export const TIMER_START_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "KeyA", "KeyD", "Space", "KeyF", "KeyJ", "KeyG", "KeyK"];
+export const ATTACK_KEYS = ["KeyJ", "KeyX"];
+export const EXTRA_ATTACK_KEYS = ["KeyK", "KeyC"];
+export const PAUSE_KEYS = ["Escape", "KeyP"];
+export const TIMER_START_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "KeyA", "KeyD", "KeyW", "Space", "KeyJ", "KeyK", "KeyX", "KeyC"];
 
 export const CHARACTER_SETTING_KEYS = [
   "width",
@@ -140,8 +141,8 @@ export const appState = {
   world: null,
   keyboard: null,
   selectedCharacterClass: null,
-  masterVolume: 1,
-  musicVolume: 1,
-  soundEffectsVolume: 1,
+  masterVolume: 0.5,
+  musicVolume: 0.5,
+  soundEffectsVolume: 0.5,
   isAudioMuted: false,
 };

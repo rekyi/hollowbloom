@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="only light" />
+    <meta name="theme-color" content="#000000" />
     <meta name="darkreader-lock" />
+    <script>
+      try {
+        if (localStorage.getItem("language")) document.documentElement.classList.add("is-translating");
+      } catch (error) {}
+    </script>
     <title>Document</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="assets/css/fonts.css" />
@@ -16,134 +22,199 @@
   <body>
     <main id="start-screen" class="start-screen is-pre-start">
       <button id="pre-start-button" class="pre-start-prompt" type="button">
-        <span>Klicken, um zu starten</span>
+        <span data-i18n="start.prompt">Click to start</span>
       </button>
-      <nav class="start-menu" aria-label="Hauptmenü" inert>
-        <button id="start-button" type="button">Spiel starten</button>
-        <button id="settings-button" type="button">Einstellungen</button>
-        <button id="credits-button" type="button">Credits</button>
-        <button id="imprint-button" type="button">Impressum</button>
+      <nav class="start-menu" aria-label="Main menu" data-i18n-aria-label="common.mainMenu" inert>
+        <button id="start-button" type="button" data-i18n="menu.start">Start game</button>
+        <button id="settings-button" type="button" data-i18n="menu.settings">Settings</button>
+        <button id="credits-button" type="button" data-i18n="menu.credits">Credits</button>
+        <button id="imprint-button" type="button" data-i18n="menu.imprint">Legal notice</button>
       </nav>
-      <div id="character-choices" class="character-choices" role="group" aria-label="Character auswählen" inert>
-        <button class="character-choice character-choice-female selected" type="button" data-character="female" aria-label="Weiblicher Character" aria-pressed="true">
+      <div id="character-choices" class="character-choices" role="group" aria-label="Choose character" data-i18n-aria-label="character.group" inert>
+        <button class="character-choice character-choice-female selected" type="button" data-character="female" aria-label="Female character" data-i18n-aria-label="character.female" aria-pressed="true">
           <span class="character-sprite character-sprite-female" aria-hidden="true"></span>
         </button>
-        <button class="character-choice character-choice-male" type="button" data-character="male" aria-label="Männlicher Character" aria-pressed="false">
+        <button class="character-choice character-choice-male" type="button" data-character="male" aria-label="Male character" data-i18n-aria-label="character.male" aria-pressed="false">
           <span class="character-sprite character-sprite-male" aria-hidden="true"></span>
         </button>
       </div>
       <dialog id="imprint-overlay" class="imprint-panel" aria-labelledby="imprint-title">
         <div class="dialog-content">
-          <h1 id="imprint-title" tabindex="-1">Impressum</h1>
-          <button id="imprint-back-button" type="button">Zurück</button>
+          <h1 id="imprint-title" tabindex="-1" data-i18n="menu.imprint">Legal notice</h1>
+          <button id="imprint-back-button" type="button" data-i18n="common.back">Back</button>
         </div>
       </dialog>
     </main>
     <p id="level-load-status" class="level-load-status" role="status" aria-live="polite" hidden></p>
     <dialog id="credits-overlay" class="credits-panel" aria-labelledby="credits-title">
       <div class="dialog-content">
-        <h1 id="credits-title">Credits</h1>
+        <h1 id="credits-title" data-i18n="menu.credits">Credits</h1>
         <p>bla bla bla blub</p>
         <p>bla bla bla blub</p>
-        <button id="credits-back-button" type="button">Zurück</button>
+        <button id="credits-back-button" type="button" data-i18n="common.back">Back</button>
       </div>
     </dialog>
     <canvas id="canvas" width="1280" height="720"> </canvas>
     <div id="pause-screen" class="pause-screen" hidden>
-      <section class="pause-screen-content" aria-label="Spiel pausiert">
-        <h1>Pause</h1>
-        <p>Esc zum Fortsetzen</p>
-        <button id="pause-settings-button" type="button">Einstellungen</button>
-        <button id="pause-restart-button" type="button">Restart</button>
-        <button id="pause-main-menu-button" type="button">Hauptmenü</button>
+      <section class="pause-screen-content" aria-label="Game paused" data-i18n-aria-label="pause.label">
+        <h1 data-i18n="pause.title">Paused</h1>
+        <p data-i18n="pause.hint">Press Esc or P to resume</p>
+        <button id="pause-settings-button" type="button" data-i18n="menu.settings">Settings</button>
+        <button id="pause-restart-button" type="button" data-i18n="pause.restart">Restart</button>
+        <button id="pause-main-menu-button" type="button" data-i18n="common.mainMenu">Main menu</button>
       </section>
     </div>
     <dialog id="settings-overlay" class="settings-panel" aria-labelledby="settings-title">
       <div class="dialog-content">
-        <h1 id="settings-title" tabindex="-1">Einstellungen</h1>
-        <fieldset class="settings-audio">
-          <legend>Audio</legend>
-          <div class="audio-setting">
-            <label for="master-volume">Gesamtlautstärke</label>
-            <span class="audio-setting-control">
-              <button id="audio-mute-button" class="audio-mute-button" type="button" aria-label="Ton ausschalten" aria-pressed="false">
-                <svg data-muted-icon viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
-                  <path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
-                </svg>
-                <svg data-unmuted-icon viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
-                  <path d="M16 9a5 5 0 0 1 0 6m2-9a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
-                </svg>
-              </button>
-              <input id="master-volume" type="range" min="0" max="100" step="1" value="100" />
-              <output id="master-volume-value" for="master-volume">100%</output>
-            </span>
+        <h1 id="settings-title" tabindex="-1" data-i18n="menu.settings">Settings</h1>
+        <div class="settings-tabs" role="tablist" aria-label="Settings" data-i18n-aria-label="menu.settings">
+          <button id="settings-tab-audio" class="settings-tab" type="button" role="tab" aria-selected="true" aria-controls="settings-panel-audio" data-i18n="settings.audio">Audio</button>
+          <button id="settings-tab-controls" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-controls" tabindex="-1" data-i18n="settings.controls">Controls</button>
+          <button id="settings-tab-general" class="settings-tab" type="button" role="tab" aria-selected="false" aria-controls="settings-panel-general" tabindex="-1" data-i18n="settings.general">General</button>
+        </div>
+        <div class="settings-panels">
+          <div id="settings-panel-audio" role="tabpanel" aria-labelledby="settings-tab-audio">
+            <fieldset class="settings-audio">
+              <legend data-i18n="settings.audio">Audio</legend>
+              <div class="audio-setting">
+                <label for="master-volume" data-i18n="audio.master">Master volume</label>
+                <span class="audio-setting-control">
+                  <button id="audio-mute-button" class="audio-mute-button" type="button" aria-label="Mute audio" aria-pressed="false">
+                    <svg data-muted-icon viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
+                      <path d="m16 9 5 6m0-6-5 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                    </svg>
+                    <svg data-unmuted-icon viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M3 9v6h4l5 4V5L7 9H3Z" fill="currentColor" />
+                      <path d="M16 9a5 5 0 0 1 0 6m2-9a9 9 0 0 1 0 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" />
+                    </svg>
+                  </button>
+                  <input id="master-volume" type="range" min="0" max="100" step="1" value="100" />
+                  <output id="master-volume-value" for="master-volume">100%</output>
+                </span>
+              </div>
+              <div class="audio-setting">
+                <label for="music-volume" data-i18n="audio.music">Music</label>
+                <span class="audio-setting-control">
+                  <input id="music-volume" type="range" min="0" max="100" step="1" value="100" />
+                  <output id="music-volume-value" for="music-volume">100%</output>
+                </span>
+              </div>
+              <div class="audio-setting">
+                <label for="sound-effects-volume" data-i18n="audio.sfx">Sound effects</label>
+                <span class="audio-setting-control">
+                  <input id="sound-effects-volume" type="range" min="0" max="100" step="1" value="100" />
+                  <output id="sound-effects-volume-value" for="sound-effects-volume">100%</output>
+                </span>
+              </div>
+            </fieldset>
           </div>
-          <div class="audio-setting">
-            <label for="music-volume">Musik</label>
-            <span class="audio-setting-control">
-              <input id="music-volume" type="range" min="0" max="100" step="1" value="100" />
-              <output id="music-volume-value" for="music-volume">100%</output>
-            </span>
+          <div id="settings-panel-controls" role="tabpanel" aria-labelledby="settings-tab-controls" hidden>
+            <fieldset class="controls-list">
+              <legend data-i18n="controls.keyboard">Keyboard</legend>
+              <dl>
+                <div class="control-row">
+                  <dt data-i18n="controls.move">Move</dt>
+                  <dd><kbd>A</kbd><kbd>D</kbd><span data-i18n="controls.or">or</span><kbd aria-label="Left arrow" data-i18n-aria-label="controls.arrowLeft">←</kbd><kbd aria-label="Right arrow" data-i18n-aria-label="controls.arrowRight">→</kbd></dd>
+                </div>
+                <div class="control-row">
+                  <dt data-i18n="controls.run">Run</dt>
+                  <dd><kbd>Shift</kbd><span data-i18n="controls.holdMove">hold while moving</span></dd>
+                </div>
+                <div class="control-row">
+                  <dt data-i18n="controls.jump">Jump</dt>
+                  <dd><kbd>W</kbd><span data-i18n="controls.or">or</span><kbd data-i18n="controls.space">Space</kbd><span data-i18n="controls.or">or</span><kbd aria-label="Up arrow" data-i18n-aria-label="controls.arrowUp">↑</kbd></dd>
+                </div>
+                <div class="control-row">
+                  <dt data-i18n="controls.attack">Attack</dt>
+                  <dd><kbd>J</kbd><span data-i18n="controls.or">or</span><kbd>X</kbd></dd>
+                </div>
+                <div class="control-row">
+                  <dt data-i18n="controls.special">Special attack</dt>
+                  <dd><kbd>K</kbd><span data-i18n="controls.or">or</span><kbd>C</kbd></dd>
+                  <dd class="control-hint" data-i18n="controls.specialHint">needs 5 coins</dd>
+                </div>
+                <div class="control-row">
+                  <dt data-i18n="controls.pause">Pause</dt>
+                  <dd><kbd>Esc</kbd><span data-i18n="controls.or">or</span><kbd>P</kbd></dd>
+                </div>
+              </dl>
+            </fieldset>
           </div>
-          <div class="audio-setting">
-            <label for="sound-effects-volume">Soundeffekte</label>
-            <span class="audio-setting-control">
-              <input id="sound-effects-volume" type="range" min="0" max="100" step="1" value="100" />
-              <output id="sound-effects-volume-value" for="sound-effects-volume">100%</output>
-            </span>
+          <div id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general" hidden>
+            <fieldset id="display-settings" class="settings-display">
+              <legend data-i18n="settings.display">Display</legend>
+              <div class="display-setting">
+                <label for="screen-mode" data-i18n="settings.screen">Screen</label>
+                <select id="screen-mode">
+                  <option value="window" data-i18n="settings.windowed">Windowed</option>
+                  <option value="fullscreen" data-i18n="settings.fullscreen">Fullscreen</option>
+                </select>
+              </div>
+            </fieldset>
+            <fieldset class="settings-language">
+              <legend data-i18n="settings.language">Language</legend>
+              <div class="display-setting">
+                <label for="language-select" data-i18n="settings.languageLabel">Game language</label>
+                <select id="language-select">
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </div>
+            </fieldset>
           </div>
-        </fieldset>
-        <fieldset id="display-settings" class="settings-display">
-          <legend>Anzeige</legend>
-          <div class="display-setting">
-            <label for="screen-mode">Bildschirm</label>
-            <select id="screen-mode">
-              <option value="window">Fenster</option>
-              <option value="fullscreen">Vollbild</option>
-            </select>
-          </div>
-        </fieldset>
-        <button id="settings-back-button" type="button">Zurück</button>
+        </div>
+        <button id="settings-back-button" type="button" data-i18n="common.back">Back</button>
       </div>
     </dialog>
     <div id="game-over" class="game-over" hidden>
-      <section class="game-over-screen" aria-label="Game Over">
+      <section class="game-over-screen" aria-label="Game over" data-i18n-aria-label="gameOver.label">
         <canvas id="game-over-character" width="1280" height="720" aria-hidden="true"></canvas>
         <div class="game-over-actions">
-          <button id="restart-button" type="button">Erneut spielen</button>
-          <button id="main-menu-button" type="button">Hauptmenü</button>
+          <button id="restart-button" type="button" data-i18n="gameOver.restart">Play again</button>
+          <button id="main-menu-button" type="button" data-i18n="common.mainMenu">Main menu</button>
         </div>
       </section>
     </div>
     <div id="victory-screen" class="victory-screen" hidden>
       <section class="victory-screen-content" aria-labelledby="victory-title">
-        <h1 id="victory-title">SIEG!</h1>
+        <h1 id="victory-title" data-i18n="victory.title">VICTORY!</h1>
         <dl class="victory-screen-stats">
           <div>
-            <dt>Spielzeit</dt>
+            <dt data-i18n="victory.time">Play time</dt>
             <dd id="victory-play-time">00:00:000</dd>
           </div>
           <div>
-            <dt>Münzen</dt>
+            <dt data-i18n="coins">Coins</dt>
             <dd id="victory-coins">0</dd>
           </div>
           <div>
-            <dt>Besiegte Gegner</dt>
+            <dt data-i18n="victory.defeated">Enemies defeated</dt>
             <dd id="victory-defeated-enemies">0</dd>
           </div>
         </dl>
         <div class="victory-screen-actions">
-          <button id="victory-restart-button" class="victory-restart-button" type="button">Nochmal spielen</button>
-          <button id="victory-main-menu-button" type="button">Hauptmenü</button>
-          <button id="victory-credits-button" type="button">Credits</button>
+          <button id="victory-restart-button" class="victory-restart-button" type="button" data-i18n="victory.again">Play again</button>
+          <button id="victory-main-menu-button" type="button" data-i18n="common.mainMenu">Main menu</button>
+          <button id="victory-credits-button" type="button" data-i18n="menu.credits">Credits</button>
         </div>
       </section>
     </div>
     <div id="screen-transition" aria-hidden="true"></div>
+    <section class="orientation-hint" aria-labelledby="orientation-hint-title">
+      <svg class="orientation-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="7" y="2" width="10" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M11 18.5h2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" />
+      </svg>
+      <h1 id="orientation-hint-title" data-i18n="orientation.title">Please rotate your device</h1>
+      <p data-i18n="orientation.text">The game can only be played in landscape mode.</p>
+    </section>
 
     <script src="assets/js/lib/howler.js"></script>
+    <script type="module">
+      import { setupTranslation } from "./assets/js/translation.js";
+      setupTranslation();
+    </script>
     <script type="module" src="script.js"></script>
   </body>
 </html>

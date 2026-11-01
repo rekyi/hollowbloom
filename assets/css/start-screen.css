@@ -74,11 +74,12 @@
     left: 3%;
     z-index: 1;
     width: min(30%, 13.125rem);
+    min-width: max-content;
     transform: translateY(-50%);
 
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: clamp(0.5rem, 4dvh, 1.5rem);
 }
 
 .character-choices {

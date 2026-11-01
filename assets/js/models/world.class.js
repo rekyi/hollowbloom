@@ -6,6 +6,7 @@ import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";
 import { applyMusicVolume } from "../audio.js";
+import { translate } from "../translation.js";
 import { WorldRendering } from "./world-rendering.class.js";
 
 const READY_DURATION_MS = 1500;
@@ -52,7 +53,7 @@ export class World extends WorldRendering {
       this.isLevelLoading = false;
     } catch (error) {
       console.error(error);
-      alert("Das nächste Level konnte nicht geladen werden. Bitte die Seite neu laden.");
+      alert(translate("message.nextLevelLoadFailed"));
     }
   }
 
