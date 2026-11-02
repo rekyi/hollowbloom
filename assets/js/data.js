@@ -134,12 +134,12 @@ export const VERDAN_SETTINGS = {
 };
 
 export const HIT_FEEDBACK = {
-  hit: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 60 },
-  kill: { shakeMagnitude: 9, shakeDurationMs: 220, hitStopMs: 80 },
-  special: { shakeMagnitude: 10, shakeDurationMs: 220, hitStopMs: 80 },
-  playerHit: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 60 },
-  bossKill: { shakeMagnitude: 16, shakeDurationMs: 450, hitStopMs: 120 },
-  bossRoar: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 0 },
+  hit: { shakeMagnitude: 15, shakeDurationMs: 180, hitStopMs: 60 },
+  kill: { shakeMagnitude: 12, shakeDurationMs: 220, hitStopMs: 80 },
+  special: { shakeMagnitude: 18, shakeDurationMs: 220, hitStopMs: 80 },
+  playerHit: { shakeMagnitude: 10, shakeDurationMs: 180, hitStopMs: 60 },
+  bossKill: { shakeMagnitude: 20, shakeDurationMs: 450, hitStopMs: 120 },
+  bossRoar: { shakeMagnitude: 9, shakeDurationMs: 180, hitStopMs: 0 },
 };
 
 export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");

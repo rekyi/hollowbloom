@@ -10,6 +10,10 @@ const VIEWPORT_WIDTH = CANVAS_WIDTH / CAMERA_ZOOM;
 const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
 const BACKGROUND_COLOR = "#000";
 const CAMERA_SMOOTHING_Y = 0.1;
+const SHAKE_NOISE_HZ = 40;
+const SHAKE_NOISE_Y_SEED = 57;
+const SHAKE_KICK_MS = 90;
+const SHAKE_KICK_FACTOR = 0.8;
 const BEHIND_ENTITIES_LAYERS = ["Background.png", "Deco_Hazard.png", "Hills.png"];
 const FRONT_LAYERS = ["Ground.png", "Platforms.png", "Hanging.png"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
@@ -41,15 +45,31 @@ export class WorldRendering extends WorldLogic {
   }
 
   getShakeOffset() {
-    const shakeElapsed = gameLoop.now() - this.shakeStartedAt;
+    const elapsedMs = performance.now() - this.shakeStartedAt;
     const { shakeDurationMs, shakeMagnitude } = this.activeShake;
-    const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < shakeDurationMs;
-    if (!isShaking) return { x: 0, y: 0 };
-    const shakeIntensity = 1 - shakeElapsed / shakeDurationMs;
+    if (!(elapsedMs >= 0 && elapsedMs < shakeDurationMs)) return { x: 0, y: 0 };
+    const intensity = shakeMagnitude * (1 - elapsedMs / shakeDurationMs) ** 2;
     return {
-      x: Math.round(Math.sin(shakeElapsed * 0.08) * shakeMagnitude * shakeIntensity),
-      y: Math.round(Math.cos(shakeElapsed * 0.11) * shakeMagnitude * 0.5 * shakeIntensity),
+      x: Math.round(this.getShakeNoise(elapsedMs, 0) * intensity + this.getShakeKick(elapsedMs, shakeMagnitude)),
+      y: Math.round(this.getShakeNoise(elapsedMs, SHAKE_NOISE_Y_SEED) * intensity * 0.5),
     };
+  }
+
+  getShakeKick(elapsedMs, magnitude) {
+    const kickIntensity = Math.max(0, 1 - elapsedMs / SHAKE_KICK_MS) ** 2;
+    return this.shakeDirection * magnitude * SHAKE_KICK_FACTOR * kickIntensity;
+  }
+
+  getShakeNoise(elapsedMs, seed) {
+    const position = (elapsedMs * SHAKE_NOISE_HZ) / 1000 + seed;
+    const index = Math.floor(position);
+    const start = this.getNoiseValue(index);
+    return start + (this.getNoiseValue(index + 1) - start) * (position - index);
+  }
+
+  getNoiseValue(index) {
+    const value = Math.sin((index + this.shakeSeed) * 12.9898) * 43758.5453;
+    return (value - Math.floor(value)) * 2 - 1;
   }
 
   drawScene(offsetX, offsetY) {

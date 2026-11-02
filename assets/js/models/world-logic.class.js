@@ -21,6 +21,8 @@ export class WorldLogic {
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   activeShake = HIT_FEEDBACK.hit;
+  shakeDirection = 0;
+  shakeSeed = 0;
   timerStartMs = null;
   timerStopMs = null;
   defeatedEnemies = 0;
@@ -189,7 +191,7 @@ export class WorldLogic {
     if (!this.character.hitByEnemy(source)) return;
     this.statusBar.setHearts(this.character.hp);
     source.isAttackHitRegistered = true;
-    this.triggerHitFeedback("playerHit");
+    this.triggerHitFeedback("playerHit", this.character.knockbackDirection);
   }
 
   updateBossEffects(dt) {
@@ -224,11 +226,13 @@ export class WorldLogic {
     this.level.enemies.find((enemy) => enemy.isFinalBoss)?.handleDebugKey?.(code);
   }
 
-  triggerHitFeedback(type) {
+  triggerHitFeedback(type, direction = 0) {
     const feedback = HIT_FEEDBACK[type];
     if (feedback.hitStopMs > 0) gameLoop.hitStop(feedback.hitStopMs);
     this.activeShake = feedback;
-    this.shakeStartedAt = gameLoop.now();
+    this.shakeDirection = direction;
+    this.shakeSeed = Math.random() * 1000;
+    this.shakeStartedAt = performance.now();
   }
 
   hitboxesOverlap(a, b) {

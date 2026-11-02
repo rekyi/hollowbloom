@@ -4,6 +4,9 @@ import { ENTITY_SCALE } from "../data.js";
 import { DrawableObject } from "./drawable-object.class.js";
 import { hasGroundBelow, moveX, moveY } from "./tile-collision.js";
 
+const HIT_JITTER_MS = 120;
+const HIT_JITTER_PX = 3;
+
 export class MoveableObject extends DrawableObject {
   speed = 0.15;
   isOppositeDirection = false;
@@ -18,6 +21,7 @@ export class MoveableObject extends DrawableObject {
   attackHitStartFrame = 2;
   attackHitEndFrame = Number.POSITIVE_INFINITY;
   hitFlashUntil = Number.NEGATIVE_INFINITY;
+  hitJitterUntilMs = Number.NEGATIVE_INFINITY;
 
   scaleOffset(offset, scale = ENTITY_SCALE) {
     return Object.fromEntries(Object.entries(offset).map(([side, value]) => [side, value * scale]));
@@ -96,9 +100,18 @@ export class MoveableObject extends DrawableObject {
     return !hasGroundBelow(this, this.world.level);
   }
 
+  startHitJitter() {
+    this.hitJitterUntilMs = performance.now() + HIT_JITTER_MS;
+  }
+
+  getHitJitter() {
+    return Math.round((Math.random() * 2 - 1) * HIT_JITTER_PX);
+  }
+
   draw(ctx) {
     ctx.save();
     if (gameLoop.now() < this.hitFlashUntil) ctx.filter = "brightness(0) invert(1)";
+    if (performance.now() < this.hitJitterUntilMs) ctx.translate(this.getHitJitter(), 0);
     super.draw(ctx);
     ctx.restore();
   }
