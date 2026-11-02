@@ -3,6 +3,7 @@ import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
 import { HIT_FEEDBACK } from "../data.js";
+import { isScreenShakeEnabled } from "../screen-shake.js";
 import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
 
@@ -229,6 +230,10 @@ export class WorldLogic {
   triggerHitFeedback(type, direction = 0) {
     const feedback = HIT_FEEDBACK[type];
     if (feedback.hitStopMs > 0) gameLoop.hitStop(feedback.hitStopMs);
+    if (isScreenShakeEnabled()) this.startShake(feedback, direction);
+  }
+
+  startShake(feedback, direction) {
     this.activeShake = feedback;
     this.shakeDirection = direction;
     this.shakeSeed = Math.random() * 1000;

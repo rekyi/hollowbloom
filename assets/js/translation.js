@@ -31,6 +31,10 @@ const TEXTS = {
   "settings.screen": { en: "Screen", de: "Bildschirm" },
   "settings.windowed": { en: "Windowed", de: "Fenster" },
   "settings.fullscreen": { en: "Fullscreen", de: "Vollbild" },
+  "settings.effects": { en: "Effects", de: "Effekte" },
+  "settings.screenShake": { en: "Screen shake", de: "Bildschirmwackeln" },
+  "settings.on": { en: "On", de: "An" },
+  "settings.off": { en: "Off", de: "Aus" },
   "settings.language": { en: "Language", de: "Sprache" },
   "settings.languageLabel": { en: "Game language", de: "Spielsprache" },
 
