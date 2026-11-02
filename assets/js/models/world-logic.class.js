@@ -16,6 +16,7 @@ export class WorldLogic {
   keyboard;
   cameraX = 0;
   cameraY = 0;
+  cameraLookAhead = 0;
   spawnPoint;
   activeCheckpoint = null;
   isCollisionOverlayVisible = false;

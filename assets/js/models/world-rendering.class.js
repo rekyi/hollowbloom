@@ -9,7 +9,10 @@ const CAMERA_ZOOM = 1;
 const VIEWPORT_WIDTH = CANVAS_WIDTH / CAMERA_ZOOM;
 const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
 const BACKGROUND_COLOR = "#000";
+const CAMERA_SMOOTHING_X = 0.12;
 const CAMERA_SMOOTHING_Y = 0.1;
+const CAMERA_LOOK_AHEAD_PX = 100;
+const CAMERA_LOOK_AHEAD_SMOOTHING = 0.04;
 const SHAKE_NOISE_HZ = 40;
 const SHAKE_NOISE_Y_SEED = 57;
 const SHAKE_KICK_MS = 90;
@@ -26,12 +29,22 @@ export class WorldRendering extends WorldLogic {
 
   updateCamera(isInstant = false) {
     const { x, y, width, height } = this.character;
+    this.updateCameraLookAhead(isInstant);
     const maxCameraX = Math.max(0, this.level.width - VIEWPORT_WIDTH);
     const maxCameraY = Math.max(0, this.level.height - VIEWPORT_HEIGHT);
-    const targetX = Math.min(Math.max(x + width / 2 - VIEWPORT_WIDTH / 2, 0), maxCameraX);
+    const targetX = Math.min(Math.max(x + width / 2 + this.cameraLookAhead - VIEWPORT_WIDTH / 2, 0), maxCameraX);
     const targetY = Math.min(Math.max(y + height / 2 - VIEWPORT_HEIGHT / 2, 0), maxCameraY);
-    this.cameraX = -targetX;
-    this.cameraY = isInstant ? -targetY : this.cameraY + (-targetY - this.cameraY) * CAMERA_SMOOTHING_Y;
+    this.cameraX = this.getSmoothedValue(this.cameraX, -targetX, CAMERA_SMOOTHING_X, isInstant);
+    this.cameraY = this.getSmoothedValue(this.cameraY, -targetY, CAMERA_SMOOTHING_Y, isInstant);
+  }
+
+  updateCameraLookAhead(isInstant) {
+    const targetLookAhead = this.character.isOppositeDirection ? -CAMERA_LOOK_AHEAD_PX : CAMERA_LOOK_AHEAD_PX;
+    this.cameraLookAhead = this.getSmoothedValue(this.cameraLookAhead, targetLookAhead, CAMERA_LOOK_AHEAD_SMOOTHING, isInstant);
+  }
+
+  getSmoothedValue(current, target, smoothing, isInstant) {
+    return isInstant ? target : current + (target - current) * smoothing;
   }
 
   draw() {
