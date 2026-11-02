@@ -17,6 +17,8 @@ const SHAKE_NOISE_HZ = 40;
 const SHAKE_NOISE_Y_SEED = 57;
 const SHAKE_KICK_MS = 90;
 const SHAKE_KICK_FACTOR = 0.8;
+const DAMAGE_FLASH_MAX_ALPHA = 0.3;
+const DAMAGE_FLASH_INNER_RADIUS = CANVAS_HEIGHT * 0.4;
 const BEHIND_ENTITIES_LAYERS = ["Background.png", "Deco_Hazard.png", "Hills.png"];
 const FRONT_LAYERS = ["Ground.png", "Platforms.png", "Hanging.png"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
@@ -52,9 +54,26 @@ export class WorldRendering extends WorldLogic {
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     this.drawScene(this.cameraX + shake.x, this.cameraY + shake.y);
+    this.drawDamageFlash();
     this.statusBar.draw(this.ctx);
     this.drawTimer();
     this.drawReadyMessage();
+  }
+
+  drawDamageFlash() {
+    const progress = (performance.now() - this.damageFlashStartedAt) / this.damageFlashDurationMs;
+    if (!(progress >= 0 && progress < 1)) return;
+    this.ctx.fillStyle = this.getDamageFlashGradient(DAMAGE_FLASH_MAX_ALPHA * (1 - progress) ** 2);
+    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  getDamageFlashGradient(alpha) {
+    const centerX = CANVAS_WIDTH / 2;
+    const centerY = CANVAS_HEIGHT / 2;
+    const gradient = this.ctx.createRadialGradient(centerX, centerY, DAMAGE_FLASH_INNER_RADIUS, centerX, centerY, Math.hypot(centerX, centerY));
+    gradient.addColorStop(0, "rgba(220, 0, 0, 0)");
+    gradient.addColorStop(1, `rgba(220, 0, 0, ${alpha})`);
+    return gradient;
   }
 
   getShakeOffset() {

@@ -139,7 +139,7 @@ export const HIT_FEEDBACK = {
   hit: { shakeMagnitude: 15, shakeDurationMs: 180, hitStopMs: 60, knockbackSpeed: 4 },
   kill: { shakeMagnitude: 12, shakeDurationMs: 220, hitStopMs: 80, knockbackSpeed: 10 },
   special: { shakeMagnitude: 18, shakeDurationMs: 220, hitStopMs: 80, knockbackSpeed: 7 },
-  playerHit: { shakeMagnitude: 10, shakeDurationMs: 180, hitStopMs: 60, knockbackSpeed: 3.5 },
+  playerHit: { shakeMagnitude: 10, shakeDurationMs: 180, hitStopMs: 60, knockbackSpeed: 3.5, damageFlashMs: 400 },
   bossKill: { shakeMagnitude: 20, shakeDurationMs: 450, hitStopMs: 120, knockbackSpeed: 0 },
   bossRoar: { shakeMagnitude: 9, shakeDurationMs: 180, hitStopMs: 0, knockbackSpeed: 0 },
 };

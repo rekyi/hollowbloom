@@ -25,6 +25,8 @@ export class WorldLogic {
   activeShake = HIT_FEEDBACK.hit;
   shakeDirection = 0;
   shakeSeed = 0;
+  damageFlashStartedAt = Number.NEGATIVE_INFINITY;
+  damageFlashDurationMs = 0;
   timerStartMs = null;
   timerStopMs = null;
   defeatedEnemies = 0;
@@ -231,7 +233,14 @@ export class WorldLogic {
   triggerHitFeedback(type, direction = 0) {
     const feedback = HIT_FEEDBACK[type];
     if (feedback.hitStopMs > 0) gameLoop.hitStop(feedback.hitStopMs);
-    if (isScreenShakeEnabled()) this.startShake(feedback, direction);
+    if (!isScreenShakeEnabled()) return;
+    this.startShake(feedback, direction);
+    if (feedback.damageFlashMs > 0) this.startDamageFlash(feedback.damageFlashMs);
+  }
+
+  startDamageFlash(durationMs) {
+    this.damageFlashDurationMs = durationMs;
+    this.damageFlashStartedAt = performance.now();
   }
 
   startShake(feedback, direction) {
