@@ -24,11 +24,12 @@ const BOAR_SETTINGS = {
   hitbox: { top: 25, right: 75, bottom: 4, left: 75 },
   attackHitbox: { top: 15, right: 8, bottom: 4, left: 59 },
   attackHitStartFrame: 6,
+  sfx: { hurt: "boarHurt", death: "boarDeath" },
   sprites: {
     idle: BOAR_SPRITES.walk,
     walk: BOAR_SPRITES.walk,
     run: getBoarSprite("run", 60),
-    attack: [{ ...getBoarSprite("attack_0", 46), hitStartFrame: 25 }],
+    attack: [{ ...getBoarSprite("attack_0", 46), hitStartFrame: 25, sfx: "boarAttack", sfxFrame: 11 }],
     hurt: [getBoarSprite("hurt_0", 8), getBoarSprite("hurt_1", 8), getBoarSprite("hurt_2", 8)],
     death: getBoarSprite("death", 29),
     frozen: getBoarSprite("frozen", 53),

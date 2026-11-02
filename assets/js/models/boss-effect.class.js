@@ -1,15 +1,20 @@
 import { gameLoop } from "./game-loop.class.js";
 import { DrawableObject } from "./drawable-object.class.js";
+import { playSfx } from "../sfx.js";
 
 const EMPTY_DAMAGE_SIZE = { width: 0, height: 0 };
 
 export class BossEffect extends DrawableObject {
   frames = [];
   pivot = { x: 0, y: 0 };
+  tipDistance = 0;
+  groundProbe = { getHitbox: () => this.getTipBox() };
   frameDuration = 0;
   damageFrames = null;
   damageSize = null;
   ring = null;
+  sound = null;
+  isSoundPlayed = false;
   speedX = 0;
   speedY = 0;
   gravity = 0;
@@ -21,7 +26,6 @@ export class BossEffect extends DrawableObject {
   isFinished = false;
   isAttackHitRegistered = false;
   onGroundHit = null;
-  drawHitbox = true;
 
   constructor(settings, frames, imageCache, { pivotX, pivotY, isLeft = false, isLooping = false, isRotating = false, isDestroyedOnGround = false, onGroundHit = null, speedX = 0, speedY = 0, gravity = 0 }) {
     super();
@@ -30,10 +34,12 @@ export class BossEffect extends DrawableObject {
     this.width = settings.width;
     this.height = settings.height;
     this.pivot = settings.pivot;
+    this.tipDistance = settings.tipDistance ?? 0;
     this.frameDuration = settings.frameDuration;
     this.damageFrames = settings.damageFrames ?? null;
     this.damageSize = settings.hitbox ?? null;
     this.ring = settings.ring ?? null;
+    this.sound = settings.sound ?? null;
     this.isOppositeDirection = isLeft;
     this.isLooping = isLooping;
     this.isRotating = isRotating;
@@ -60,6 +66,15 @@ export class BossEffect extends DrawableObject {
     return { x: this.x + this.getPivotOffsetX(), y: this.y + this.pivot.y };
   }
 
+  getTipBox() {
+    const pivotPoint = this.getPivotPoint();
+    const angle = Math.atan2(this.speedY, Math.abs(this.speedX));
+    const direction = this.isOppositeDirection ? -1 : 1;
+    const tipX = pivotPoint.x + direction * Math.cos(angle) * this.tipDistance;
+    const tipY = pivotPoint.y + Math.sin(angle) * this.tipDistance;
+    return { x: tipX - 1, y: tipY - 1, width: 2, height: 2 };
+  }
+
   handleGroundHit(groundY) {
     const origin = { x: this.getPivotPoint().x, y: groundY };
     this.onGroundHit?.({ origin, isLeft: this.isOppositeDirection });
@@ -74,10 +89,17 @@ export class BossEffect extends DrawableObject {
 
   updateFrame() {
     const frame = Math.floor((gameLoop.now() - this.startedAt) / this.frameDuration);
+    this.playSoundWhenDue(frame);
     this.isFinished = !this.isLooping && frame >= this.frames.length;
     if (this.isFinished) return;
     this.currentImage = frame % this.frames.length;
     this.img = this.imageCache[this.frames[this.currentImage]];
+  }
+
+  playSoundWhenDue(frame) {
+    if (!this.sound || this.isSoundPlayed || frame < this.sound.frame) return;
+    this.isSoundPlayed = true;
+    playSfx(this.sound.name, { volume: this.sound.volume });
   }
 
   isDamageActive() {
@@ -125,16 +147,5 @@ export class BossEffect extends DrawableObject {
     ctx.translate(pivotX, pivotY);
     ctx.rotate(Math.atan2(this.speedY, Math.abs(this.speedX)));
     ctx.translate(-pivotX, -pivotY);
-  }
-
-  drawFrame(ctx) {
-    if (!this.ring) return super.drawFrame(ctx);
-    if (!this.drawHitbox || this.isFinished) return;
-    const center = this.getPivotPoint();
-    ctx.beginPath();
-    ctx.lineWidth = this.ring.width;
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.arc(center.x, center.y, this.getRingRadius(), 0, Math.PI * 2);
-    ctx.stroke();
   }
 }

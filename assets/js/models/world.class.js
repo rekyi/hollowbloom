@@ -5,6 +5,7 @@ import { LEVEL_COUNT } from "../data.js";
 import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
 import { AudioError } from "./audio-error.class.js";
+import { playSfx } from "../sfx.js";
 import { applyMusicVolume } from "../audio.js";
 import { translate } from "../translation.js";
 import { WorldRendering } from "./world-rendering.class.js";
@@ -46,7 +47,9 @@ export class World extends WorldRendering {
 
   async loadNextLevel() {
     const nextLevelIndex = this.levelIndex + 1;
-    if (nextLevelIndex >= LEVEL_COUNT) return this.triggerVictory();
+    const isLastLevel = nextLevelIndex >= LEVEL_COUNT;
+    playSfx(this.level.keys.some((key) => key.isBossKey) ? "exitPortalBossLevel" : "exitPortalNormalLevel");
+    if (isLastLevel) return this.triggerVictory();
     this.isLevelLoading = true;
     try {
       this.enterLevel(await loadLevelAssets(nextLevelIndex), nextLevelIndex);

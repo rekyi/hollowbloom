@@ -90,7 +90,7 @@ export class CharacterVisuals extends CharacterCombat {
 
   drawWithLegs(ctx) {
     const { x, y, w, h } = this.legsArea;
-    const sourceScale = this.legsImg.width / 128; // legsArea ist in 128-px-Koordinaten, die Quell-Frames sind 140 px
+    const sourceScale = this.legsImg.width / 128;
     const legs = this.getLegsRect();
     ctx.save();
     this.clipOutRect(ctx, legs);

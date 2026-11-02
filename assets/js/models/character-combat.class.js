@@ -1,4 +1,5 @@
 import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD, HIT_FEEDBACK } from "../data.js";
+import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
 import { moveX } from "./tile-collision.js";
@@ -9,12 +10,13 @@ const ATTACK_BUFFER_MS = 150;
 
 export class CharacterCombat extends CharacterMovement {
   bufferedAttack = null;
+  attackSfxLeadTicks = 0;
+  extraAttackSfxLeadTicks = 0;
 
   attack() {
     this.updateState();
     if (this.bufferAttackWhileAttacking("attack")) return;
     if (!this.canPerformAction("attack")) return;
-    this.playAttackStartSfx();
     this.startAttack(this.IMAGES_ATTACK, this.attackDamageFrame, this.attackReach, "attack_1");
   }
 
@@ -64,6 +66,7 @@ export class CharacterCombat extends CharacterMovement {
 
   hitByHazard() {
     if (!this.applyDamage()) return false;
+    playSfx("spikesHit");
     this.speedY = HAZARD_BOUNCE_SPEED;
     this.updateState();
     return true;
@@ -73,6 +76,7 @@ export class CharacterCombat extends CharacterMovement {
     if (this.isDead() || this.isInvulnerable()) return false;
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.hit();
+    this.playHurtSfx();
     this.isAttacking = false;
     this.bufferedAttack = null;
     return true;
@@ -86,6 +90,7 @@ export class CharacterCombat extends CharacterMovement {
     this.isAttacking = false;
     this.bufferedAttack = null;
     this.hit();
+    this.playHurtSfx();
     this.invulnerableUntil = gameLoop.now() + 1000;
     this.updateState();
   }
@@ -108,8 +113,23 @@ export class CharacterCombat extends CharacterMovement {
     }
     this.img = this.imageCache[this.activeAttackImages[frame]];
     this.updateAttackLunge();
-    if (this.attackTick === this.getAttackDamageTick()) this.handleAttackDamageFrame();
+    if (this.attackTick === this.getAttackSfxTick()) this.playActiveAttackSfx();
+    if (this.attackTick === this.getAttackDamageTick()) this.damageEnemiesInReach();
     this.attackTick++;
+  }
+
+  getAttackSfxTick() {
+    const leadTicks = this.isExtraAttackActive() ? this.extraAttackSfxLeadTicks : this.attackSfxLeadTicks;
+    return Math.max(0, this.getAttackDamageTick() - leadTicks);
+  }
+
+  isExtraAttackActive() {
+    return this.activeAttackImages === this.IMAGES_EXTRA_ATTACK;
+  }
+
+  playActiveAttackSfx() {
+    if (this.isExtraAttackActive()) this.playExtraAttackSfx();
+    else this.playAttackSfx();
   }
 
   getAttackDamageTick() {
@@ -121,11 +141,6 @@ export class CharacterCombat extends CharacterMovement {
     if (this.attackTick >= damageTick) return;
     const direction = this.isOppositeDirection ? -1 : 1;
     moveX(this, this.world.level, (direction * this.attackLunge) / damageTick);
-  }
-
-  handleAttackDamageFrame() {
-    if (this.activeAttackImages === this.IMAGES_EXTRA_ATTACK) this.playExtraAttackSfx();
-    this.damageEnemiesInReach();
   }
 
   finishAttack() {
@@ -149,6 +164,7 @@ export class CharacterCombat extends CharacterMovement {
     const type = this.getHitFeedbackType(enemy);
     const direction = this.isOppositeDirection ? -1 : 1;
     enemy.startHitJitter();
+    playSfx("impactHit");
     if (!enemy.isFinalBoss) enemy.startKnockback(direction, HIT_FEEDBACK[type].knockbackSpeed);
     this.world.triggerHitFeedback(type, direction);
   }
@@ -156,7 +172,7 @@ export class CharacterCombat extends CharacterMovement {
   getHitFeedbackType(enemy) {
     if (enemy.isFinalBoss && enemy.isDead()) return "bossKill";
     if (enemy.isDead()) return "kill";
-    return this.activeAttackImages === this.IMAGES_EXTRA_ATTACK ? "special" : "hit";
+    return this.isExtraAttackActive() ? "special" : "hit";
   }
 
   getReach(box) {

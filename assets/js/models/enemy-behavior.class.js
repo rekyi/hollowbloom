@@ -41,7 +41,6 @@ export class EnemyBehavior extends MoveableObject {
   target = null;
   knockbackDirection = 0;
   knockbackSpeed = 0;
-  drawHitbox = true;
 
   setPosition(x, y, width, height, speed, minX, maxX) {
     if (!this.spawnArgs) this.spawnArgs = [x, y, width, height, speed, minX, maxX];

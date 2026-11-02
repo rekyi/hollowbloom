@@ -14,13 +14,14 @@ const DARK_ELF_SETTINGS = {
   hitbox: { top: 25, right: 46, bottom: 4, left: 46 },
   attackHitbox: { top: 36, right: 16, bottom: 4, left: 30 },
   attackHitStartFrame: 3,
+  sfx: { hurt: "darkElfHurt", death: "darkElfDeath" },
   sprites: {
     idle: getDarkElfSprite("idle", 12),
     walk: getDarkElfSprite("walk", 13),
     run: getDarkElfSprite("run", 9),
     attack: [
-      { ...getDarkElfSprite("attack_0", 14), hitStartFrame: 7, weight: 3 },
-      { ...getDarkElfSprite("attack_1", 20), hitStartFrame: 6, weight: 2 },
+      { ...getDarkElfSprite("attack_0", 14), hitStartFrame: 7, weight: 3, sfx: "darkElfAttack0", sfxFrame: 5 },
+      { ...getDarkElfSprite("attack_1", 20), hitStartFrame: 6, weight: 2, sfx: "darkElfAttack1", sfxFrame: 0 },
     ],
     hurt: [getDarkElfSprite("hurt_0", 5), getDarkElfSprite("hurt_1", 5), getDarkElfSprite("hurt_2", 5)],
     death: getDarkElfSprite("death", 10),

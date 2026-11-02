@@ -1,9 +1,11 @@
 import { gameLoop } from "./game-loop.class.js";
 import { VerdanHealth } from "./verdan-health.class.js";
+import { playSfx } from "../sfx.js";
 
 const WALK_STOP_DISTANCE = 150;
 const FACE_DEAD_ZONE = 8;
 const INTRO_IDLE = 1500;
+const AGGRO_DISTANCE = 600;
 const IDLE_DURATION = { normal: [800, 1200], rage: [400, 700] };
 const WALK_CYCLES = [1, 2];
 const ROOTS_MAX_DISTANCE = { normal: 295, rage: 355 };
@@ -17,7 +19,9 @@ export class VerdanBoss extends VerdanHealth {
   arena = null;
   idleDuration = INTRO_IDLE;
   walkDuration = 0;
+  lastStepFrame = -1;
   rageAttackCount = 0;
+  isAggro = false;
 
   constructor() {
     super();
@@ -29,6 +33,7 @@ export class VerdanBoss extends VerdanHealth {
   }
 
   updateBoss() {
+    this.updateAggroLoss();
     if (this.state === "death") this.playDeath();
     else if (this.state === "transition") this.playTransition();
     else if (this.state === "hurt") this.playHurt();
@@ -41,11 +46,37 @@ export class VerdanBoss extends VerdanHealth {
   updateIdle() {
     this.faceTarget(this.getTargetOffsetX());
     this.playLoop(this.IMAGES_IDLE, this.getPhaseSettings("idle").frameDuration);
+    this.updateAggro();
     if (this.isIdleFinished()) this.selectAttack();
   }
 
+  updateAggroLoss() {
+    const isBusy = this.state === "death" || this.state === "transition";
+    if (!this.isAggro || isBusy || this.isTargetInAggroRange(this.getTargetOffsetX())) return;
+    this.isAggro = false;
+    this.pendingCombo = null;
+  }
+
+  resetAggro() {
+    if (this.state === "death" || this.state === "transition") return;
+    this.isAggro = false;
+    this.cancelAttacks();
+    if (this.state === "attack" || this.state === "walk") this.startIdle();
+  }
+
+  updateAggro() {
+    const isInRange = this.isTargetInAggroRange(this.getTargetOffsetX());
+    if (this.isAggro || !isInRange || !this.canChooseAttack()) return;
+    this.isAggro = true;
+    this.startAnimation("idle");
+  }
+
+  isTargetInAggroRange(offsetX) {
+    return Math.abs(offsetX) <= AGGRO_DISTANCE;
+  }
+
   isIdleFinished() {
-    return this.getElapsedTime() >= this.idleDuration && this.canChooseAttack();
+    return this.isAggro && this.getElapsedTime() >= this.idleDuration && this.canChooseAttack();
   }
 
   canChooseAttack() {
@@ -96,6 +127,7 @@ export class VerdanBoss extends VerdanHealth {
   startWalk(cycles) {
     const { frames, frameDuration } = this.getPhaseSettings("walk");
     this.walkDuration = cycles * frames * frameDuration;
+    this.lastStepFrame = -1;
     this.startAnimation("walk");
   }
 
@@ -106,10 +138,17 @@ export class VerdanBoss extends VerdanHealth {
     if (this.isWalkFinished(offsetX, nextX)) return this.startIdle();
     this.x = nextX;
     this.playLoop(this.IMAGES_WALK, this.getPhaseSettings("walk").frameDuration);
+    this.playWalkStep();
+  }
+
+  playWalkStep() {
+    if (this.currentImage === this.lastStepFrame) return;
+    this.lastStepFrame = this.currentImage;
+    if (this.getPhaseSettings("walk").stepFrames.includes(this.currentImage)) playSfx("verdanWalk");
   }
 
   isWalkFinished(offsetX, nextX) {
-    return this.getElapsedTime() >= this.walkDuration || Math.abs(offsetX) <= WALK_STOP_DISTANCE || nextX === this.x;
+    return this.getElapsedTime() >= this.walkDuration || Math.abs(offsetX) <= WALK_STOP_DISTANCE || nextX === this.x || !this.isTargetInAggroRange(offsetX);
   }
 
   getTargetOffsetX() {

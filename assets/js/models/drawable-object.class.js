@@ -8,7 +8,6 @@ export class DrawableObject {
   height = 60;
   imageCache = {};
   currentImage = 0;
-  drawHitbox = false;
   isSpriteDirectionInverted = false;
 
   loadImage(path) {
@@ -77,15 +76,5 @@ export class DrawableObject {
       width: this.width - left - right,
       height: this.height - offset.top - offset.bottom,
     };
-  }
-
-  drawFrame(ctx) {
-    if (!this.drawHitbox) return;
-    const box = this.getHitbox();
-    ctx.beginPath();
-    ctx.lineWidth = "3";
-    ctx.strokeStyle = "white";
-    ctx.rect(box.x, box.y, box.width, box.height);
-    ctx.stroke();
   }
 }

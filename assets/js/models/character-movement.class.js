@@ -31,7 +31,7 @@ export class CharacterMovement extends CharacterBase {
       this.activeFootstepSfx = null;
       return;
     }
-    const soundName = key.SHIFT ? "running" : "walking";
+    const soundName = `${this.characterType}${key.SHIFT ? "Run" : "Walk"}`;
     const stepInterval = key.SHIFT ? 0.25 : 0.22;
     if (soundName !== this.activeFootstepSfx) {
       this.activeFootstepSfx = soundName;
@@ -109,6 +109,7 @@ export class CharacterMovement extends CharacterBase {
     this.coyoteUntil = Number.NEGATIVE_INFINITY;
     this.jumpBufferedUntil = Number.NEGATIVE_INFINITY;
     this.startJump();
+    playSfx("jumpStart");
     this.updateState();
   }
 

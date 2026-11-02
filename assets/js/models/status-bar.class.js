@@ -4,9 +4,9 @@ import { translate } from "../translation.js";
 
 export class StatusBar extends DrawableObject {
   IMAGES = {
-    BACKGROUND: "assets/images/7_statusbars/health_bar/background.png",
-    HEART: "assets/images/7_statusbars/health_bar/heart.png",
-    BORDER: "assets/images/7_statusbars/health_bar/border.png",
+    BACKGROUND: "assets/images/7_statusbars/health_bar/background.webp",
+    HEART: "assets/images/7_statusbars/health_bar/heart.webp",
+    BORDER: "assets/images/7_statusbars/health_bar/border.webp",
   };
   maxHearts = 3;
   hearts = 3;

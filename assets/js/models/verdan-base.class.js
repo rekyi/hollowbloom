@@ -1,6 +1,7 @@
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 import { VERDAN_SETTINGS } from "../data.js";
+import { playSfx } from "../sfx.js";
 
 const VERDAN_PATH = "assets/images/4_final_boss/verdan/verdan_";
 const VERDAN_FRAME_WIDTH = 360;
@@ -29,7 +30,7 @@ export class VerdanBase extends MoveableObject {
   animationStartedAt = 0;
   effectFrames = {};
   attackFrames = {};
-  drawHitbox = true;
+  playedSounds = new Set();
 
   constructor() {
     super();
@@ -73,6 +74,15 @@ export class VerdanBase extends MoveableObject {
   startAnimation(state) {
     this.state = state;
     this.animationStartedAt = gameLoop.now();
+    this.playedSounds.clear();
+  }
+
+  playSoundsAtFrame(sounds = [], frame) {
+    sounds.forEach((sound, index) => {
+      if (frame < sound.frame || this.playedSounds.has(index)) return;
+      this.playedSounds.add(index);
+      playSfx(sound.name, { volume: sound.volume });
+    });
   }
 
   playLoop(images, frameDuration) {

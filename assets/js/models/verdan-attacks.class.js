@@ -3,10 +3,6 @@ import { BossEffect } from "./boss-effect.class.js";
 import { VerdanBase } from "./verdan-base.class.js";
 import { VERDAN_SETTINGS } from "../data.js";
 
-const IS_DEBUG_ATTACK_ENABLED = false;
-const DEBUG_ATTACK_KEYS = { Digit1: "startRootsAttack", Digit2: "startBowAttack", Digit3: "startPulseAttack", Digit0: "spawnTestSpike", Digit9: "spawnTestArrow" };
-const TEST_ARROW_MOTION = { speedX: 375, speedY: -143, gravity: 255 };
-
 export class VerdanAttacks extends VerdanBase {
   currentAttack = null;
   pendingCombo = null;
@@ -35,6 +31,7 @@ export class VerdanAttacks extends VerdanBase {
     const frame = this.getElapsedFrame(settings.frameDuration);
     if (frame >= settings.frames) return this.finishAttack();
     this.setFrame(this.attackFrames[phaseKey], frame);
+    this.playSoundsAtFrame(settings.sounds, frame);
     if (frame >= settings.actionFrame) this.triggerAttackAction(settings);
   }
 
@@ -82,23 +79,5 @@ export class VerdanAttacks extends VerdanBase {
     this.spikeRow = null;
     this.pendingCombo = null;
     this.world?.clearBossEffects();
-  }
-
-  handleDebugKey(code) {
-    const action = DEBUG_ATTACK_KEYS[code];
-    if (!IS_DEBUG_ATTACK_ENABLED || !action || !this.canHandleDebugKey()) return;
-    this[action]();
-  }
-
-  canHandleDebugKey() {
-    return Boolean(this.world) && !this.isDead() && this.state !== "transition" && this.state !== "attack";
-  }
-
-  spawnTestSpike() {
-    this.spawnEffect("fxRootSpike", { spawn: VERDAN_SETTINGS.attackRoots.spawn });
-  }
-
-  spawnTestArrow() {
-    this.spawnEffect("fxSeedArrow", { ...TEST_ARROW_MOTION, spawn: VERDAN_SETTINGS.attackBow.spawn, isLooping: true, isRotating: true });
   }
 }

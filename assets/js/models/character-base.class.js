@@ -51,7 +51,6 @@ export class CharacterBase extends MoveableObject {
   knockbackDirection = 0;
   knockbackSpeed = 0;
   invulnerableUntil = 0;
-  drawHitbox = true;
 
   world;
   isDeathStarted = false;

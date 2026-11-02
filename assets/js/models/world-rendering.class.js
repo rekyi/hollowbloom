@@ -19,8 +19,8 @@ const SHAKE_KICK_MS = 90;
 const SHAKE_KICK_FACTOR = 0.8;
 const DAMAGE_FLASH_MAX_ALPHA = 0.3;
 const DAMAGE_FLASH_INNER_RADIUS = CANVAS_HEIGHT * 0.4;
-const BEHIND_ENTITIES_LAYERS = ["Background.png", "Deco_Hazard.png", "Hills.png"];
-const FRONT_LAYERS = ["Ground.png", "Platforms.png", "Hanging.png"];
+const BEHIND_ENTITIES_LAYERS = ["Background", "Deco_Hazard", "Hills", "Ground", "Platforms"];
+const FRONT_LAYERS = ["Hanging"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
 export class WorldRendering extends WorldLogic {
@@ -195,8 +195,6 @@ export class WorldRendering extends WorldLogic {
     } else {
       movableObject.draw(this.ctx);
     }
-
-    movableObject.drawFrame(this.ctx);
   }
 
   drawFlipped(movableObject) {

@@ -3,6 +3,12 @@ import { gameLoop } from "./game-loop.class.js";
 import { EnemyBehavior } from "./enemy-behavior.class.js";
 
 export class Enemy extends EnemyBehavior {
+  hurtSfx = null;
+  deathSfx = null;
+  attackSfx = null;
+  attackSfxFrame = 0;
+  isAttackSfxPlayed = false;
+
   isAttackFrameActive() {
     const displayedFrame = this.currentImage - 1;
     return this.isAttacking && this.currentAnimation === "attack" && displayedFrame >= this.attackHitStartFrame && displayedFrame <= this.attackHitEndFrame;
@@ -10,7 +16,8 @@ export class Enemy extends EnemyBehavior {
 
   hit() {
     if (!super.hit()) return false;
-    playSfx(this.isDead() ? "enemyDeath" : "enemyHit");
+    const sfxName = this.isDead() ? this.deathSfx : this.hurtSfx;
+    if (sfxName) playSfx(sfxName);
     return true;
   }
 
@@ -33,6 +40,7 @@ export class Enemy extends EnemyBehavior {
     if (gameLoop.now() < this.nextAttackAt) return;
     this.isAttacking = true;
     this.isAttackHitRegistered = false;
+    this.isAttackSfxPlayed = false;
     this.currentImage = 0;
     this.nextAttackAt = gameLoop.now() + this.attackCooldown;
   }
@@ -46,6 +54,14 @@ export class Enemy extends EnemyBehavior {
     const { state, images } = this.getAnimationState();
     this.switchAnimation(state);
     this.playStateAnimation(state, images);
+    if (state === "attack") this.playAttackSfxWhenDue();
+  }
+
+  playAttackSfxWhenDue() {
+    const displayedFrame = this.currentImage - 1;
+    if (this.isAttackSfxPlayed || !this.attackSfx || displayedFrame < this.attackSfxFrame) return;
+    this.isAttackSfxPlayed = true;
+    playSfx(this.attackSfx);
   }
 
   updateAttackFlag() {

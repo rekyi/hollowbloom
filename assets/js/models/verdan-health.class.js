@@ -13,7 +13,7 @@ export class VerdanHealth extends VerdanAttacks {
   hit() {
     if (this.state === "transition") return false;
     if (!super.hit()) return false;
-    playSfx("enemyHit");
+    if (!this.isDead()) playSfx("verdanHurt");
     this.handleHitReaction();
     return true;
   }
@@ -60,12 +60,14 @@ export class VerdanHealth extends VerdanAttacks {
     const frame = this.getElapsedFrame(frameDuration);
     if (frame >= this.IMAGES_TRANSITION.length) return this.enterRage();
     this.setFrame(this.IMAGES_TRANSITION, frame);
+    this.playSoundsAtFrame(VERDAN_SETTINGS.phaseTransition.sounds, frame);
     if (frame >= roarFrame) this.triggerRoarShake();
   }
 
   triggerRoarShake() {
     if (this.isRoarTriggered || !this.world) return;
     this.isRoarTriggered = true;
+    playSfx("verdanPhaseTransitionRoar");
     this.world.triggerHitFeedback("bossRoar");
   }
 
@@ -79,7 +81,6 @@ export class VerdanHealth extends VerdanAttacks {
   }
 
   startDeath() {
-    playSfx("finalBossDeath");
     this.cancelAttacks();
     this.startAnimation("death");
   }
@@ -87,6 +88,7 @@ export class VerdanHealth extends VerdanAttacks {
   playDeath() {
     const frame = this.getElapsedFrame(VERDAN_SETTINGS.death.frameDuration);
     this.setFrame(this.IMAGES_DEATH, Math.min(frame, this.IMAGES_DEATH.length - 1));
+    this.playSoundsAtFrame(VERDAN_SETTINGS.death.sounds, frame);
     this.isDeathAnimationFinished = frame >= this.IMAGES_DEATH.length;
   }
 }

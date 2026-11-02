@@ -14,12 +14,12 @@
 	],
 	"customFields" : {},
 	"layers": [
-		"Background.png",
-		"Platforms.png",
-		"Deco_Hazard.png",
-		"Hanging.png",
-		"Ground.png",
-		"Hills.png"
+		"Background.webp",
+		"Platforms.webp",
+		"Deco_Hazard.webp",
+		"Hanging.webp",
+		"Ground.webp",
+		"Hills.webp"
 	],
 	"entities": {
 		"Player": [

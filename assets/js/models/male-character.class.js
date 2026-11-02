@@ -4,6 +4,8 @@ import { CharacterVisuals } from "./character-visuals.class.js";
 export class MaleCharacter extends CharacterVisuals {
   characterType = "male";
   extraAttackType = "attack_3";
+  attackSfxLeadTicks = 2;
+  extraAttackSfxLeadTicks = 5;
 
   constructor(config = {}) {
     super();
@@ -16,11 +18,15 @@ export class MaleCharacter extends CharacterVisuals {
     this.gravity();
   }
 
-  playAttackStartSfx() {
+  playAttackSfx() {
     playSfx("maleAttack1");
   }
 
   playExtraAttackSfx() {
     playSfx("maleAttack3");
+  }
+
+  playHurtSfx() {
+    playSfx("maleHurt");
   }
 }

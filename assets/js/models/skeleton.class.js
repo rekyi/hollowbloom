@@ -16,14 +16,15 @@ const SKELETON_SETTINGS = {
   hitbox: { top: 35, right: 56, bottom: 9.4, left: 56 },
   attackHitbox: { top: 42, right: 35, bottom: 11.4, left: 46 },
   attackHitStartFrame: 8,
+  sfx: { hurt: "skeletonHurt", death: "skeletonDeath" },
   sprites: {
     idle: getSkeletonSprite("idle", 12),
     walk: getSkeletonSprite("walk", 20),
     run: getSkeletonSprite("run", 15),
     hurt: [getSkeletonSprite("hurt", 5)],
     attack: [
-      { ...getSkeletonSprite("attack_0", 62), hitStartFrame: 30 },
-      { ...getSkeletonSprite("attack_1", 64), hitStartFrame: 50 },
+      { ...getSkeletonSprite("attack_0", 62), hitStartFrame: 30, sfx: "skeletonAttack0", sfxFrame: 23 },
+      { ...getSkeletonSprite("attack_1", 64), hitStartFrame: 50, sfx: "skeletonAttack1", sfxFrame: 44 },
     ],
     death: getSkeletonSprite("death", 45),
     frozen: getSkeletonSprite("frozen", 30),

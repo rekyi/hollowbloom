@@ -9,6 +9,8 @@ import { startDeathScreenMusic, startStartScreenMusic, stopDeathScreenMusic, sto
 import { translate } from "./translation.js";
 
 const SCREEN_FADE_DURATION_MS = 350;
+const GAME_OVER_GROUND_RATIO = 0.81;
+const GAME_OVER_CHARACTER_SCALE = 2;
 let isScreenTransitioning = false;
 let isLevelLoading = false;
 
@@ -142,10 +144,13 @@ async function getVictoryCoinsText() {
 function drawGameOverCharacter() {
   const characterCanvasRef = document.getElementById("game-over-character");
   const characterContext = characterCanvasRef.getContext("2d");
-  const { img, width, height } = appState.world.character;
+  const { img } = appState.world.character;
+  const width = appState.world.character.width * GAME_OVER_CHARACTER_SCALE;
+  const height = appState.world.character.height * GAME_OVER_CHARACTER_SCALE;
   const x = (characterCanvasRef.width - width) / 2;
+  const y = characterCanvasRef.height * GAME_OVER_GROUND_RATIO - height;
   characterContext.clearRect(0, 0, characterCanvasRef.width, characterCanvasRef.height);
-  characterContext.drawImage(img, x, characterCanvasRef.height * 0.39, width, height);
+  characterContext.drawImage(img, x, y, width, height);
 }
 
 export function syncPauseScreen() {

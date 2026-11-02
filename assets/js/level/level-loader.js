@@ -8,6 +8,7 @@ import { LEVEL_COUNT } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
+const ANCIENT_KEY_TYPE = "Ancient";
 const levelAssetsPromises = new Map();
 
 export function loadLevelAssets(levelIndex) {
@@ -99,10 +100,14 @@ function isValidCell(value) {
   return Number.isInteger(value) && value >= 0;
 }
 
+function getLayerName(filename) {
+  return filename.replace(/\.[^.]+$/, "");
+}
+
 function loadLayerImage(filename, folderUrl) {
   return new Promise((resolve, reject) => {
     const image = new Image();
-    image.onload = () => resolve({ name: filename, image });
+    image.onload = () => resolve({ name: getLayerName(filename), image });
     image.onerror = () => reject(new Error(`Failed to load level layer: ${image.src}`));
     image.src = new URL(filename, folderUrl).href;
   });
@@ -130,7 +135,7 @@ function createChargeItem(entity) {
 }
 
 function createKey(entity) {
-  return new KeyItem(getEntityBox(entity));
+  return new KeyItem(getEntityBox(entity), entity.customFields?.type === ANCIENT_KEY_TYPE);
 }
 
 function createExit(entity) {

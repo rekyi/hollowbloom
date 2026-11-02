@@ -76,7 +76,6 @@ export class MoveableObject extends DrawableObject {
 
   startJump() {
     this.speedY = this.jumpSpeed;
-    playSfx("jumpingBefore");
   }
 
   gravity() {
@@ -90,7 +89,7 @@ export class MoveableObject extends DrawableObject {
       this.speedY -= this.getGravity();
       return;
     }
-    if (this.speedY < 0 && wasAboveGround) playSfx("jumpingAfter");
+    if (this.speedY < 0 && wasAboveGround) playSfx("jumpLand");
     this.speedY = 0;
   }
 

@@ -2,7 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
-import { HIT_FEEDBACK } from "../data.js";
+import { EXTRA_ATTACK_COIN_THRESHOLD, HIT_FEEDBACK } from "../data.js";
 import { isScreenShakeEnabled } from "../screen-shake.js";
 import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
@@ -74,11 +74,13 @@ export class WorldLogic {
   activateCheckpoint(checkpoint) {
     this.activeCheckpoint = checkpoint;
     this.spawnPoint = getPlacementOnEntity(this.character, checkpoint);
+    playSfx("checkpointReached");
   }
 
   checkFall() {
     if (this.character.isDead() || this.character.y <= this.level.height) return;
     this.character.respawn(this.spawnPoint);
+    this.level.enemies.find((enemy) => enemy.isFinalBoss)?.resetAggro();
     this.statusBar.setHearts(this.character.hp);
     this.updateCamera(true);
     this.triggerHitFeedback("playerHit");
@@ -92,6 +94,7 @@ export class WorldLogic {
       item.isCollected = true;
       playSfx("coinCollect");
       this.character.collectCoin();
+      if (this.character.coins === EXTRA_ATTACK_COIN_THRESHOLD) playSfx("specialAttackUnlocked");
       this.statusBar.setCoins(this.character.coins);
     });
   }
@@ -103,6 +106,7 @@ export class WorldLogic {
     if (!touchedKey) return;
     touchedKey.isCollected = true;
     this.hasKey = true;
+    playSfx(touchedKey.isBossKey ? "ancientKeyPickup" : "keyPickup");
   }
 
   isExitOpen() {
@@ -210,11 +214,11 @@ export class WorldLogic {
   }
 
   isBossEffectGrounded(effect) {
-    return effect.isDestroyedOnGround && isTouchingTile(effect, this.level, TILE_SOLID);
+    return effect.isDestroyedOnGround && isTouchingTile(effect.groundProbe, this.level, TILE_SOLID);
   }
 
   handleBossEffectGroundHit(effect) {
-    effect.handleGroundHit(getTouchedTileTop(effect, this.level, TILE_SOLID));
+    effect.handleGroundHit(getTouchedTileTop(effect.groundProbe, this.level, TILE_SOLID));
   }
 
   isOutsideLevel(object) {
@@ -224,10 +228,6 @@ export class WorldLogic {
 
   clearBossEffects() {
     this.level.bossEffects = [];
-  }
-
-  handleBossDebugKey(code) {
-    this.level.enemies.find((enemy) => enemy.isFinalBoss)?.handleDebugKey?.(code);
   }
 
   triggerHitFeedback(type, direction = 0) {

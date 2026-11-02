@@ -14,12 +14,12 @@
 	],
 	"customFields" : {},
 	"layers": [
-		"Background.png",
-		"Platforms.png",
-		"Deco_Hazard.png",
-		"Hanging.png",
-		"Ground.png",
-		"Hills.png"
+		"Background.webp",
+		"Platforms.webp",
+		"Deco_Hazard.webp",
+		"Hanging.webp",
+		"Ground.webp",
+		"Hills.webp"
 	],
 	"entities": {
 		"Exit": [
@@ -45,7 +45,9 @@
 				"width": 64,
 				"height": 64,
 				"color": 4073265,
-				"customFields" : {}
+				"customFields": {
+					"type": "Ancient"
+				}
 			}
 		],
 		"Coin": [

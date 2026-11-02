@@ -12,6 +12,8 @@ export class ConfigurableEnemy extends Enemy {
   attackHitStartFrames = [];
   attackWeights = [];
   attackBag = [];
+  attackSfxNames = [];
+  attackSfxFrames = [];
   recentAttackPicks = [];
   frozenAnimationInterval = 120;
   shockAnimationInterval = 120;
@@ -31,6 +33,10 @@ export class ConfigurableEnemy extends Enemy {
     this.IMAGES_ATTACK = this.attackAnimations[0] || [];
     this.IMAGES_HURT = this.hurtAnimations[0] || [];
     this.IMAGES_DEAD = this.loadAnimation(settings.sprites.death);
+    this.hurtSfx = settings.sfx?.hurt ?? null;
+    this.deathSfx = settings.sfx?.death ?? null;
+    this.attackSfxNames = (settings.sprites.attack ?? []).map((sprite) => sprite.sfx ?? null);
+    this.attackSfxFrames = (settings.sprites.attack ?? []).map((sprite) => sprite.sfxFrame ?? 0);
     this.IMAGES_FROZEN = this.loadAnimation(settings.sprites.frozen);
     this.IMAGES_SHOCK = this.loadAnimation(settings.sprites.shock);
     this.frozenAnimationInterval = settings.frozenAnimationInterval ?? (this.IMAGES_FROZEN.length ? FROZEN_DURATION_MS / this.IMAGES_FROZEN.length : this.animationInterval);
@@ -106,6 +112,8 @@ export class ConfigurableEnemy extends Enemy {
   selectAttackAnimation() {
     const variantIndex = this.pickAttackVariant();
     this.IMAGES_ATTACK = this.attackAnimations[variantIndex] ?? [];
+    this.attackSfx = this.attackSfxNames[variantIndex] ?? null;
+    this.attackSfxFrame = this.attackSfxFrames[variantIndex] ?? 0;
     this.attackHitStartFrame = this.attackHitStartFrames[variantIndex] ?? this.attackHitStartFrame;
     this.attackHitEndFrame = this.attackHitEndFrameOverride ?? this.IMAGES_ATTACK.length - 1;
   }
