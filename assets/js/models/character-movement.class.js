@@ -3,7 +3,13 @@ import { gameLoop } from "./game-loop.class.js";
 import { CharacterBase } from "./character-base.class.js";
 import { moveX } from "./tile-collision.js";
 
+const COYOTE_TIME_MS = 100;
+const JUMP_BUFFER_MS = 100;
+
 export class CharacterMovement extends CharacterBase {
+  coyoteUntil = Number.NEGATIVE_INFINITY;
+  jumpBufferedUntil = Number.NEGATIVE_INFINITY;
+
   animation() {
     gameLoop.runEvery(1000 / 60, () => this.updateCharacter());
   }
@@ -64,7 +70,16 @@ export class CharacterMovement extends CharacterBase {
     this.updateMovement();
     this.applyKnockback();
     this.x = Math.max(0, Math.min(this.world.level.levelEndX, this.x));
+    this.updateJumpTiming();
     this.world.updateCamera();
+  }
+
+  updateJumpTiming() {
+    if (this.isAboveGround() || this.speedY > 0) return;
+    this.coyoteUntil = gameLoop.now() + COYOTE_TIME_MS;
+    if (gameLoop.now() > this.jumpBufferedUntil) return;
+    this.jumpBufferedUntil = Number.NEGATIVE_INFINITY;
+    this.jump();
   }
 
   updateMovement() {
@@ -81,8 +96,23 @@ export class CharacterMovement extends CharacterBase {
 
   jump() {
     this.updateState();
-    if (!this.canPerformAction("jump")) return;
-    super.jump();
+    if (this.canJump()) this.startCharacterJump();
+    else this.bufferJump();
+  }
+
+  canJump() {
+    const isActionAllowed = this.canPerformAction("jump") || this.state === "jump";
+    return isActionAllowed && gameLoop.now() <= this.coyoteUntil;
+  }
+
+  startCharacterJump() {
+    this.coyoteUntil = Number.NEGATIVE_INFINITY;
+    this.jumpBufferedUntil = Number.NEGATIVE_INFINITY;
+    this.startJump();
     this.updateState();
+  }
+
+  bufferJump() {
+    if (this.isAboveGround()) this.jumpBufferedUntil = gameLoop.now() + JUMP_BUFFER_MS;
   }
 }

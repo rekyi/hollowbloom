@@ -71,10 +71,12 @@ export class MoveableObject extends DrawableObject {
   }
 
   jump() {
-    if (!this.isAboveGround()) {
-      this.speedY = this.jumpSpeed;
-      playSfx("jumpingBefore");
-    }
+    if (!this.isAboveGround()) this.startJump();
+  }
+
+  startJump() {
+    this.speedY = this.jumpSpeed;
+    playSfx("jumpingBefore");
   }
 
   gravity() {
