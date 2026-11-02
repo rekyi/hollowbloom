@@ -126,8 +126,14 @@ export class CharacterCombat extends CharacterMovement {
       if (enemy.isDead()) return;
       const reach = enemy.isFinalBoss ? this.getBossReach(box) : this.getReach(box);
       if (!this.world.hitboxesOverlap(reach, enemy.getHitbox())) return;
-      if (enemy.hit({ character: this.characterType, attackType: this.activeAttackType })) this.world.triggerHitFeedback();
+      if (enemy.hit({ character: this.characterType, attackType: this.activeAttackType })) this.world.triggerHitFeedback(this.getHitFeedbackType(enemy));
     });
+  }
+
+  getHitFeedbackType(enemy) {
+    if (enemy.isFinalBoss && enemy.isDead()) return "bossKill";
+    if (enemy.isDead()) return "kill";
+    return this.activeAttackImages === this.IMAGES_EXTRA_ATTACK ? "special" : "hit";
   }
 
   getReach(box) {

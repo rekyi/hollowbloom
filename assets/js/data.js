@@ -133,6 +133,15 @@ export const VERDAN_SETTINGS = {
   fxPulseBurst: { file: "fx_pulse_burst", frames: 12, frameDuration: 71, width: 384, height: 384, pivot: { x: 192, y: 192 }, ring: { minRadius: 15, maxRadius: 159, width: 20 } },
 };
 
+export const HIT_FEEDBACK = {
+  hit: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 60 },
+  kill: { shakeMagnitude: 9, shakeDurationMs: 220, hitStopMs: 80 },
+  special: { shakeMagnitude: 10, shakeDurationMs: 220, hitStopMs: 80 },
+  playerHit: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 60 },
+  bossKill: { shakeMagnitude: 16, shakeDurationMs: 450, hitStopMs: 120 },
+  bossRoar: { shakeMagnitude: 7, shakeDurationMs: 180, hitStopMs: 0 },
+};
+
 export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");
 export const deathScreenMusic = new Audio("assets/audio/music/death_screen.wav");
 export const pressedKeys = new Set();

@@ -42,12 +42,13 @@ export class WorldRendering extends WorldLogic {
 
   getShakeOffset() {
     const shakeElapsed = gameLoop.now() - this.shakeStartedAt;
-    const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < this.shakeDurationMs;
+    const { shakeDurationMs, shakeMagnitude } = this.activeShake;
+    const isShaking = Number.isFinite(shakeElapsed) && shakeElapsed >= 0 && shakeElapsed < shakeDurationMs;
     if (!isShaking) return { x: 0, y: 0 };
-    const shakeIntensity = 1 - shakeElapsed / this.shakeDurationMs;
+    const shakeIntensity = 1 - shakeElapsed / shakeDurationMs;
     return {
-      x: Math.round(Math.sin(shakeElapsed * 0.08) * this.shakeMagnitude * shakeIntensity),
-      y: Math.round(Math.cos(shakeElapsed * 0.11) * this.shakeMagnitude * 0.5 * shakeIntensity),
+      x: Math.round(Math.sin(shakeElapsed * 0.08) * shakeMagnitude * shakeIntensity),
+      y: Math.round(Math.cos(shakeElapsed * 0.11) * shakeMagnitude * 0.5 * shakeIntensity),
     };
   }
 

@@ -2,6 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
+import { HIT_FEEDBACK } from "../data.js";
 import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
 
@@ -19,8 +20,7 @@ export class WorldLogic {
   isCollisionOverlayVisible = false;
   statusBar = new StatusBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
-  shakeDurationMs = 180;
-  shakeMagnitude = 7;
+  activeShake = HIT_FEEDBACK.hit;
   timerStartMs = null;
   timerStopMs = null;
   defeatedEnemies = 0;
@@ -55,7 +55,7 @@ export class WorldLogic {
     if (this.character.isDead() || !isTouchingTile(this.character, this.level, TILE_HAZARD)) return;
     if (!this.character.hitByHazard()) return;
     this.statusBar.setHearts(this.character.hp);
-    this.triggerHitFeedback();
+    this.triggerHitFeedback("playerHit");
   }
 
   checkCheckpoints() {
@@ -75,7 +75,7 @@ export class WorldLogic {
     this.character.respawn(this.spawnPoint);
     this.statusBar.setHearts(this.character.hp);
     this.updateCamera(true);
-    this.triggerHitFeedback();
+    this.triggerHitFeedback("playerHit");
   }
 
   checkItemCollection() {
@@ -189,7 +189,7 @@ export class WorldLogic {
     if (!this.character.hitByEnemy(source)) return;
     this.statusBar.setHearts(this.character.hp);
     source.isAttackHitRegistered = true;
-    this.triggerHitFeedback();
+    this.triggerHitFeedback("playerHit");
   }
 
   updateBossEffects(dt) {
@@ -224,8 +224,10 @@ export class WorldLogic {
     this.level.enemies.find((enemy) => enemy.isFinalBoss)?.handleDebugKey?.(code);
   }
 
-  triggerHitFeedback() {
-    gameLoop.hitStop(60);
+  triggerHitFeedback(type) {
+    const feedback = HIT_FEEDBACK[type];
+    if (feedback.hitStopMs > 0) gameLoop.hitStop(feedback.hitStopMs);
+    this.activeShake = feedback;
     this.shakeStartedAt = gameLoop.now();
   }
 

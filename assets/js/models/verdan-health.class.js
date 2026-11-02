@@ -1,4 +1,3 @@
-import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { VerdanAttacks } from "./verdan-attacks.class.js";
 import { VERDAN_SETTINGS } from "../data.js";
@@ -67,7 +66,7 @@ export class VerdanHealth extends VerdanAttacks {
   triggerRoarShake() {
     if (this.isRoarTriggered || !this.world) return;
     this.isRoarTriggered = true;
-    this.world.shakeStartedAt = gameLoop.now();
+    this.world.triggerHitFeedback("bossRoar");
   }
 
   enterRage() {
