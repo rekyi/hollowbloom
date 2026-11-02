@@ -32,6 +32,7 @@ export class CharacterBase extends MoveableObject {
   activeAttackReach;
   attackTick = 0;
   attackTicksPerFrame;
+  attackLunge;
   legsImg = null;
   legsArea;
   attackDamageFrame;
@@ -48,7 +49,7 @@ export class CharacterBase extends MoveableObject {
     dead: [],
   };
   knockbackDirection = 0;
-  knockbackFrames = 0;
+  knockbackSpeed = 0;
   invulnerableUntil = 0;
   drawHitbox = true;
 

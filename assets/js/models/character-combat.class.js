@@ -1,6 +1,7 @@
-import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD } from "../data.js";
+import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD, HIT_FEEDBACK } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
+import { moveX } from "./tile-collision.js";
 
 const HAZARD_BOUNCE_SPEED = 8 * ENTITY_SCALE;
 const KNOCKBACK_SPEED_Y = 5.2 * ENTITY_SCALE;
@@ -81,7 +82,7 @@ export class CharacterCombat extends CharacterMovement {
     this.x = spawnPoint.x;
     this.y = spawnPoint.y;
     this.speedY = 0;
-    this.knockbackFrames = 0;
+    this.knockbackSpeed = 0;
     this.isAttacking = false;
     this.bufferedAttack = null;
     this.hit();
@@ -91,7 +92,7 @@ export class CharacterCombat extends CharacterMovement {
 
   startKnockback(enemy) {
     this.knockbackDirection = enemy.x + enemy.width / 2 < this.x + this.width / 2 ? 1 : -1;
-    this.knockbackFrames = 10;
+    this.knockbackSpeed = HIT_FEEDBACK.playerHit.knockbackSpeed;
     this.speedY = KNOCKBACK_SPEED_Y;
   }
 
@@ -106,11 +107,25 @@ export class CharacterCombat extends CharacterMovement {
       return;
     }
     this.img = this.imageCache[this.activeAttackImages[frame]];
-    if (this.attackTick === this.activeAttackDamageFrame * this.attackTicksPerFrame) {
-      if (this.activeAttackImages === this.IMAGES_EXTRA_ATTACK) this.playExtraAttackSfx();
-      this.damageEnemiesInReach();
-    }
+    this.updateAttackLunge();
+    if (this.attackTick === this.getAttackDamageTick()) this.handleAttackDamageFrame();
     this.attackTick++;
+  }
+
+  getAttackDamageTick() {
+    return Math.ceil(this.activeAttackDamageFrame * this.attackTicksPerFrame);
+  }
+
+  updateAttackLunge() {
+    const damageTick = this.getAttackDamageTick();
+    if (this.attackTick >= damageTick) return;
+    const direction = this.isOppositeDirection ? -1 : 1;
+    moveX(this, this.world.level, (direction * this.attackLunge) / damageTick);
+  }
+
+  handleAttackDamageFrame() {
+    if (this.activeAttackImages === this.IMAGES_EXTRA_ATTACK) this.playExtraAttackSfx();
+    this.damageEnemiesInReach();
   }
 
   finishAttack() {
@@ -131,8 +146,11 @@ export class CharacterCombat extends CharacterMovement {
   }
 
   handleEnemyHit(enemy) {
+    const type = this.getHitFeedbackType(enemy);
+    const direction = this.isOppositeDirection ? -1 : 1;
     enemy.startHitJitter();
-    this.world.triggerHitFeedback(this.getHitFeedbackType(enemy), this.isOppositeDirection ? -1 : 1);
+    if (!enemy.isFinalBoss) enemy.startKnockback(direction, HIT_FEEDBACK[type].knockbackSpeed);
+    this.world.triggerHitFeedback(type, direction);
   }
 
   getHitFeedbackType(enemy) {

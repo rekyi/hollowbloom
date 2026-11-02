@@ -1,6 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
-import { ENTITY_SCALE } from "../data.js";
+import { ENTITY_SCALE, KNOCKBACK_FRICTION, KNOCKBACK_MIN_SPEED } from "../data.js";
 import { DrawableObject } from "./drawable-object.class.js";
 import { hasGroundBelow, moveX, moveY } from "./tile-collision.js";
 
@@ -98,6 +98,11 @@ export class MoveableObject extends DrawableObject {
 
   isAboveGround() {
     return !hasGroundBelow(this, this.world.level);
+  }
+
+  decayKnockback() {
+    this.knockbackSpeed *= KNOCKBACK_FRICTION;
+    if (this.knockbackSpeed < KNOCKBACK_MIN_SPEED) this.knockbackSpeed = 0;
   }
 
   startHitJitter() {

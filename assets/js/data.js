@@ -22,13 +22,14 @@ export const CHARACTER_SETTING_KEYS = [
   "attackReach",
   "attackDamageFrame",
   "attackTicksPerFrame",
+  "attackLunge",
   "legsArea",
   "extraAttackDamageFrame",
   "extraAttackReach",
   "offset",
 ];
 
-export const SCALED_SETTING_KEYS = ["width", "height", "walkSpeed", "attackReach", "extraAttackReach"];
+export const SCALED_SETTING_KEYS = ["width", "height", "walkSpeed", "attackReach", "attackLunge", "extraAttackReach"];
 
 export const MALE_CHARACTER_CONFIG = {
   width: 200,
@@ -38,9 +39,10 @@ export const MALE_CHARACTER_CONFIG = {
   hp: 300,
   walkSpeed: 7,
   runSpeedFactor: 1.5,
-  attackReach: 60,
+  attackReach: 75,
   attackDamageFrame: 5,
-  attackTicksPerFrame: 2,
+  attackTicksPerFrame: 1.5,
+  attackLunge: 15,
   extraAttackDamageFrame: 5,
   extraAttackReach: 150,
   legsArea: { x: 30, y: 98, w: 52, h: 30 },
@@ -134,13 +136,16 @@ export const VERDAN_SETTINGS = {
 };
 
 export const HIT_FEEDBACK = {
-  hit: { shakeMagnitude: 15, shakeDurationMs: 180, hitStopMs: 60 },
-  kill: { shakeMagnitude: 12, shakeDurationMs: 220, hitStopMs: 80 },
-  special: { shakeMagnitude: 18, shakeDurationMs: 220, hitStopMs: 80 },
-  playerHit: { shakeMagnitude: 10, shakeDurationMs: 180, hitStopMs: 60 },
-  bossKill: { shakeMagnitude: 20, shakeDurationMs: 450, hitStopMs: 120 },
-  bossRoar: { shakeMagnitude: 9, shakeDurationMs: 180, hitStopMs: 0 },
+  hit: { shakeMagnitude: 15, shakeDurationMs: 180, hitStopMs: 60, knockbackSpeed: 4 },
+  kill: { shakeMagnitude: 12, shakeDurationMs: 220, hitStopMs: 80, knockbackSpeed: 10 },
+  special: { shakeMagnitude: 18, shakeDurationMs: 220, hitStopMs: 80, knockbackSpeed: 7 },
+  playerHit: { shakeMagnitude: 10, shakeDurationMs: 180, hitStopMs: 60, knockbackSpeed: 3.5 },
+  bossKill: { shakeMagnitude: 20, shakeDurationMs: 450, hitStopMs: 120, knockbackSpeed: 0 },
+  bossRoar: { shakeMagnitude: 9, shakeDurationMs: 180, hitStopMs: 0, knockbackSpeed: 0 },
 };
+
+export const KNOCKBACK_FRICTION = 0.8;
+export const KNOCKBACK_MIN_SPEED = 0.2;
 
 export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");
 export const deathScreenMusic = new Audio("assets/audio/music/death_screen.wav");

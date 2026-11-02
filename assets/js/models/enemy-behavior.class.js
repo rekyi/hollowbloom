@@ -3,7 +3,6 @@ import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 import { moveXOnGround } from "./tile-collision.js";
 
-const KNOCKBACK_SPEED = 4.5 * ENTITY_SCALE;
 const AGGRO_MAX_FOOT_DIFF_HEIGHTS = 0.6;
 const FACE_DEAD_ZONE = 12 * ENTITY_SCALE;
 
@@ -40,6 +39,8 @@ export class EnemyBehavior extends MoveableObject {
   aggroFootTolerance = null;
   chaseSpeedFactor = 1;
   target = null;
+  knockbackDirection = 0;
+  knockbackSpeed = 0;
   drawHitbox = true;
 
   setPosition(x, y, width, height, speed, minX, maxX) {
@@ -99,16 +100,23 @@ export class EnemyBehavior extends MoveableObject {
       this.isMoving = false;
       return;
     }
-    if (this.knockbackFrames > 0) this.applyKnockback();
+    if (this.knockbackSpeed > 0) this.applyKnockback();
     else if (this.isAggro && !this.isDead()) this.updateChase();
     else if (this.isReturning && !this.isDead()) this.returnToSpawn();
     else this.patrol();
   }
 
+  startKnockback(direction, speed) {
+    if (this.getActiveStatus()) return;
+    this.knockbackDirection = direction;
+    this.knockbackSpeed = speed;
+  }
+
   applyKnockback() {
-    this.x += this.knockbackDirection * KNOCKBACK_SPEED;
-    this.knockbackFrames--;
+    const isStepDone = moveXOnGround(this, this.world.level, this.knockbackDirection * this.knockbackSpeed);
     this.isMoving = false;
+    if (isStepDone) this.decayKnockback();
+    else this.knockbackSpeed = 0;
   }
 
   updateChase() {
@@ -153,7 +161,7 @@ export class EnemyBehavior extends MoveableObject {
     this.statusUntil = gameLoop.now() + duration;
     this.isAttacking = false;
     this.isMoving = false;
-    this.knockbackFrames = 0;
+    this.knockbackSpeed = 0;
     this.currentAnimation = status;
     this.currentImage = 0;
   }
