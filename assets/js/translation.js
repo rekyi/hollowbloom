@@ -67,7 +67,7 @@ const TEXTS = {
   "gameOver.label": { en: "Game Over", de: "Spiel vorbei" },
   "gameOver.restart": { en: "Play again", de: "Erneut spielen" },
 
-  "victory.title": { en: "VICTORY!", de: "SIEG!" },
+  "victory.title": { en: "VICTORY!", de: "GEWONNEN!" },
   "victory.time": { en: "Play time", de: "Spielzeit" },
   "victory.defeated": { en: "Enemies defeated", de: "Besiegte Gegner" },
   "victory.deaths": { en: "Deaths", de: "Tode" },
