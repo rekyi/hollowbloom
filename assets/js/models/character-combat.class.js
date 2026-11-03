@@ -9,6 +9,7 @@ const KNOCKBACK_SPEED_Y = 5.2 * ENTITY_SCALE;
 const ATTACK_BUFFER_MS = 150;
 
 export class CharacterCombat extends CharacterMovement {
+  maxHp = 3;
   bufferedAttack = null;
   attackSfxLeadTicks = 0;
   extraAttackSfxLeadTicks = 0;
@@ -90,6 +91,14 @@ export class CharacterCombat extends CharacterMovement {
     this.isAttacking = false;
     this.bufferedAttack = null;
     return true;
+  }
+
+  restoreHealth() {
+    this.hp = this.maxHp;
+  }
+
+  isHealthFull() {
+    return this.hp >= this.maxHp;
   }
 
   respawn(spawnPoint) {

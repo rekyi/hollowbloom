@@ -2,6 +2,13 @@ import { gameLoop } from "./game-loop.class.js";
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const IDLE_ALERT_FRAME_DURATION = 120;
+const DEFENSE_CROUCH_START_FRAME = 11;
+const DEFENSE_RISE_START_FRAME = 48;
+const DEFENSE_STANDING_FRAME = 60;
+const DEFENSE_LOWERING_FRAME_LAG = 2;
+const ATTACK_LUNGE_START_FRAME = 16;
+const ATTACK_FRAMES_PER_RISE_FRAME = 5 / 12;
+const DEFENSE_FOLLOW_MAX_GAP = 40;
 const BOAR_PATH = "assets/images/3_enemies/boar/";
 const BOAR_FRAME = { frameSize: 248, frameHeight: 97 };
 function getBoarSprite(name, frameCount) {
@@ -59,8 +66,20 @@ export class Boar extends ConfigurableEnemy {
 
   tryStartAttack() {
     const wasAttacking = this.isAttacking;
+    const defenseFrame = this.getDisplayedDefenseFrame();
     super.tryStartAttack();
-    if (!wasAttacking && this.isAttacking) this.isDefenseActive = false;
+    if (wasAttacking || !this.isAttacking) return;
+    this.isDefenseActive = false;
+    if (defenseFrame !== null) this.continueAttackFromDefense(defenseFrame);
+  }
+
+  getDisplayedDefenseFrame() {
+    return this.currentAnimation === "defense" ? Math.max(0, this.currentImage - 1) : null;
+  }
+
+  continueAttackFromDefense(defenseFrame) {
+    this.currentAnimation = "attack";
+    this.currentImage = getAttackFrameForDefense(defenseFrame);
   }
 
   updateAttackFlag() {
@@ -87,9 +106,20 @@ export class Boar extends ConfigurableEnemy {
   getAnimationState() {
     const state = super.getAnimationState();
     if (this.isReturning && this.isMoving && this.IMAGES_RUN.length) return { state: "run", images: this.IMAGES_RUN };
-    if (state.state === "idle" && this.isAggro && this.isDefenseActive) return { state: "defense", images: this.IMAGES_DEFENSE };
+    if (this.isAggro && this.isDefenseActive && this.isDefenseState(state.state)) return { state: "defense", images: this.IMAGES_DEFENSE };
     if (!this.isAggro && !this.isReturning && state.state === "idle") return this.getIdleAlertState();
     return state;
+  }
+
+  isDefenseState(state) {
+    return state === "idle" || (state === "run" && this.getChaseGap() <= DEFENSE_FOLLOW_MAX_GAP);
+  }
+
+  getChaseGap() {
+    const targetHitbox = this.target.getHitbox();
+    const attackHitbox = this.getAttackHitbox();
+    if (this.isOppositeDirection) return attackHitbox.x - (targetHitbox.x + targetHitbox.width);
+    return targetHitbox.x - (attackHitbox.x + attackHitbox.width);
   }
 
   playStateAnimation(state, images) {
@@ -132,4 +162,10 @@ export class Boar extends ConfigurableEnemy {
     this.idleAlertStartedAt = gameLoop.now();
     this.idleAlertFrameAt = this.idleAlertStartedAt;
   }
+}
+
+function getAttackFrameForDefense(defenseFrame) {
+  if (defenseFrame < DEFENSE_CROUCH_START_FRAME) return Math.max(0, defenseFrame - DEFENSE_LOWERING_FRAME_LAG);
+  if (defenseFrame < DEFENSE_RISE_START_FRAME) return ATTACK_LUNGE_START_FRAME;
+  return Math.max(0, Math.round((DEFENSE_STANDING_FRAME - defenseFrame) * ATTACK_FRAMES_PER_RISE_FRAME));
 }

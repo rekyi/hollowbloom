@@ -58,6 +58,7 @@ export class WorldLogic {
     this.checkCollision();
     this.checkHazards();
     this.checkCheckpoints();
+    this.checkHealingPlants();
     this.checkFall();
     this.checkItemCollection();
     this.checkKeyCollection();
@@ -88,6 +89,21 @@ export class WorldLogic {
     checkpoint.activate();
     this.spawnPoint = getPlacementOnEntity(this.character, checkpoint.entity);
     playSfx("checkpointReached");
+  }
+
+  checkHealingPlants() {
+    if (this.character.isDead() || this.character.isHealthFull()) return;
+    const characterHitbox = this.character.getHitbox();
+    const touchedPlant = this.level.healingPlants.find((plant) => !plant.isCollected && this.hitboxesOverlap(characterHitbox, plant));
+    if (!touchedPlant) return;
+    touchedPlant.isCollected = true;
+    this.healCharacter();
+    playSfx("checkpointReached");
+  }
+
+  healCharacter() {
+    this.character.restoreHealth();
+    this.statusBar.setHearts(this.character.hp);
   }
 
   checkFall() {

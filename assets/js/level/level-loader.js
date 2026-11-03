@@ -2,10 +2,11 @@ import { ChargeItem } from "../models/charge-item.class.js";
 import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
 import { ExitPortal } from "../models/exit-portal.class.js";
 import { Checkpoint } from "../models/checkpoint.class.js";
+import { HealingPlant } from "../models/healing-plant.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 import { VerdanBoss } from "../models/verdan-boss.class.js";
-import { LEVEL_COUNT } from "../data.js";
+import { LEVEL_COUNT, LEVEL_FOLDERS } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
@@ -51,8 +52,7 @@ export async function loadLevelWithFallback(levelIndex) {
 }
 
 function getLevelFolderUrl(levelIndex) {
-  const folderName = `level_${String(levelIndex + 1).padStart(2, "0")}`;
-  return new URL(`./${folderName}/`, import.meta.url);
+  return new URL(`./${LEVEL_FOLDERS[levelIndex]}/`, import.meta.url);
 }
 
 async function fetchLevelData(folderUrl) {
@@ -186,5 +186,6 @@ export function createLevel(levelAssets) {
   const keys = [...(entities.Key ?? []).map(createKey), ...(entities.Boss_Key ?? []).map(createBossKey)];
   const exits = [...(entities.Exit ?? []).map(createExit), ...(entities.Exit_Boss ?? []).map(createBossExit)];
   const checkpoints = (entities.Checkpoint ?? []).map(createCheckpoint);
-  return new Level(enemies, items, levelAssets, keys, exits, checkpoints);
+  const healingPlants = (entities.Healing_Plant ?? []).map((entity) => new HealingPlant(getEntityBox(entity)));
+  return new Level(enemies, items, levelAssets, keys, exits, checkpoints, healingPlants);
 }

@@ -15,6 +15,7 @@ const PICKUP_GLOWS = {
 };
 const LOCKED_PORTAL_STRENGTH = 0.35;
 const CHECKPOINT_GLOW = { color: "80, 226, 196", size: 170, alpha: 0.5, pulseSpeed: 0.003 };
+const HEALING_PLANT_GLOW = { color: "255, 110, 150", size: 110, alpha: 0.45, pulseSpeed: 0.0045 };
 const budCache = new WeakMap();
 
 export function prepareLevelLighting({ data, layers }) {
@@ -41,7 +42,8 @@ export class Lighting {
     this.buds.forEach((bud) => this.drawBudGlow(ctx, bud, now));
     level.items.filter((item) => !item.isCollected).forEach((item) => this.drawObjectGlow(ctx, item, PICKUP_GLOWS.coin, now));
     level.keys.filter((key) => !key.isCollected).forEach((key) => this.drawObjectGlow(ctx, key, key.isBossKey ? PICKUP_GLOWS.bossKey : PICKUP_GLOWS.key, now));
-    level.checkpoints.filter((checkpoint) => checkpoint.isActive).forEach((checkpoint) => this.drawCheckpointGlow(ctx, checkpoint, now));
+    level.checkpoints.filter((checkpoint) => checkpoint.isActive).forEach((checkpoint) => this.drawPulsingGlow(ctx, checkpoint.getBloomCenter(), CHECKPOINT_GLOW, now));
+    level.healingPlants.filter((plant) => !plant.isCollected).forEach((plant) => this.drawPulsingGlow(ctx, plant.getFruitCenter(), HEALING_PLANT_GLOW, now));
     level.exits.forEach((exit) => this.drawObjectGlow(ctx, exit, exit.isBossExit ? PICKUP_GLOWS.bossPortal : PICKUP_GLOWS.portal, now, isExitOpen ? 1 : LOCKED_PORTAL_STRENGTH));
     ctx.restore();
   }
@@ -51,10 +53,9 @@ export class Lighting {
     drawGlow(ctx, color, x, y, radius * BUD_GLOW.sizeFactor * pulse, BUD_GLOW.alpha * pulse);
   }
 
-  drawCheckpointGlow(ctx, checkpoint, now) {
-    const { x, y } = checkpoint.getBloomCenter();
-    const pulse = 0.85 + 0.15 * Math.sin(now * CHECKPOINT_GLOW.pulseSpeed);
-    drawGlow(ctx, CHECKPOINT_GLOW.color, x, y, CHECKPOINT_GLOW.size * pulse, CHECKPOINT_GLOW.alpha * pulse);
+  drawPulsingGlow(ctx, { x, y }, { color, size, alpha, pulseSpeed }, now) {
+    const pulse = 0.85 + 0.15 * Math.sin(now * pulseSpeed);
+    drawGlow(ctx, color, x, y, size * pulse, alpha * pulse);
   }
 
   drawObjectGlow(ctx, object, { color, sizeFactor, alpha }, now, strength = 1) {

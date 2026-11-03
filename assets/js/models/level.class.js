@@ -28,6 +28,7 @@ export class Level {
   keys;
   exits;
   checkpoints;
+  healingPlants;
   bossEffects = [];
   data;
   layers;
@@ -36,12 +37,13 @@ export class Level {
   width = 0;
   height = 0;
 
-  constructor(enemies, items = [], { data, layers, collisionGrid } = {}, keys = [], exits = [], checkpoints = []) {
+  constructor(enemies, items = [], { data, layers, collisionGrid } = {}, keys = [], exits = [], checkpoints = [], healingPlants = []) {
     this.enemies = enemies;
     this.items = items;
     this.keys = keys;
     this.exits = exits;
     this.checkpoints = checkpoints;
+    this.healingPlants = healingPlants;
     this.data = data;
     this.layers = layers ?? [];
     this.collisionGrid = collisionGrid ?? [];

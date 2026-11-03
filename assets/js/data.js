@@ -1,5 +1,6 @@
 export const ENTITY_SCALE = 0.7;
-export const LEVEL_COUNT = 3;
+export const LEVEL_FOLDERS = ["level_01", "level_02", "level_boss"];
+export const LEVEL_COUNT = LEVEL_FOLDERS.length;
 export const START_LEVEL = 1;
 export const EXTRA_ATTACK_COIN_COST = 2;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
@@ -37,7 +38,7 @@ export const MALE_CHARACTER_CONFIG = {
   height: 200,
   x: 320,
   y: 760,
-  hp: 3,
+  hp: 33,
   walkSpeed: 7,
   runSpeedFactor: 1.5,
   attackReach: 75,
