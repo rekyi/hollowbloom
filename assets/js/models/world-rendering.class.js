@@ -22,7 +22,8 @@ const SHAKE_KICK_MS = 90;
 const SHAKE_KICK_FACTOR = 0.8;
 const DAMAGE_FLASH_MAX_ALPHA = 0.3;
 const DAMAGE_FLASH_INNER_RADIUS = CANVAS_HEIGHT * 0.4;
-const BEHIND_ENTITIES_LAYERS = ["Background", "Deco_Hazard", "Hills", "Ground", "Platforms"];
+const BEHIND_PORTAL_LAYERS = ["Background", "Deco_Hazard", "Hills"];
+const BEHIND_ENTITIES_LAYERS = ["Ground", "Platforms"];
 const FRONT_LAYERS = ["Hanging"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
@@ -143,9 +144,11 @@ export class WorldRendering extends WorldLogic {
     const viewRect = this.getViewRect(zoom, offsetX, offsetY);
     this.background.drawBehindLevel(this.ctx, viewRect, this.level.height);
     this.fireflies.drawBehind(this.ctx, viewRect);
+    this.drawLayers(BEHIND_PORTAL_LAYERS);
+    this.addObjectsToMap(this.level.exits);
+    this.addObjectsToMap(this.level.checkpoints);
     this.drawLayers(BEHIND_ENTITIES_LAYERS);
     this.lighting.drawGlows(this.ctx, this.level, this.isExitOpen());
-    this.addObjectsToMap(this.level.exits);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addObjectsToMap(this.level.keys.filter((key) => !key.isCollected));
     this.addObjectsToMap(this.level.enemies);

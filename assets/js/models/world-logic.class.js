@@ -4,9 +4,9 @@ import { BossHealthBar } from "./boss-health-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
 import { EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
-import { isScreenShakeEnabled } from "../screen-shake.js";
+import { isDamageFlashEnabled, isScreenShakeEnabled } from "../effect-settings.js";
 import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
-import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
+import { getPlacementOnEntity } from "./level.class.js";
 
 const COIN_SFX_VOLUME = 1;
 
@@ -78,13 +78,15 @@ export class WorldLogic {
   checkCheckpoints() {
     if (this.character.isDead()) return;
     const characterHitbox = this.character.getHitbox();
-    const touchedCheckpoint = this.level.getEntities("Checkpoint").find((checkpoint) => checkpoint !== this.activeCheckpoint && this.hitboxesOverlap(characterHitbox, getEntityBox(checkpoint)));
+    const touchedCheckpoint = this.level.checkpoints.find((checkpoint) => checkpoint !== this.activeCheckpoint && this.hitboxesOverlap(characterHitbox, checkpoint));
     if (touchedCheckpoint) this.activateCheckpoint(touchedCheckpoint);
   }
 
   activateCheckpoint(checkpoint) {
+    this.activeCheckpoint?.deactivate();
     this.activeCheckpoint = checkpoint;
-    this.spawnPoint = getPlacementOnEntity(this.character, checkpoint);
+    checkpoint.activate();
+    this.spawnPoint = getPlacementOnEntity(this.character, checkpoint.entity);
     playSfx("checkpointReached");
   }
 
@@ -251,9 +253,8 @@ export class WorldLogic {
   triggerHitFeedback(type, direction = 0) {
     const feedback = HIT_FEEDBACK[type];
     if (feedback.hitStopMs > 0) gameLoop.hitStop(feedback.hitStopMs);
-    if (!isScreenShakeEnabled()) return;
-    this.startShake(feedback, direction);
-    if (feedback.damageFlashMs > 0) this.startDamageFlash(feedback.damageFlashMs);
+    if (isScreenShakeEnabled()) this.startShake(feedback, direction);
+    if (feedback.damageFlashMs > 0 && isDamageFlashEnabled()) this.startDamageFlash(feedback.damageFlashMs);
   }
 
   startDamageFlash(durationMs) {

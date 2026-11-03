@@ -85,6 +85,7 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
 
 .settings-audio,
 .settings-display,
+.settings-effects,
 .settings-language {
     width: 100%;
     margin-block-end: 1rem;
@@ -122,8 +123,118 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     align-content: start;
 }
 
+.settings-effects {
+    row-gap: 0;
+}
+
+.effect-setting {
+    grid-column: 1 / -1;
+    padding-block: 0.375rem;
+
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.effect-setting + .effect-setting {
+    margin-top: 0.375rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 226, 122, 0.18);
+}
+
+.effect-setting-text {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.effect-setting-hint {
+    color: #b7c2bd;
+    font-family: var(--font-base);
+    font-size: 0.8125rem;
+}
+
+.settings-panel .effect-switch {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    border: 0;
+
+    background: transparent;
+    color: var(--color-text);
+    font-size: 0.9375rem;
+
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.settings-panel .effect-switch:hover,
+.settings-panel .effect-switch:focus-visible {
+    background: transparent;
+    color: var(--color-accent);
+    transform: none;
+}
+
+.settings-panel .effect-switch:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 0.125rem;
+}
+
+.effect-switch-track {
+    position: relative;
+    width: 3.25rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 226, 122, 0.6);
+    border-radius: 0.875rem;
+
+    background: #0a1418;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.effect-switch-track::after {
+    content: "";
+    position: absolute;
+    top: 0.1875rem;
+    left: 0.1875rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+
+    background: #7d8a85;
+    transition: transform 150ms ease, background 150ms ease;
+}
+
+.effect-switch[aria-checked="true"] .effect-switch-track {
+    border-color: var(--color-accent);
+    background: rgba(255, 226, 122, 0.85);
+}
+
+.effect-switch[aria-checked="true"] .effect-switch-track::after {
+    background: #0a1418;
+    transform: translateX(1.5rem);
+}
+
+.effect-switch-state {
+    min-width: 2.5ch;
+    text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .effect-switch-track,
+    .effect-switch-track::after {
+        transition: none;
+    }
+}
+
 .settings-audio legend,
 .settings-display legend,
+.settings-effects legend,
 .settings-language legend {
     padding-inline: 0.5rem;
     color: var(--color-accent);

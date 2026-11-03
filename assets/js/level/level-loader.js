@@ -1,6 +1,7 @@
 import { ChargeItem } from "../models/charge-item.class.js";
 import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
 import { ExitPortal } from "../models/exit-portal.class.js";
+import { Checkpoint } from "../models/checkpoint.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 import { VerdanBoss } from "../models/verdan-boss.class.js";
@@ -173,6 +174,10 @@ function createBossExit(entity) {
   return new ExitPortal(getEntityBox(entity), true);
 }
 
+function createCheckpoint(entity) {
+  return new Checkpoint(entity, getEntityBox(entity));
+}
+
 export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
   const bosses = (entities.Boss ?? []).map((entity) => createBoss(entity, levelAssets.collisionGrid));
@@ -180,5 +185,6 @@ export function createLevel(levelAssets) {
   const items = (entities.Coin ?? []).map(createChargeItem);
   const keys = [...(entities.Key ?? []).map(createKey), ...(entities.Boss_Key ?? []).map(createBossKey)];
   const exits = [...(entities.Exit ?? []).map(createExit), ...(entities.Exit_Boss ?? []).map(createBossExit)];
-  return new Level(enemies, items, levelAssets, keys, exits);
+  const checkpoints = (entities.Checkpoint ?? []).map(createCheckpoint);
+  return new Level(enemies, items, levelAssets, keys, exits, checkpoints);
 }

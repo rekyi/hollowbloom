@@ -60,7 +60,6 @@ export const MALE_CHARACTER_CONFIG = {
     jumping: { file: "jump.webp", count: 11 },
     hurt: { file: "hurt.webp", count: 4 },
     dead: { file: "dead.webp", count: 4 },
-    // bubble: { file: "idle_long_bubble.webp", count: 2, frameSize: 15, frameHeight: 16 },
   },
 };
 

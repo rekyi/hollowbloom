@@ -6,7 +6,7 @@ import { setupScreens } from "./assets/js/screens.js";
 import { setupDialogs } from "./assets/js/dialogs.js";
 import { setupFullscreen } from "./assets/js/fullscreen.js";
 import { setupTouchControls } from "./assets/js/touch-controls.js";
-import { setupScreenShakeSetting } from "./assets/js/screen-shake.js";
+import { setupEffectSettings } from "./assets/js/effect-settings.js";
 import { Keyboard } from "./assets/js/models/keyboard.class.js";
 import { FemaleCharacter } from "./assets/js/models/female-character.class.js";
 
@@ -21,7 +21,7 @@ function init() {
   setupDialogs();
   setupAudioSettings();
   setupFullscreen();
-  setupScreenShakeSetting();
+  setupEffectSettings();
   setupTouchControls();
 }
 init();

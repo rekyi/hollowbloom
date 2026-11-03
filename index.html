@@ -163,14 +163,27 @@
                 </select>
               </div>
             </fieldset>
-            <fieldset class="settings-display">
+            <fieldset class="settings-effects">
               <legend data-i18n="settings.effects">Effects</legend>
-              <div class="display-setting">
-                <label for="screen-shake-select" data-i18n="settings.screenShake">Screen shake</label>
-                <select id="screen-shake-select">
-                  <option value="on" data-i18n="settings.on">On</option>
-                  <option value="off" data-i18n="settings.off">Off</option>
-                </select>
+              <div class="effect-setting">
+                <span class="effect-setting-text">
+                  <span id="screen-shake-label" data-i18n="settings.screenShake">Screen shake</span>
+                  <span id="screen-shake-hint" class="effect-setting-hint" data-i18n="settings.screenShakeHint">The camera shakes on hits</span>
+                </span>
+                <button id="screen-shake-switch" class="effect-switch" type="button" role="switch" aria-checked="true" aria-labelledby="screen-shake-label" aria-describedby="screen-shake-hint">
+                  <span class="effect-switch-track" aria-hidden="true"></span>
+                  <span class="effect-switch-state" data-i18n="settings.on">On</span>
+                </button>
+              </div>
+              <div class="effect-setting">
+                <span class="effect-setting-text">
+                  <span id="damage-flash-label" data-i18n="settings.damageFlash">Red damage flash</span>
+                  <span id="damage-flash-hint" class="effect-setting-hint" data-i18n="settings.damageFlashHint">Red screen edge when you take damage</span>
+                </span>
+                <button id="damage-flash-switch" class="effect-switch" type="button" role="switch" aria-checked="true" aria-labelledby="damage-flash-label" aria-describedby="damage-flash-hint">
+                  <span class="effect-switch-track" aria-hidden="true"></span>
+                  <span class="effect-switch-state" data-i18n="settings.on">On</span>
+                </button>
               </div>
             </fieldset>
             <fieldset class="settings-language">

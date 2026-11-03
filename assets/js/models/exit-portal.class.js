@@ -1,17 +1,25 @@
 import { gameLoop } from "./game-loop.class.js";
 import { DrawableObject } from "./drawable-object.class.js";
 
-const FRAME_COUNT = 7;
+const FRAME_COUNT = 8;
 const FRAME_DURATION_MS = 100;
-const FRAME_PATHS = Array.from({ length: FRAME_COUNT }, (_, index) => `assets/images/exit/portal1_frame_${index + 1}.webp`);
+const GROUND_SINK_PX = 8;
+const NORMAL_FRAME_PATHS = getFramePaths("normal");
+const BOSS_FRAME_PATHS = getFramePaths("boss");
+
+function getFramePaths(type) {
+  return Array.from({ length: FRAME_COUNT }, (_, index) => `assets/images/exit/portal_${type}_${index + 1}.webp`);
+}
 
 export class ExitPortal extends DrawableObject {
   isBossExit = false;
+  framePaths = NORMAL_FRAME_PATHS;
 
   constructor({ x, y, width, height }, isBossExit = false) {
     super();
     this.isBossExit = isBossExit;
-    this.loadImages(FRAME_PATHS);
+    this.framePaths = isBossExit ? BOSS_FRAME_PATHS : NORMAL_FRAME_PATHS;
+    this.loadImages(this.framePaths);
     this.x = x;
     this.y = y;
     this.width = width;
@@ -19,13 +27,15 @@ export class ExitPortal extends DrawableObject {
   }
 
   getCurrentFrame() {
-    const frameIndex = Math.floor(gameLoop.now() / FRAME_DURATION_MS) % FRAME_PATHS.length;
-    return this.imageCache[FRAME_PATHS[frameIndex]];
+    const frameIndex = Math.floor(gameLoop.now() / FRAME_DURATION_MS) % this.framePaths.length;
+    return this.imageCache[this.framePaths[frameIndex]];
   }
 
   draw(ctx) {
     const frame = this.getCurrentFrame();
     if (!frame.complete || frame.naturalWidth === 0) return;
-    ctx.drawImage(frame, this.x, this.y, this.width, this.height);
+    const drawX = this.x + (this.width - frame.naturalWidth) / 2;
+    const drawY = this.y + this.height - frame.naturalHeight + GROUND_SINK_PX;
+    ctx.drawImage(frame, Math.round(drawX), Math.round(drawY));
   }
 }
