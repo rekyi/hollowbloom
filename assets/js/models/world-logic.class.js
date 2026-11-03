@@ -2,10 +2,12 @@ import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
-import { EXTRA_ATTACK_COIN_THRESHOLD, HIT_FEEDBACK } from "../data.js";
+import { EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
 import { isScreenShakeEnabled } from "../screen-shake.js";
 import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
 import { getEntityBox, getPlacementOnEntity } from "./level.class.js";
+
+const COIN_SFX_VOLUME = 1;
 
 export class WorldLogic {
   character;
@@ -29,7 +31,13 @@ export class WorldLogic {
   damageFlashDurationMs = 0;
   timerStartMs = null;
   timerStopMs = null;
+  timerCarryMs = 0;
   defeatedEnemies = 0;
+  levelStartDefeatedEnemies = 0;
+  coinsCollected = 0;
+  levelStartCoinsCollected = 0;
+  deaths = 0;
+  restarts = 0;
   countedDefeatedEnemies = new Set();
   gameOverDelayStartedAt = null;
   gameOverDelayMs = 1000;
@@ -37,6 +45,7 @@ export class WorldLogic {
   isVictory = false;
   hasKey = false;
   levelIndex = 0;
+  levelStartCoins = 0;
   isLevelLoading = false;
   onGameOver;
   onVictory;
@@ -92,10 +101,12 @@ export class WorldLogic {
     this.level.items.forEach((item) => {
       if (item.isCollected || !this.hitboxesOverlap(characterHitbox, item.getHitbox())) return;
       item.isCollected = true;
-      playSfx("coinCollect");
+      playSfx("coinCollect", { volume: COIN_SFX_VOLUME });
       this.character.collectCoin();
-      if (this.character.coins === EXTRA_ATTACK_COIN_THRESHOLD) playSfx("specialAttackUnlocked");
+      this.coinsCollected++;
+      if (this.character.coins === EXTRA_ATTACK_COIN_COST) playSfx("specialAttackUnlocked");
       this.statusBar.setCoins(this.character.coins);
+      this.statusBar.showCoinPickup();
     });
   }
 
@@ -116,8 +127,8 @@ export class WorldLogic {
   checkExit() {
     if (this.isLevelLoading || this.isVictory || this.character.isDead() || !this.isExitOpen()) return;
     const characterHitbox = this.character.getHitbox();
-    const isAtExit = this.level.getEntities("Exit").some((exit) => this.hitboxesOverlap(characterHitbox, getEntityBox(exit)));
-    if (isAtExit) this.loadNextLevel();
+    const touchedExit = this.level.exits.find((exit) => this.hitboxesOverlap(characterHitbox, exit.getHitbox()));
+    if (touchedExit) this.loadNextLevel(touchedExit);
   }
 
   checkGameOver() {
@@ -156,6 +167,11 @@ export class WorldLogic {
 
   startTimer() {
     if (this.timerStartMs === null) this.timerStartMs = gameLoop.now();
+  }
+
+  getElapsedMs() {
+    if (this.timerStartMs === null) return this.timerCarryMs;
+    return this.timerCarryMs + (this.timerStopMs ?? gameLoop.now()) - this.timerStartMs;
   }
 
   checkTimerStop() {

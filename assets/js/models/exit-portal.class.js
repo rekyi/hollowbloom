@@ -6,8 +6,11 @@ const FRAME_DURATION_MS = 100;
 const FRAME_PATHS = Array.from({ length: FRAME_COUNT }, (_, index) => `assets/images/exit/portal1_frame_${index + 1}.webp`);
 
 export class ExitPortal extends DrawableObject {
-  constructor({ x, y, width, height }) {
+  isBossExit = false;
+
+  constructor({ x, y, width, height }, isBossExit = false) {
     super();
+    this.isBossExit = isBossExit;
     this.loadImages(FRAME_PATHS);
     this.x = x;
     this.y = y;

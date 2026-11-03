@@ -21,7 +21,7 @@ export function setupScreens() {
   document.getElementById("restart-button").addEventListener("click", restartLevel);
   document.getElementById("victory-restart-button").addEventListener("click", startGame);
   document.getElementById("pause-resume-button").addEventListener("click", togglePause);
-  document.getElementById("pause-restart-button").addEventListener("click", startGame);
+  document.getElementById("pause-restart-button").addEventListener("click", restartLevel);
   document.getElementById("main-menu-button").addEventListener("click", returnToMainMenu);
   document.getElementById("victory-main-menu-button").addEventListener("click", returnToMainMenu);
   document.getElementById("pause-main-menu-button").addEventListener("click", returnToMainMenu);
@@ -55,17 +55,32 @@ function startGame() {
   return startLevel(getStartLevelIndex(START_LEVEL));
 }
 
-function restartLevel() {
-  return startLevel(appState.world?.levelIndex ?? 0);
+export function restartLevel() {
+  const world = appState.world;
+  return startLevel(world?.levelIndex ?? 0, getRestartCarryOver(world));
 }
 
-async function startLevel(requestedLevelIndex) {
+function getRestartCarryOver(world) {
+  if (!world) return {};
+  const isDeath = world.character.isDead();
+  return {
+    coins: world.levelStartCoins,
+    coinsCollected: world.levelStartCoinsCollected,
+    timeMs: world.getElapsedMs(),
+    defeatedEnemies: world.levelStartDefeatedEnemies,
+    deaths: world.deaths + (isDeath ? 1 : 0),
+    restarts: world.restarts + (isDeath ? 0 : 1),
+  };
+}
+
+async function startLevel(requestedLevelIndex, carryOver = {}) {
   if (isScreenTransitioning || isLevelLoading) return;
   isLevelLoading = true;
   prepareLevelLoad();
   try {
     const { levelAssets, levelIndex } = await loadLevelWithFallback(requestedLevelIndex);
-    await runScreenTransition(() => startGameAtBlackout(levelAssets, levelIndex));
+    const appliedCarryOver = levelIndex === requestedLevelIndex ? carryOver : {};
+    await runScreenTransition(() => startGameAtBlackout(levelAssets, levelIndex, appliedCarryOver));
   } catch (error) {
     handleLevelLoadError(error);
   } finally {
@@ -94,14 +109,14 @@ function setLevelLoadStatus(text) {
   loadStatusRef.hidden = false;
 }
 
-function startGameAtBlackout(levelAssets, levelIndex) {
+function startGameAtBlackout(levelAssets, levelIndex, carryOver) {
   document.getElementById("start-screen").hidden = true;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   document.getElementById("victory-screen").hidden = true;
   appState.canvasRef.classList.add("ready");
   document.getElementById("level-load-status").hidden = true;
-  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets, levelIndex);
+  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets, levelIndex, carryOver);
   stopStartScreenMusic();
 }
 
@@ -129,10 +144,12 @@ async function renderVictoryStats() {
   document.getElementById("victory-play-time").textContent = appState.world.getTimerText();
   document.getElementById("victory-coins").textContent = await getVictoryCoinsText();
   document.getElementById("victory-defeated-enemies").textContent = String(appState.world.defeatedEnemies);
+  document.getElementById("victory-deaths").textContent = String(appState.world.deaths);
+  document.getElementById("victory-restarts").textContent = String(appState.world.restarts);
 }
 
 async function getVictoryCoinsText() {
-  const collectedCoins = appState.world.character.coins;
+  const collectedCoins = appState.world.coinsCollected;
   try {
     return `${collectedCoins} / ${await countLevelCoins()}`;
   } catch (error) {

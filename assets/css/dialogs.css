@@ -107,6 +107,13 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     row-gap: 0.75rem;
 }
 
+.settings-display,
+.settings-language {
+    @media (min-width: 480px) {
+        grid-template-columns: 9rem minmax(0, 1fr);
+    }
+}
+
 .settings-display[hidden] {
     display: none;
 }

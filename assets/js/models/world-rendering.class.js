@@ -2,6 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
 import { LEVEL_SCALE, TILE_SIZE } from "./level.class.js";
 import { translate } from "../translation.js";
+import { getIntroBlend } from "../camera-intro.js";
 
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
@@ -40,6 +41,30 @@ export class WorldRendering extends WorldLogic {
     this.cameraY = this.getSmoothedValue(this.cameraY, -targetY, CAMERA_SMOOTHING_Y, isInstant);
   }
 
+  getCameraView() {
+    const gameplayView = { zoom: CAMERA_ZOOM, x: this.cameraX, y: this.cameraY };
+    if (!gameLoop.isIntroPlaying) return gameplayView;
+    return this.blendCameraViews(gameplayView, this.getOverviewView(), getIntroBlend(gameLoop.introElapsedMs));
+  }
+
+  getOverviewView() {
+    const zoom = Math.min(CANVAS_WIDTH / this.level.width, CANVAS_HEIGHT / this.level.height);
+    return { zoom, x: (CANVAS_WIDTH / zoom - this.level.width) / 2, y: (CANVAS_HEIGHT / zoom - this.level.height) / 2 };
+  }
+
+  blendCameraViews(from, to, blend) {
+    const zoom = from.zoom * (to.zoom / from.zoom) ** blend;
+    const fromCenter = this.getViewCenter(from);
+    const toCenter = this.getViewCenter(to);
+    const centerX = fromCenter.x + (toCenter.x - fromCenter.x) * blend;
+    const centerY = fromCenter.y + (toCenter.y - fromCenter.y) * blend;
+    return { zoom, x: CANVAS_WIDTH / (2 * zoom) - centerX, y: CANVAS_HEIGHT / (2 * zoom) - centerY };
+  }
+
+  getViewCenter({ zoom, x, y }) {
+    return { x: CANVAS_WIDTH / (2 * zoom) - x, y: CANVAS_HEIGHT / (2 * zoom) - y };
+  }
+
   updateCameraLookAhead(isInstant) {
     const targetLookAhead = this.character.isOppositeDirection ? -CAMERA_LOOK_AHEAD_PX : CAMERA_LOOK_AHEAD_PX;
     this.cameraLookAhead = this.getSmoothedValue(this.cameraLookAhead, targetLookAhead, CAMERA_LOOK_AHEAD_SMOOTHING, isInstant);
@@ -53,7 +78,8 @@ export class WorldRendering extends WorldLogic {
     const shake = this.getShakeOffset();
     this.ctx.fillStyle = BACKGROUND_COLOR;
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    this.drawScene(this.cameraX + shake.x, this.cameraY + shake.y);
+    const view = this.getCameraView();
+    this.drawScene(view.zoom, view.x + shake.x, view.y + shake.y);
     this.drawDamageFlash();
     this.statusBar.draw(this.ctx);
     this.drawTimer();
@@ -104,9 +130,10 @@ export class WorldRendering extends WorldLogic {
     return (value - Math.floor(value)) * 2 - 1;
   }
 
-  drawScene(offsetX, offsetY) {
+  drawScene(zoom, offsetX, offsetY) {
     this.ctx.save();
-    this.ctx.setTransform(CAMERA_ZOOM, 0, 0, CAMERA_ZOOM, Math.round(offsetX * CAMERA_ZOOM), Math.round(offsetY * CAMERA_ZOOM));
+    this.ctx.imageSmoothingEnabled = zoom !== CAMERA_ZOOM;
+    this.ctx.setTransform(zoom, 0, 0, zoom, Math.round(offsetX * zoom), Math.round(offsetY * zoom));
     this.drawLayers(BEHIND_ENTITIES_LAYERS);
     this.addObjectsToMap(this.level.exits);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
@@ -161,7 +188,7 @@ export class WorldRendering extends WorldLogic {
   }
 
   getTimerText() {
-    const elapsedMs = this.timerStartMs === null ? 0 : (this.timerStopMs ?? gameLoop.now()) - this.timerStartMs;
+    const elapsedMs = this.getElapsedMs();
     const totalSeconds = Math.floor(elapsedMs / 1000);
     const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
     const seconds = String(totalSeconds % 60).padStart(2, "0");

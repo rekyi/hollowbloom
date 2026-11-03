@@ -15,6 +15,7 @@ const BOAR_SPRITES = {
 const IDLE_ALERT_ANIMATION_DURATION = Math.max(BOAR_SPRITES.walk.frameCount, BOAR_SPRITES.alert.frameCount) * IDLE_ALERT_FRAME_DURATION;
 const BOAR_SETTINGS = {
   pixelScale: 1,
+  hp: 3,
   animationInterval: 80,
   attackAnimationInterval: 30,
   runAnimationInterval: 45,
@@ -50,6 +51,10 @@ export class Boar extends ConfigurableEnemy {
     this.IMAGES_ALERT = this.loadAnimation(BOAR_SPRITES.alert);
     this.IMAGES_DEFENSE = this.loadAnimation(BOAR_SPRITES.defense);
     this.resetIdleAlertLoop();
+  }
+
+  getAnimationSchedulerInterval() {
+    return 1000 / 60;
   }
 
   tryStartAttack() {

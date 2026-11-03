@@ -13,6 +13,8 @@ class GameLoop {
   animationFrameId = 0;
   hitStopUntilMs = 0;
   startDelayRemainingMs = 0;
+  introDurationMs = 0;
+  introRemainingMs = 0;
 
   now() {
     return this.gameTimeMs;
@@ -20,6 +22,14 @@ class GameLoop {
 
   get isStarting() {
     return this.startDelayRemainingMs > 0;
+  }
+
+  get isIntroPlaying() {
+    return this.introRemainingMs > 0;
+  }
+
+  get introElapsedMs() {
+    return this.introDurationMs - this.introRemainingMs;
   }
 
   runEvery(intervalMs, callback) {
@@ -37,6 +47,15 @@ class GameLoop {
     this.lastFrameTimeMs = performance.now();
     this.accumulatorMs = 0;
     this.animationFrameId = requestAnimationFrame((timeMs) => this.onAnimationFrame(timeMs));
+  }
+
+  startIntro(durationMs) {
+    this.introDurationMs = durationMs;
+    this.introRemainingMs = durationMs;
+  }
+
+  skipIntro() {
+    this.introRemainingMs = 0;
   }
 
   togglePause() {
@@ -64,6 +83,8 @@ class GameLoop {
     this.gameTimeMs = 0;
     this.hitStopUntilMs = 0;
     this.startDelayRemainingMs = 0;
+    this.introDurationMs = 0;
+    this.introRemainingMs = 0;
   }
 
   onAnimationFrame(currentTimeMs) {
@@ -81,13 +102,19 @@ class GameLoop {
       this.accumulatorMs = 0;
       return;
     }
-    if (this.startDelayRemainingMs > 0) {
-      const delayElapsedMs = Math.min(frameDurationMs, this.startDelayRemainingMs);
-      this.startDelayRemainingMs -= delayElapsedMs;
-      frameDurationMs -= delayElapsedMs;
-    }
-    this.accumulatorMs += frameDurationMs;
+    this.accumulatorMs += this.consumeDelays(frameDurationMs);
     this.runFixedSteps(currentTimeMs);
+  }
+
+  consumeDelays(frameDurationMs) {
+    const afterStartDelayMs = this.consumeDelay("startDelayRemainingMs", frameDurationMs);
+    return this.consumeDelay("introRemainingMs", afterStartDelayMs);
+  }
+
+  consumeDelay(delayField, frameDurationMs) {
+    const delayElapsedMs = Math.min(frameDurationMs, this[delayField]);
+    this[delayField] -= delayElapsedMs;
+    return frameDurationMs - delayElapsedMs;
   }
 
   runFixedSteps(currentTimeMs) {

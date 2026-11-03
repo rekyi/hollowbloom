@@ -236,6 +236,11 @@ canvas.ready {
     font-size: clamp(1rem, 2.5vw, 1.25rem);
 }
 
+.victory-screen .victory-restart-button:hover,
+.victory-screen .victory-restart-button:focus-visible {
+    background: #fff0b3;
+}
+
 @media (prefers-reduced-motion: reduce) {
 
     .game-over button,

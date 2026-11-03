@@ -1,7 +1,7 @@
 export const ENTITY_SCALE = 0.7;
-export const LEVEL_COUNT = 2;
-export const START_LEVEL = 2;
-export const EXTRA_ATTACK_COIN_THRESHOLD = 5;
+export const LEVEL_COUNT = 3;
+export const START_LEVEL = 1;
+export const EXTRA_ATTACK_COIN_COST = 2;
 export const MOVE_RIGHT_KEYS = ["ArrowRight", "KeyD"];
 export const MOVE_LEFT_KEYS = ["ArrowLeft", "KeyA"];
 export const JUMP_KEYS = ["ArrowUp", "KeyW", "Space"];
@@ -9,6 +9,7 @@ export const RUN_KEYS = ["ShiftLeft", "ShiftRight"];
 export const ATTACK_KEYS = ["KeyJ", "KeyX"];
 export const EXTRA_ATTACK_KEYS = ["KeyK", "KeyC"];
 export const PAUSE_KEYS = ["Escape", "KeyP"];
+export const RESTART_KEYS = ["KeyR"];
 export const TIMER_START_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "KeyA", "KeyD", "KeyW", "Space", "KeyJ", "KeyK", "KeyX", "KeyC"];
 
 export const CHARACTER_SETTING_KEYS = [
@@ -218,6 +219,7 @@ export const HIT_FEEDBACK = {
   bossRoar: { shakeMagnitude: 9, shakeDurationMs: 180, hitStopMs: 0, knockbackSpeed: 0 },
 };
 
+export const BOSS_HIT_PROTECTION_MS = 700;
 export const KNOCKBACK_FRICTION = 0.8;
 export const KNOCKBACK_MIN_SPEED = 0.2;
 

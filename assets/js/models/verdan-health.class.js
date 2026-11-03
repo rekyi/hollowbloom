@@ -1,6 +1,7 @@
 import { playSfx } from "../sfx.js";
+import { gameLoop } from "./game-loop.class.js";
 import { VerdanAttacks } from "./verdan-attacks.class.js";
-import { VERDAN_SETTINGS } from "../data.js";
+import { BOSS_HIT_PROTECTION_MS, VERDAN_SETTINGS } from "../data.js";
 
 export class VerdanHealth extends VerdanAttacks {
   hp = 8;
@@ -9,10 +10,16 @@ export class VerdanHealth extends VerdanAttacks {
   isRagePending = false;
   isRoarTriggered = false;
   isDeathAnimationFinished = false;
+  hitProtectedUntil = Number.NEGATIVE_INFINITY;
+
+  isHitProtected() {
+    return gameLoop.now() < this.hitProtectedUntil;
+  }
 
   hit() {
-    if (this.state === "transition") return false;
+    if (this.state === "transition" || this.isHitProtected()) return false;
     if (!super.hit()) return false;
+    this.hitProtectedUntil = gameLoop.now() + BOSS_HIT_PROTECTION_MS;
     if (!this.isDead()) playSfx("verdanHurt");
     this.handleHitReaction();
     return true;
@@ -23,6 +30,13 @@ export class VerdanHealth extends VerdanAttacks {
     else if (this.state === "attack") this.isRagePending = this.shouldEnterRage();
     else if (this.shouldEnterRage()) this.startTransition();
     else if (this.canStagger) this.startHurt();
+  }
+
+  draw(ctx) {
+    ctx.save();
+    if (this.isHitProtected() && !this.isDead() && Math.floor(gameLoop.now() / 80) % 2 === 0) ctx.globalAlpha = 0.5;
+    super.draw(ctx);
+    ctx.restore();
   }
 
   shouldEnterRage() {

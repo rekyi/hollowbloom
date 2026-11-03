@@ -20,6 +20,7 @@ export class EnemyBehavior extends MoveableObject {
   runAnimationInterval = 120;
   deathAnimationInterval = 120;
   hp = 2;
+  hasAttackArmor = false;
   movementDirection = -1;
   isOppositeDirection = true;
   isMovable = true;
@@ -105,8 +106,12 @@ export class EnemyBehavior extends MoveableObject {
     else this.patrol();
   }
 
+  isAttackArmored() {
+    return this.hasAttackArmor && this.isAttacking && !this.isDead();
+  }
+
   startKnockback(direction, speed) {
-    if (this.getActiveStatus()) return;
+    if (this.getActiveStatus() || this.isAttackArmored()) return;
     this.knockbackDirection = direction;
     this.knockbackSpeed = speed;
   }

@@ -1,0 +1,67 @@
+{
+	"identifier": "Boss_Level",
+	"uniqueIdentifer": "ad42c590-bde0-11f1-a019-ebca5e887622",
+	"x": 8192,
+	"y": 0,
+	"width": 2560,
+	"height": 1440,
+	"bgColor": "#696A79",
+	"neighbourLevels": [
+		{
+			"levelIid": "ff3a0f20-bde0-11f1-910c-51fd69d5206b",
+			"dir": "w"
+		}
+	],
+	"customFields" : {},
+	"layers": [
+		"Background.webp",
+		"Deco_Hazard.webp",
+		"Platforms.webp",
+		"Hanging.webp",
+		"Ground.webp",
+		"Hills.webp"
+	],
+	"entities": {
+		"Boss": [
+			{
+				"id": "Boss",
+				"iid": "4f1be090-bde0-11f1-a019-139f5ad45194",
+				"layer": "Entities",
+				"x": 1920,
+				"y": 1056,
+				"width": 64,
+				"height": 224,
+				"color": 16705377,
+				"customFields": {
+					"range": 12
+				}
+			}
+		],
+		"Player": [
+			{
+				"id": "Player",
+				"iid": "30469690-bde0-11f1-a019-b725da6ccc9d",
+				"layer": "Entities",
+				"x": 480,
+				"y": 1248,
+				"width": 32,
+				"height": 32,
+				"color": 12470831,
+				"customFields" : {}
+			}
+		],
+		"Coin": [
+			{
+				"id": "Coin",
+				"iid": "ae8393e0-bde0-11f1-a019-3b7970775165",
+				"layer": "Entities",
+				"x": 928,
+				"y": 1152,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			}
+		]
+	}
+}

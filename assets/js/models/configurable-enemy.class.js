@@ -54,6 +54,8 @@ export class ConfigurableEnemy extends Enemy {
     this.setPosition(x, y, width * scale, height * scale, speed * ENTITY_SCALE, minX, maxX);
     this.offset = settings.hitbox ? this.scaleOffset(settings.hitbox, scale) : this.offset;
     this.attackOffset = settings.attackHitbox ? this.scaleOffset(settings.attackHitbox, scale) : this.offset;
+    this.hp = settings.hp ?? this.hp;
+    this.hasAttackArmor = settings.hasAttackArmor ?? false;
     this.chaseSpeedFactor = settings.chaseSpeedFactor ?? 1;
     this.aggroFootTolerance = settings.aggroFootTolerance ?? null;
     this.attackHitStartFrame = settings.attackHitStartFrame ?? this.attackHitStartFrame;
@@ -71,7 +73,10 @@ export class ConfigurableEnemy extends Enemy {
   }
 
   hit(source) {
+    const isArmored = this.isAttackArmored();
+    const previousLastHit = this.lastHit;
     if (!super.hit()) return false;
+    if (isArmored && !this.isDead()) this.lastHit = previousLastHit;
     this.IMAGES_HURT = this.selectRandomAnimation(this.hurtAnimations);
     this.applyHitStatus(source);
     return true;

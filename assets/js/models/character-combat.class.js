@@ -1,4 +1,4 @@
-import { ENTITY_SCALE, EXTRA_ATTACK_COIN_THRESHOLD, HIT_FEEDBACK } from "../data.js";
+import { ENTITY_SCALE, EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
 import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
@@ -23,7 +23,12 @@ export class CharacterCombat extends CharacterMovement {
   extraAttack() {
     this.updateState();
     if (this.bufferAttackWhileAttacking("extraAttack")) return;
-    if (!this.canPerformAction("attack") || this.coins < EXTRA_ATTACK_COIN_THRESHOLD) return;
+    if (!this.canPerformAction("attack")) return;
+    if (this.coins < EXTRA_ATTACK_COIN_COST) {
+      this.world.statusBar.showSpecialDenied();
+      return;
+    }
+    this.spendCoins(EXTRA_ATTACK_COIN_COST);
     this.startAttack(this.IMAGES_EXTRA_ATTACK, this.extraAttackDamageFrame, this.extraAttackReach, this.extraAttackType);
   }
 
@@ -55,6 +60,11 @@ export class CharacterCombat extends CharacterMovement {
 
   collectCoin() {
     this.coins++;
+  }
+
+  spendCoins(amount) {
+    this.coins -= amount;
+    this.world.statusBar.setCoins(this.coins);
   }
 
   hitByEnemy(enemy) {

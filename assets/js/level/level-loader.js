@@ -8,7 +8,6 @@ import { LEVEL_COUNT } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
 const ENEMY_ORDER = [DarkElf, Skeleton, Boar];
-const ANCIENT_KEY_TYPE = "Ancient";
 const levelAssetsPromises = new Map();
 
 export function loadLevelAssets(levelIndex) {
@@ -135,18 +134,26 @@ function createChargeItem(entity) {
 }
 
 function createKey(entity) {
-  return new KeyItem(getEntityBox(entity), entity.customFields?.type === ANCIENT_KEY_TYPE);
+  return new KeyItem(getEntityBox(entity));
+}
+
+function createBossKey(entity) {
+  return new KeyItem(getEntityBox(entity), true);
 }
 
 function createExit(entity) {
   return new ExitPortal(getEntityBox(entity));
 }
 
+function createBossExit(entity) {
+  return new ExitPortal(getEntityBox(entity), true);
+}
+
 export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
   const enemies = [...(entities.Enemy_Patrol ?? []).map(createEnemy), ...(entities.Boss ?? []).map(createBoss)];
   const items = (entities.Coin ?? []).map(createChargeItem);
-  const keys = (entities.Key ?? []).map(createKey);
-  const exits = (entities.Exit ?? []).map(createExit);
+  const keys = [...(entities.Key ?? []).map(createKey), ...(entities.Boss_Key ?? []).map(createBossKey)];
+  const exits = [...(entities.Exit ?? []).map(createExit), ...(entities.Exit_Boss ?? []).map(createBossExit)];
   return new Level(enemies, items, levelAssets, keys, exits);
 }

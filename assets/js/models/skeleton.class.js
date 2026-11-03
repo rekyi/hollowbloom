@@ -7,6 +7,8 @@ function getSkeletonSprite(name, frameCount) {
 }
 const SKELETON_SETTINGS = {
   pixelScale: 1,
+  hp: 4,
+  hasAttackArmor: true,
   attackAnimationInterval: 30,
   deathAnimationInterval: 60,
   frozenAnimationInterval: 80,
@@ -37,5 +39,9 @@ export class Skeleton extends ConfigurableEnemy {
 
   constructor(positionOverrides = {}) {
     super(SKELETON_SETTINGS, positionOverrides);
+  }
+
+  getAnimationSchedulerInterval() {
+    return 1000 / 60;
   }
 }

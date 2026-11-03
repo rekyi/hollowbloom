@@ -9,11 +9,12 @@ import { playSfx } from "../sfx.js";
 import { applyMusicVolume } from "../audio.js";
 import { translate } from "../translation.js";
 import { WorldRendering } from "./world-rendering.class.js";
+import { CAMERA_INTRO_TOTAL_MS } from "../camera-intro.js";
 
 const READY_DURATION_MS = 1500;
 
 export class World extends WorldRendering {
-  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}, levelAssets, levelIndex = 0) {
+  constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}, levelAssets, levelIndex = 0, carryOver = {}) {
     super();
     this.canvasRef = canvasRef;
     this.ctx = canvasRef.getContext("2d");
@@ -21,6 +22,8 @@ export class World extends WorldRendering {
     this.keyboard = keyboard;
     this.character = new CharacterClass();
     this.character.world = this;
+    this.statusBar.setSpecialType(this.character.characterType);
+    this.applyCarryOver(carryOver);
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
     this.setupGameplayMusic();
@@ -28,8 +31,21 @@ export class World extends WorldRendering {
     this.run();
   }
 
+  applyCarryOver({ coins = 0, coinsCollected = 0, timeMs = 0, defeatedEnemies = 0, deaths = 0, restarts = 0 }) {
+    this.character.coins = coins;
+    this.statusBar.setCoins(coins);
+    this.coinsCollected = coinsCollected;
+    this.timerCarryMs = timeMs;
+    this.defeatedEnemies = defeatedEnemies;
+    this.deaths = deaths;
+    this.restarts = restarts;
+  }
+
   enterLevel(levelAssets, levelIndex) {
     this.levelIndex = levelIndex;
+    this.levelStartCoins = this.character.coins;
+    this.levelStartCoinsCollected = this.coinsCollected;
+    this.levelStartDefeatedEnemies = this.defeatedEnemies;
     this.level = createLevel(levelAssets);
     this.hasKey = false;
     this.activeCheckpoint = null;
@@ -39,16 +55,21 @@ export class World extends WorldRendering {
     this.updateCamera(true);
     this.setEnemyTargets();
     this.prepareEnemyWorld();
+    this.startCameraIntro();
+  }
+
+  startCameraIntro() {
+    if (this.level.getEntities("Boss").length > 0) gameLoop.startIntro(CAMERA_INTRO_TOTAL_MS);
   }
 
   prepareEnemyWorld() {
     this.level.enemies.forEach((enemy) => (enemy.world = this));
   }
 
-  async loadNextLevel() {
+  async loadNextLevel(exit) {
     const nextLevelIndex = this.levelIndex + 1;
     const isLastLevel = nextLevelIndex >= LEVEL_COUNT;
-    playSfx(this.level.keys.some((key) => key.isBossKey) ? "exitPortalBossLevel" : "exitPortalNormalLevel");
+    playSfx(exit.isBossExit ? "exitPortalBossLevel" : "exitPortalNormalLevel");
     if (isLastLevel) return this.triggerVictory();
     this.isLevelLoading = true;
     try {
