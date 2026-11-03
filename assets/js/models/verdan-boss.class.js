@@ -5,12 +5,15 @@ import { playSfx } from "../sfx.js";
 const WALK_STOP_DISTANCE = 150;
 const FACE_DEAD_ZONE = 8;
 const INTRO_IDLE = 1500;
-const AGGRO_DISTANCE = 600;
+const AGGRO_DISTANCE = 2000;
 const IDLE_DURATION = { normal: [800, 1200], rage: [400, 700] };
-const WALK_CYCLES = [1, 2];
+const COUNTER_DELAY = { normal: 350, rage: 250 };
+const WALK_CYCLES = [2, 3];
+const APPROACH_CYCLES = 3;
 const ROOTS_MAX_DISTANCE = { normal: 295, rage: 355 };
 const BOW_MIN_DISTANCE = { normal: 450, rage: 400 };
-const PULSE_INTERVAL = 3;
+const BOW_MAX_DISTANCE = 600;
+const PULSE_INTERVAL = 2;
 const PULSE_RANGE = 250;
 const COMBO_CHANCE = 0.5;
 
@@ -28,8 +31,10 @@ export class VerdanBoss extends VerdanHealth {
     gameLoop.runEvery(1000 / 60, () => this.updateBoss());
   }
 
-  setArena(range) {
-    this.arena = { minX: this.x - range / 2, maxX: this.x + range / 2 };
+  setArena({ left, right }) {
+    const hitbox = this.getHitbox();
+    const hitboxOffsetX = hitbox.x - this.x;
+    this.arena = { minX: left - hitboxOffsetX, maxX: right - hitboxOffsetX - hitbox.width };
   }
 
   updateBoss() {
@@ -85,7 +90,7 @@ export class VerdanBoss extends VerdanHealth {
 
   selectAttack() {
     const distance = Math.abs(this.getTargetOffsetX());
-    if (this.isApproachNeeded(distance)) return this.startWalk(1);
+    if (this.isApproachNeeded(distance)) return this.startWalk(APPROACH_CYCLES);
     if (this.isRage) this.rageAttackCount++;
     if (this.shouldPulse(distance)) this.startPulseAttack();
     else if (distance <= this.getPhaseValue(ROOTS_MAX_DISTANCE)) this.startRootsSequence();
@@ -93,12 +98,13 @@ export class VerdanBoss extends VerdanHealth {
   }
 
   isApproachNeeded(distance) {
-    const isBetween = distance > this.getPhaseValue(ROOTS_MAX_DISTANCE) && distance < this.getPhaseValue(BOW_MIN_DISTANCE);
-    return isBetween && this.getNextX() !== this.x;
+    const isBetweenAttacks = distance > this.getPhaseValue(ROOTS_MAX_DISTANCE) && distance < this.getPhaseValue(BOW_MIN_DISTANCE);
+    const isTooFarForBow = distance > BOW_MAX_DISTANCE;
+    return (isBetweenAttacks || isTooFarForBow) && this.getNextX() !== this.x;
   }
 
   shouldPulse(distance) {
-    return this.isRage && this.rageAttackCount % PULSE_INTERVAL === 0 && distance <= PULSE_RANGE;
+    return this.isRage && this.rageAttackCount % PULSE_INTERVAL === 1 && distance <= PULSE_RANGE;
   }
 
   startRootsSequence() {
@@ -119,9 +125,18 @@ export class VerdanBoss extends VerdanHealth {
     this[action]();
   }
 
-  startIdle() {
-    this.idleDuration = this.getRandomBetween(this.getPhaseValue(IDLE_DURATION));
+  startIdle(duration = this.getRandomBetween(this.getPhaseValue(IDLE_DURATION))) {
+    this.idleDuration = duration;
     this.startAnimation("idle");
+  }
+
+  startCounterIdle() {
+    this.startIdle(this.getPhaseValue(COUNTER_DELAY));
+  }
+
+  prepareCounter() {
+    if (this.state !== "idle") return;
+    this.idleDuration = Math.min(this.idleDuration, this.getElapsedTime() + this.getPhaseValue(COUNTER_DELAY));
   }
 
   startWalk(cycles) {

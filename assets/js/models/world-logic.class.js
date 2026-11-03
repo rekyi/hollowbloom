@@ -1,5 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
+import { BossHealthBar } from "./boss-health-bar.class.js";
 import { Enemy } from "./enemies.class.js";
 import { playSfx } from "../sfx.js";
 import { EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
@@ -12,7 +13,6 @@ const COIN_SFX_VOLUME = 1;
 export class WorldLogic {
   character;
   level;
-  gameplayMusic;
   canvasRef;
   ctx;
   keyboard;
@@ -23,6 +23,7 @@ export class WorldLogic {
   activeCheckpoint = null;
   isCollisionOverlayVisible = false;
   statusBar = new StatusBar();
+  bossHealthBar = new BossHealthBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;
   activeShake = HIT_FEEDBACK.hit;
   shakeDirection = 0;
@@ -64,6 +65,7 @@ export class WorldLogic {
     this.checkTimerStop();
     this.checkVictory();
     this.checkGameOver();
+    this.bossHealthBar.update(this.level.enemies.find((enemy) => enemy.isFinalBoss), dt);
   }
 
   checkHazards() {

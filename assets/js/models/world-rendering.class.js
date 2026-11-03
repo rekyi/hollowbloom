@@ -3,13 +3,15 @@ import { WorldLogic } from "./world-logic.class.js";
 import { LEVEL_SCALE, TILE_SIZE } from "./level.class.js";
 import { translate } from "../translation.js";
 import { getIntroBlend } from "../camera-intro.js";
+import { Background } from "./background.class.js";
+import { Fireflies } from "./fireflies.class.js";
+import { Lighting } from "./lighting.class.js";
 
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
 const CAMERA_ZOOM = 1;
 const VIEWPORT_WIDTH = CANVAS_WIDTH / CAMERA_ZOOM;
 const VIEWPORT_HEIGHT = CANVAS_HEIGHT / CAMERA_ZOOM;
-const BACKGROUND_COLOR = "#000";
 const CAMERA_SMOOTHING_X = 0.12;
 const CAMERA_SMOOTHING_Y = 0.1;
 const CAMERA_LOOK_AHEAD_PX = 100;
@@ -25,6 +27,10 @@ const FRONT_LAYERS = ["Hanging"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
 export class WorldRendering extends WorldLogic {
+  background = new Background();
+  fireflies = new Fireflies();
+  lighting = new Lighting();
+
   setupCanvasContext() {
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -76,12 +82,12 @@ export class WorldRendering extends WorldLogic {
 
   draw() {
     const shake = this.getShakeOffset();
-    this.ctx.fillStyle = BACKGROUND_COLOR;
-    this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     const view = this.getCameraView();
     this.drawScene(view.zoom, view.x + shake.x, view.y + shake.y);
+    this.background.drawVignette(this.ctx);
     this.drawDamageFlash();
     this.statusBar.draw(this.ctx);
+    this.bossHealthBar.draw(this.ctx);
     this.drawTimer();
     this.drawReadyMessage();
   }
@@ -134,7 +140,11 @@ export class WorldRendering extends WorldLogic {
     this.ctx.save();
     this.ctx.imageSmoothingEnabled = zoom !== CAMERA_ZOOM;
     this.ctx.setTransform(zoom, 0, 0, zoom, Math.round(offsetX * zoom), Math.round(offsetY * zoom));
+    const viewRect = this.getViewRect(zoom, offsetX, offsetY);
+    this.background.drawBehindLevel(this.ctx, viewRect, this.level.height);
+    this.fireflies.drawBehind(this.ctx, viewRect);
     this.drawLayers(BEHIND_ENTITIES_LAYERS);
+    this.lighting.drawGlows(this.ctx, this.level, this.isExitOpen());
     this.addObjectsToMap(this.level.exits);
     this.addObjectsToMap(this.level.items.filter((item) => !item.isCollected));
     this.addObjectsToMap(this.level.keys.filter((key) => !key.isCollected));
@@ -142,8 +152,13 @@ export class WorldRendering extends WorldLogic {
     this.addObjectsToMap(this.level.bossEffects);
     this.addToMap(this.character);
     this.drawLayers(FRONT_LAYERS);
+    this.fireflies.drawFront(this.ctx, viewRect);
     this.drawCollisionOverlay();
     this.ctx.restore();
+  }
+
+  getViewRect(zoom, offsetX, offsetY) {
+    return { left: -offsetX, top: -offsetY, width: CANVAS_WIDTH / zoom, height: CANVAS_HEIGHT / zoom };
   }
 
   toggleCollisionOverlay() {

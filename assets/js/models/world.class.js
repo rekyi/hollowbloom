@@ -1,17 +1,20 @@
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
-import { createLevel, loadLevelAssets } from "../level/level-loader.js";
+import { createLevel, loadLevelAssets, releaseLevelAssets } from "../level/level-loader.js";
 import { LEVEL_COUNT } from "../data.js";
 import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
-import { AudioError } from "./audio-error.class.js";
 import { playSfx } from "../sfx.js";
-import { applyMusicVolume } from "../audio.js";
+import { gameMusic } from "./game-music.class.js";
 import { translate } from "../translation.js";
 import { WorldRendering } from "./world-rendering.class.js";
 import { CAMERA_INTRO_TOTAL_MS } from "../camera-intro.js";
+import { getLevelTheme } from "../level-themes.js";
+import { prepareLevelLighting } from "./lighting.class.js";
 
 const READY_DURATION_MS = 1500;
+const PRELOAD_DELAY_MS = 2000;
+const GAMEPLAY_MUSIC_DELAY_MS = 1000;
 
 export class World extends WorldRendering {
   constructor(canvasRef, keyboard, onGameOver, CharacterClass = FemaleCharacter, onVictory = () => {}, levelAssets, levelIndex = 0, carryOver = {}) {
@@ -26,9 +29,9 @@ export class World extends WorldRendering {
     this.applyCarryOver(carryOver);
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
-    this.setupGameplayMusic();
     this.enterLevel(levelAssets, levelIndex);
     this.run();
+    this.startLevelMusic(READY_DURATION_MS);
   }
 
   applyCarryOver({ coins = 0, coinsCollected = 0, timeMs = 0, defeatedEnemies = 0, deaths = 0, restarts = 0 }) {
@@ -47,6 +50,8 @@ export class World extends WorldRendering {
     this.levelStartCoinsCollected = this.coinsCollected;
     this.levelStartDefeatedEnemies = this.defeatedEnemies;
     this.level = createLevel(levelAssets);
+    this.applyLevelTheme();
+    this.preloadNextLevel();
     this.hasKey = false;
     this.activeCheckpoint = null;
     this.placeCharacterAtStart();
@@ -58,8 +63,36 @@ export class World extends WorldRendering {
     this.startCameraIntro();
   }
 
+  preloadNextLevel() {
+    const nextLevelIndex = this.levelIndex + 1;
+    releaseLevelAssets([this.levelIndex, nextLevelIndex]);
+    if (nextLevelIndex >= LEVEL_COUNT) return;
+    setTimeout(() => loadLevelAssets(nextLevelIndex).then(prepareLevelLighting).catch(() => {}), PRELOAD_DELAY_MS);
+  }
+
+  applyLevelTheme() {
+    const theme = getLevelTheme(this.level);
+    this.background.setTheme(theme);
+    this.fireflies.populate(this.level, theme);
+    this.lighting.setLevel(this.level);
+  }
+
+  isBossLevel() {
+    return this.level.getEntities("Boss").length > 0;
+  }
+
   startCameraIntro() {
-    if (this.level.getEntities("Boss").length > 0) gameLoop.startIntro(CAMERA_INTRO_TOTAL_MS);
+    if (this.isBossLevel()) gameLoop.startIntro(CAMERA_INTRO_TOTAL_MS);
+  }
+
+  skipCameraIntro() {
+    gameLoop.skipIntro();
+    gameMusic.startBossLoop();
+  }
+
+  startLevelMusic(introDelayMs) {
+    if (this.isBossLevel()) gameLoop.runAfter(introDelayMs, () => gameMusic.playBossMusic(gameLoop.introElapsedMs));
+    else gameLoop.runAfter(GAMEPLAY_MUSIC_DELAY_MS, () => gameMusic.playGameplayMusic());
   }
 
   prepareEnemyWorld() {
@@ -74,6 +107,7 @@ export class World extends WorldRendering {
     this.isLevelLoading = true;
     try {
       this.enterLevel(await loadLevelAssets(nextLevelIndex), nextLevelIndex);
+      this.startLevelMusic(0);
       this.isLevelLoading = false;
     } catch (error) {
       console.error(error);
@@ -84,13 +118,6 @@ export class World extends WorldRendering {
   placeCharacterAtStart() {
     const [playerStart] = this.level.getEntities("Player");
     if (playerStart) placeOnEntity(this.character, playerStart);
-  }
-
-  setupGameplayMusic() {
-    this.gameplayMusic = new Audio("assets/audio/music/gameplay.ogg");
-    this.gameplayMusic.loop = true;
-    applyMusicVolume(this.gameplayMusic);
-    this.startGameplayMusic();
   }
 
   setEnemyTargets() {
@@ -108,21 +135,21 @@ export class World extends WorldRendering {
     );
   }
 
-  startGameplayMusic() {
-    AudioError.play(this.gameplayMusic);
+  isGameplayMusicPlaying() {
+    return gameMusic.isPlaying;
   }
 
   pauseGameplayMusic() {
-    AudioError.pause(this.gameplayMusic);
+    gameMusic.pause();
   }
 
   resumeGameplayMusic() {
     const boss = this.level.enemies.find((enemy) => enemy.isFinalBoss);
     if (this.character.isDead() || boss?.isDead()) return;
-    this.startGameplayMusic();
+    gameMusic.resume();
   }
 
   stopGameplayMusic() {
-    AudioError.stop(this.gameplayMusic);
+    gameMusic.stop();
   }
 }

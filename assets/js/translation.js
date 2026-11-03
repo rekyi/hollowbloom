@@ -17,6 +17,7 @@ const TEXTS = {
   "character.male": { en: "Male character", de: "Männlicher Character" },
 
   "game.ready": { en: "READY!", de: "BEREIT!" },
+  "boss.verdanTitle": { en: "Warden of the Grove", de: "Wächter des Hains" },
 
   "pause.label": { en: "Game paused", de: "Spiel pausiert" },
   "pause.title": { en: "Paused", de: "Pause" },

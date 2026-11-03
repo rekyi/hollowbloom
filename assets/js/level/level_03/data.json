@@ -61,6 +61,28 @@
 				"height": 32,
 				"color": 15389866,
 				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "fe2ebac0-bde0-11f1-aa94-fbf21127fe72",
+				"layer": "Entities",
+				"x": 2208,
+				"y": 1120,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
+			},
+			{
+				"id": "Coin",
+				"iid": "0370b510-bde0-11f1-aa94-2597f287d6a5",
+				"layer": "Entities",
+				"x": 1632,
+				"y": 1216,
+				"width": 32,
+				"height": 32,
+				"color": 15389866,
+				"customFields" : {}
 			}
 		]
 	}

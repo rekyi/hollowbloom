@@ -223,8 +223,13 @@ export const BOSS_HIT_PROTECTION_MS = 700;
 export const KNOCKBACK_FRICTION = 0.8;
 export const KNOCKBACK_MIN_SPEED = 0.2;
 
+export const BOSS_INTRO_MUSIC_MS = 4833;
 export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");
 export const deathScreenMusic = new Audio("assets/audio/music/death_screen.ogg");
+export const gameplayMusic = new Audio("assets/audio/music/gameplay.ogg");
+export const bossIntroMusic = new Audio("assets/audio/music/verdan_bg_intro.ogg");
+export const bossMusic = new Audio("assets/audio/music/verdan_bg.ogg");
+export const bossRageMusic = new Audio("assets/audio/music/verdan_bg_rage.ogg");
 export const pressedKeys = new Set();
 export const appState = {
   canvasRef: null,

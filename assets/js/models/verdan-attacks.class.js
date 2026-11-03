@@ -50,7 +50,10 @@ export class VerdanAttacks extends VerdanBase {
   }
 
   startSpikeRow({ spawn, spikes }) {
-    this.spikeRow = { spawn, spikes, spawnedCount: 0, startedAt: gameLoop.now(), origin: this.getFootPoint(), isLeft: this.isOppositeDirection, effectKey: this.getPhaseKey("fxRootSpike") };
+    const targetOffsetX = this.getTargetOffsetX();
+    const isTargetInFront = (targetOffsetX < 0) === this.isOppositeDirection;
+    const firstSpike = { x: isTargetInFront ? Math.min(spawn.x, Math.abs(targetOffsetX)) : spawn.x, y: spawn.y };
+    this.spikeRow = { spawn: firstSpike, spikes, spawnedCount: 0, startedAt: gameLoop.now(), origin: this.getFootPoint(), isLeft: this.isOppositeDirection, effectKey: this.getPhaseKey("fxRootSpike") };
   }
 
   updateSpikeRow() {

@@ -32,6 +32,42 @@ canvas.ready {
     display: block;
 }
 
+.boss-name-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+
+    display: none;
+    place-items: center;
+}
+
+body:has(#canvas.ready):not(:has(.game-over:not([hidden]), .victory-screen:not([hidden]))) .boss-name-layer {
+    display: grid;
+}
+
+.boss-name-frame {
+    width: min(100vw, var(--game-width), 177.7778dvh);
+    aspect-ratio: 16 / 9;
+    container-type: inline-size;
+}
+
+.boss-name {
+    margin: 0;
+    padding-top: 4.6cqw;
+    opacity: 0;
+
+    font: bold 1.02cqw monospace;
+    letter-spacing: 0.23cqw;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgba(255, 236, 214, 0.92);
+    text-shadow:
+        0 0 2px #000,
+        0 0 2px #000,
+        0 0 3px #000;
+}
+
 #screen-transition {
     position: fixed;
     inset: 0;

@@ -15,7 +15,7 @@ export class AudioError {
 
   static stop(sound) {
     AudioError.pause(sound);
-    sound.currentTime = 0;
+    if (sound.currentTime > 0) sound.currentTime = 0;
   }
 }
 

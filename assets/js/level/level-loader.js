@@ -20,9 +20,17 @@ export function loadLevelAssets(levelIndex) {
   return levelAssetsPromise;
 }
 
+export function releaseLevelAssets(keptLevelIndexes) {
+  levelAssetsPromises.forEach((levelAssetsPromise, levelIndex) => {
+    if (keptLevelIndexes.includes(levelIndex)) return;
+    levelAssetsPromises.delete(levelIndex);
+    levelAssetsPromise.then(({ layers }) => layers.forEach(({ image }) => image.close())).catch(() => {});
+  });
+}
+
 export async function countLevelCoins() {
-  const allLevelAssets = await Promise.all(Array.from({ length: LEVEL_COUNT }, (_, levelIndex) => loadLevelAssets(levelIndex)));
-  return allLevelAssets.reduce((total, levelAssets) => total + (levelAssets.data.entities.Coin ?? []).length, 0);
+  const allLevelData = await Promise.all(Array.from({ length: LEVEL_COUNT }, (_, levelIndex) => fetchLevelData(getLevelFolderUrl(levelIndex))));
+  return allLevelData.reduce((total, data) => total + (data.entities.Coin ?? []).length, 0);
 }
 
 export function getStartLevelIndex(startLevel) {
@@ -46,11 +54,15 @@ function getLevelFolderUrl(levelIndex) {
   return new URL(`./${folderName}/`, import.meta.url);
 }
 
-async function fetchLevelAssets(folderUrl) {
+async function fetchLevelData(folderUrl) {
   const dataUrl = new URL("data.json", folderUrl);
   const response = await fetch(dataUrl);
   if (!response.ok) throw new Error(`Failed to load level data (${response.status}): ${dataUrl}`);
-  const data = await response.json();
+  return response.json();
+}
+
+async function fetchLevelAssets(folderUrl) {
+  const data = await fetchLevelData(folderUrl);
   const [layers, collisionGrid] = await Promise.all([loadLayerImages(data, folderUrl), loadCollisionGrid(data, folderUrl)]);
   return { data, layers, collisionGrid };
 }
@@ -103,13 +115,15 @@ function getLayerName(filename) {
   return filename.replace(/\.[^.]+$/, "");
 }
 
-function loadLayerImage(filename, folderUrl) {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve({ name: getLayerName(filename), image });
-    image.onerror = () => reject(new Error(`Failed to load level layer: ${image.src}`));
-    image.src = new URL(filename, folderUrl).href;
-  });
+async function loadLayerImage(filename, folderUrl) {
+  const image = new Image();
+  image.src = new URL(filename, folderUrl).href;
+  try {
+    await image.decode();
+  } catch {
+    throw new Error(`Failed to load level layer: ${image.src}`);
+  }
+  return { name: getLayerName(filename), image: await createImageBitmap(image) };
 }
 
 function createEnemy(entity, index) {
@@ -121,11 +135,21 @@ function createEnemy(entity, index) {
   return enemy;
 }
 
-function createBoss(entity) {
+function createBoss(entity, collisionGrid) {
   const boss = new VerdanBoss();
   placeOnEntity(boss, entity);
-  boss.setArena((entity.customFields?.range ?? 0) * TILE_SIZE);
+  boss.setArena(findWalkableFloor(getEntityBox(entity), collisionGrid));
   return boss;
+}
+
+function findWalkableFloor(box, collisionGrid) {
+  const floorRow = Math.round((box.y + box.height) / TILE_SIZE);
+  const isWalkable = (column) => collisionGrid[floorRow - 1]?.[column] === 0 && collisionGrid[floorRow]?.[column] > 0;
+  let leftColumn = Math.floor((box.x + box.width / 2) / TILE_SIZE);
+  let rightColumn = leftColumn;
+  while (isWalkable(leftColumn - 1)) leftColumn--;
+  while (isWalkable(rightColumn + 1)) rightColumn++;
+  return { left: leftColumn * TILE_SIZE, right: (rightColumn + 1) * TILE_SIZE };
 }
 
 function createChargeItem(entity) {
@@ -151,7 +175,8 @@ function createBossExit(entity) {
 
 export function createLevel(levelAssets) {
   const entities = levelAssets.data.entities;
-  const enemies = [...(entities.Enemy_Patrol ?? []).map(createEnemy), ...(entities.Boss ?? []).map(createBoss)];
+  const bosses = (entities.Boss ?? []).map((entity) => createBoss(entity, levelAssets.collisionGrid));
+  const enemies = [...(entities.Enemy_Patrol ?? []).map(createEnemy), ...bosses];
   const items = (entities.Coin ?? []).map(createChargeItem);
   const keys = [...(entities.Key ?? []).map(createKey), ...(entities.Boss_Key ?? []).map(createBossKey)];
   const exits = [...(entities.Exit ?? []).map(createExit), ...(entities.Exit_Boss ?? []).map(createBossExit)];

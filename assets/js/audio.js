@@ -1,11 +1,14 @@
-import { appState, deathScreenMusic, startScreenMusic } from "./data.js";
+import { appState, bossIntroMusic, bossMusic, bossRageMusic, deathScreenMusic, gameplayMusic, startScreenMusic } from "./data.js";
 import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
+import { cancelMusicFade, fadeMusic, setMusicFadeLevel, updateMusicVolume } from "./music-fade.js";
 import { applySfxSettings } from "./sfx.js";
 import { onLanguageChange, translate } from "./translation.js";
 
 const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
 const START_SCREEN_MUSIC_PAUSE_MS = 3000;
+const START_SCREEN_MUSIC_FADE_IN_MS = 2000;
+const MUSIC_TRACKS = [startScreenMusic, deathScreenMusic, gameplayMusic, bossIntroMusic, bossMusic, bossRageMusic];
 let isStartScreenMusicWanted = false;
 let startScreenMusicTimeout = null;
 let wasGameplayMusicPlaying = false;
@@ -18,12 +21,15 @@ export function setupStartScreenMusic() {
 export function startStartScreenMusic() {
   isStartScreenMusicWanted = true;
   clearTimeout(startScreenMusicTimeout);
+  setMusicFadeLevel(startScreenMusic, 0);
   AudioError.play(startScreenMusic);
+  fadeMusic(startScreenMusic, 1, START_SCREEN_MUSIC_FADE_IN_MS);
 }
 
 export function stopStartScreenMusic() {
   isStartScreenMusicWanted = false;
   clearTimeout(startScreenMusicTimeout);
+  cancelMusicFade(startScreenMusic);
   AudioError.stop(startScreenMusic);
 }
 
@@ -47,7 +53,7 @@ function handleVisibilityChange() {
 }
 
 function pauseAudioForHiddenTab() {
-  wasGameplayMusicPlaying = Boolean(appState.world && !appState.world.gameplayMusic.paused);
+  wasGameplayMusicPlaying = Boolean(appState.world?.isGameplayMusicPlaying());
   clearTimeout(startScreenMusicTimeout);
   AudioError.pause(startScreenMusic);
   appState.world?.pauseGameplayMusic();
@@ -116,15 +122,8 @@ function updateAudioMuteButton() {
   });
 }
 
-export function applyMusicVolume(gameplayMusic = appState.world?.gameplayMusic) {
-  const volume = appState.masterVolume * appState.musicVolume;
-  startScreenMusic.volume = volume;
-  startScreenMusic.muted = appState.isAudioMuted;
-  deathScreenMusic.volume = volume;
-  deathScreenMusic.muted = appState.isAudioMuted;
-  if (!gameplayMusic) return;
-  gameplayMusic.volume = volume;
-  gameplayMusic.muted = appState.isAudioMuted;
+export function applyMusicVolume() {
+  MUSIC_TRACKS.forEach(updateMusicVolume);
 }
 
 function setVolumeSlider(sliderId, volume) {

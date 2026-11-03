@@ -61,7 +61,7 @@ function handleGameKey(event) {
 }
 
 function handleIntroKey(event) {
-  if (JUMP_KEYS.includes(event.code) && !event.repeat) gameLoop.skipIntro();
+  if (JUMP_KEYS.includes(event.code) && !event.repeat) appState.world.skipCameraIntro();
 }
 
 function handleJumpKey(event) {

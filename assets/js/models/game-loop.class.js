@@ -3,6 +3,7 @@ class GameLoop {
   fixedStepMs = 1000 / 60;
   maxFrameDurationMs = 250;
   scheduledTasks = [];
+  delayedTasks = [];
   updateCallback = null;
   renderCallback = null;
   isRunning = false;
@@ -36,6 +37,10 @@ class GameLoop {
     const task = { intervalMs, callback, elapsedMs: 0, isActive: true };
     this.scheduledTasks.push(task);
     return () => (task.isActive = false);
+  }
+
+  runAfter(delayMs, callback) {
+    this.delayedTasks.push({ remainingMs: delayMs, callback });
   }
 
   start(updateCallback, renderCallback, startDelayMs = 0) {
@@ -72,6 +77,7 @@ class GameLoop {
     this.isRunning = false;
     cancelAnimationFrame(this.animationFrameId);
     this.scheduledTasks = [];
+    this.delayedTasks = [];
     this.updateCallback = null;
     this.renderCallback = null;
     this.resetTiming();
@@ -103,7 +109,15 @@ class GameLoop {
       return;
     }
     this.accumulatorMs += this.consumeDelays(frameDurationMs);
+    this.runDelayedTasks(frameDurationMs);
     this.runFixedSteps(currentTimeMs);
+  }
+
+  runDelayedTasks(frameDurationMs) {
+    this.delayedTasks.forEach((task) => (task.remainingMs -= frameDurationMs));
+    const dueTasks = this.delayedTasks.filter((task) => task.remainingMs <= 0);
+    this.delayedTasks = this.delayedTasks.filter((task) => task.remainingMs > 0);
+    dueTasks.forEach((task) => task.callback());
   }
 
   consumeDelays(frameDurationMs) {

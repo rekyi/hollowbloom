@@ -2,10 +2,11 @@ import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { VerdanAttacks } from "./verdan-attacks.class.js";
 import { BOSS_HIT_PROTECTION_MS, VERDAN_SETTINGS } from "../data.js";
+import { gameMusic } from "./game-music.class.js";
 
 export class VerdanHealth extends VerdanAttacks {
-  hp = 8;
-  maxHp = 8;
+  hp = 12;
+  maxHp = 12;
   canStagger = true;
   isRagePending = false;
   isRoarTriggered = false;
@@ -30,6 +31,7 @@ export class VerdanHealth extends VerdanAttacks {
     else if (this.state === "attack") this.isRagePending = this.shouldEnterRage();
     else if (this.shouldEnterRage()) this.startTransition();
     else if (this.canStagger) this.startHurt();
+    else this.prepareCounter();
   }
 
   draw(ctx) {
@@ -61,12 +63,13 @@ export class VerdanHealth extends VerdanAttacks {
   playHurt() {
     const frame = this.getElapsedFrame(this.getPhaseSettings("hurt").frameDuration);
     if (frame < this.IMAGES_HURT.length) this.setFrame(this.IMAGES_HURT, frame);
-    else this.startIdle();
+    else this.startCounterIdle();
   }
 
   startTransition() {
     this.cancelAttacks();
     this.startAnimation("transition");
+    gameMusic.startRageTransition();
   }
 
   playTransition() {
@@ -92,6 +95,7 @@ export class VerdanHealth extends VerdanAttacks {
     this.IMAGES_HURT = this.IMAGES_HURT_RAGE;
     this.speed = VERDAN_SETTINGS.walkRage.speed;
     this.startIdle();
+    gameMusic.playRageMusic();
   }
 
   startDeath() {
