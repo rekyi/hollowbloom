@@ -2,7 +2,7 @@
 
 A 2D action platformer built with vanilla JavaScript and the HTML5 Canvas, featuring a custom game loop, levels designed in LDtk and a two-phase final boss.
 
-![Hollowbloom start screen](assets/images/9_screens/start_screen.webp)
+![Hollowbloom start screen](assets\images\background\readme.webp)
 
 https://hollowbloom.pages.dev/
 
