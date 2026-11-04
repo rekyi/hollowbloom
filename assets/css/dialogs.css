@@ -74,6 +74,44 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     text-align: center;
 }
 
+.settings-panel::-webkit-scrollbar,
+.credits-panel::-webkit-scrollbar,
+.imprint-panel::-webkit-scrollbar {
+    width: 0.6rem;
+}
+
+.settings-panel::-webkit-scrollbar-track,
+.credits-panel::-webkit-scrollbar-track,
+.imprint-panel::-webkit-scrollbar-track {
+    margin-block: 0.5rem;
+    border-radius: 0.5rem;
+    background: rgba(10, 20, 24, 0.6);
+}
+
+.settings-panel::-webkit-scrollbar-thumb,
+.credits-panel::-webkit-scrollbar-thumb,
+.imprint-panel::-webkit-scrollbar-thumb {
+    border: 2px solid rgba(0, 0, 0, 0.8);
+    border-radius: 0.5rem;
+    background: rgba(221, 207, 155, 0.8);
+}
+
+.settings-panel::-webkit-scrollbar-thumb:hover,
+.credits-panel::-webkit-scrollbar-thumb:hover,
+.imprint-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+
+    .settings-panel,
+    .credits-panel,
+    .imprint-panel {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(221, 207, 155, 0.8) rgba(10, 20, 24, 0.6);
+    }
+}
+
 .settings-panel {
     width: min(32.5rem, calc(100vw - 2rem));
     max-height: calc(100dvh - 1rem);
