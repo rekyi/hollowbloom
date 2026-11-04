@@ -11,24 +11,14 @@ export function setupInput() {
 }
 
 /**
- * Routes a keydown to pause, restart, debug or gameplay handling.
+ * Routes a keydown to pause, restart or gameplay handling.
  * @param {KeyboardEvent} event - Keydown event.
  */
 function handleKeyDown(event) {
   if (!appState.world || appState.world.isGameOver || appState.world.isVictory) return;
   if (PAUSE_KEYS.includes(event.code)) handlePauseKey(event);
   else if (RESTART_KEYS.includes(event.code)) handleRestartKey(event);
-  else if (event.code === "F2") handleDebugKey(event);
   else if (!gameLoop.isPaused) handleGameKey(event);
-}
-
-/**
- * Toggles the collision debug overlay.
- * @param {KeyboardEvent} event - Keydown event of the debug key.
- */
-function handleDebugKey(event) {
-  event.preventDefault();
-  if (!event.repeat) appState.world.toggleCollisionOverlay();
 }
 
 /**

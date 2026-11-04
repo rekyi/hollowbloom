@@ -22,7 +22,6 @@ export class WorldLogic {
   cameraLookAhead = 0;
   spawnPoint;
   activeCheckpoint = null;
-  isCollisionOverlayVisible = false;
   statusBar = new StatusBar();
   bossHealthBar = new BossHealthBar();
   shakeStartedAt = Number.NEGATIVE_INFINITY;

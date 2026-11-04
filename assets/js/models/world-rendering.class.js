@@ -1,6 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { WorldLogic } from "./world-logic.class.js";
-import { LEVEL_SCALE, TILE_SIZE } from "./level.class.js";
+import { LEVEL_SCALE } from "./level.class.js";
 import { translate } from "../translation.js";
 import { getIntroBlend } from "../camera-intro.js";
 import { Background } from "./background.class.js";
@@ -25,7 +25,6 @@ const DAMAGE_FLASH_INNER_RADIUS = CANVAS_HEIGHT * 0.4;
 const BEHIND_PORTAL_LAYERS = ["Background", "Deco_Hazard", "Hills"];
 const BEHIND_ENTITIES_LAYERS = ["Ground", "Platforms"];
 const FRONT_LAYERS = ["Hanging"];
-const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
 /** Camera, screen effects and scene drawing of the world. */
 export class WorldRendering extends WorldLogic {
@@ -229,7 +228,6 @@ export class WorldRendering extends WorldLogic {
     this.addToMap(this.character);
     this.drawLayers(FRONT_LAYERS);
     this.fireflies.drawFront(this.ctx, viewRect);
-    this.drawCollisionOverlay();
     this.ctx.restore();
   }
 
@@ -242,30 +240,6 @@ export class WorldRendering extends WorldLogic {
    */
   getViewRect(zoom, offsetX, offsetY) {
     return { left: -offsetX, top: -offsetY, width: CANVAS_WIDTH / zoom, height: CANVAS_HEIGHT / zoom };
-  }
-
-  /** Shows or hides the collision overlay. */
-  toggleCollisionOverlay() {
-    this.isCollisionOverlayVisible = !this.isCollisionOverlayVisible;
-  }
-
-  /** Draws the collision grid when the overlay is visible. */
-  drawCollisionOverlay() {
-    if (!this.isCollisionOverlayVisible) return;
-    this.level.collisionGrid.forEach((cells, row) => cells.forEach((value, column) => this.drawCollisionTile(value, column, row)));
-  }
-
-  /**
-   * Draws one colored collision tile.
-   * @param {number} value - Collision type of the tile.
-   * @param {number} column - Tile column.
-   * @param {number} row - Tile row.
-   */
-  drawCollisionTile(value, column, row) {
-    const color = COLLISION_OVERLAY_COLORS[value];
-    if (!color) return;
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 
   /**

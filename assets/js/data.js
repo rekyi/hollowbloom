@@ -40,7 +40,7 @@ export const MALE_CHARACTER_CONFIG = {
   height: 200,
   x: 320,
   y: 760,
-  hp: 33,
+  hp: 3,
   walkSpeed: 7,
   runSpeedFactor: 1.5,
   attackReach: 75,
