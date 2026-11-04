@@ -1,11 +1,11 @@
 import { gameLoop } from "./game-loop.class.js";
 import { StatusBar } from "./status-bar.class.js";
 import { BossHealthBar } from "./boss-health-bar.class.js";
-import { Enemy } from "./enemies.class.js";
+import { Enemy } from "../enemies.js";
 import { playSfx } from "../sfx.js";
 import { EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
 import { isDamageFlashEnabled, isScreenShakeEnabled } from "../effect-settings.js";
-import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "./tile-collision.js";
+import { getTouchedTileTop, isTouchingTile, TILE_HAZARD, TILE_SOLID } from "../tile-collision.js";
 import { getPlacementOnEntity } from "./level.class.js";
 
 const COIN_SFX_VOLUME = 1;

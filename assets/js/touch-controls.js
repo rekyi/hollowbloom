@@ -3,10 +3,19 @@ import { pressedKeys } from "./data.js";
 const RUN_KEY = "ShiftLeft";
 let isRunModeOn = false;
 
-/** Sets up the touch hold buttons and the run mode toggle. */
+/** Sets up the touch hold buttons, the run mode toggle and blocks their context menu. */
 export function setupTouchControls() {
   document.querySelectorAll("[data-touch-key]").forEach(setupHoldButton);
   document.getElementById("touch-run-button").addEventListener("click", toggleRunMode);
+  document.getElementById("touch-controls").addEventListener("contextmenu", preventContextMenu);
+}
+
+/**
+ * Blocks the context menu (right click, touch and hold) on the touch buttons.
+ * @param {MouseEvent} event - Contextmenu event inside the touch controls.
+ */
+function preventContextMenu(event) {
+  event.preventDefault();
 }
 
 /**

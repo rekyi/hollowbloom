@@ -311,7 +311,7 @@ body:has(#canvas.ready):not(:has(.game-over:not([hidden]), .victory-screen:not([
     justify-items: center;
     gap: 1rem;
 
-    @media (orientation: portrait) and (max-width: 600px) {
+    @media (orientation: portrait) and (max-width: 600px), (orientation: portrait) and (hover: none) and (pointer: coarse) {
         display: grid;
     }
 
@@ -339,7 +339,7 @@ body:has(#canvas.ready):not(:has(.game-over:not([hidden]), .victory-screen:not([
 }
 
 dialog[open] {
-    @media (orientation: portrait) and (max-width: 600px) {
+    @media (orientation: portrait) and (max-width: 600px), (orientation: portrait) and (hover: none) and (pointer: coarse) {
         display: none;
     }
 

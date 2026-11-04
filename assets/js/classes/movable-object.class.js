@@ -2,7 +2,7 @@ import { gameLoop } from "./game-loop.class.js";
 import { playSfx } from "../sfx.js";
 import { ENTITY_SCALE, KNOCKBACK_FRICTION, KNOCKBACK_MIN_SPEED } from "../data.js";
 import { DrawableObject } from "./drawable-object.class.js";
-import { hasGroundBelow, moveX, moveY } from "./tile-collision.js";
+import { hasGroundBelow, moveX, moveY } from "../tile-collision.js";
 
 const HIT_JITTER_MS = 120;
 const HIT_JITTER_PX = 3;

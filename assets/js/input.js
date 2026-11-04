@@ -1,5 +1,5 @@
 import { appState, ATTACK_KEYS, EXTRA_ATTACK_KEYS, JUMP_KEYS, MOVE_LEFT_KEYS, MOVE_RIGHT_KEYS, PAUSE_KEYS, pressedKeys, RESTART_KEYS, RUN_KEYS, TIMER_START_KEYS } from "./data.js";
-import { gameLoop } from "./models/game-loop.class.js";
+import { gameLoop } from "./classes/game-loop.class.js";
 import { restartLevel, syncPauseScreen } from "./screens.js";
 
 /** Registers the global keyboard, blur and visibility listeners. */

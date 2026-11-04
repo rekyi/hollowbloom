@@ -1,7 +1,7 @@
 import { ENTITY_SCALE } from "../data.js";
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
-import { moveXOnGround } from "./tile-collision.js";
+import { moveXOnGround } from "../tile-collision.js";
 
 const AGGRO_MAX_FOOT_DIFF_HEIGHTS = 0.6;
 const FACE_DEAD_ZONE = 12 * ENTITY_SCALE;

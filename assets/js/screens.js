@@ -1,8 +1,8 @@
 import { appState, START_LEVEL } from "./data.js";
-import { gameLoop } from "./models/game-loop.class.js";
-import { FemaleCharacter } from "./models/female-character.class.js";
-import { MaleCharacter } from "./models/male-character.class.js";
-import { World } from "./models/world.class.js";
+import { gameLoop } from "./classes/game-loop.class.js";
+import { FemaleCharacter } from "./classes/female-character.class.js";
+import { MaleCharacter } from "./classes/male-character.class.js";
+import { World } from "./classes/world.class.js";
 import { countLevelCoins, getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
 import { resetKeyboard, togglePause } from "./input.js";
 import { startDeathScreenMusic, startStartScreenMusic, startVictoryScreenMusic, stopDeathScreenMusic, stopStartScreenMusic, stopVictoryScreenMusic, unlockMusicTracks } from "./audio.js";

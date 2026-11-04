@@ -75,13 +75,13 @@ hollowbloom/
         ├── data.js       central constants: keys, characters, boss, feedback, music
         ├── level/        level-loader.js and one folder per LDtk level
         ├── lib/          howler.js (MIT)
-        ├── models/       classes: world, characters, enemies, boss, items, HUD
+        ├── classes/      classes: world, characters, enemies, boss, items, HUD
         └── *.js          input, screens, dialogs, audio, translation, effects
 ```
 
 ## Architecture
 
-**Game loop.** `models/game-loop.class.js` runs a fixed 60 Hz timestep with an accumulator and renders once per `requestAnimationFrame`. It keeps its own game time (`gameLoop.now()`), which stops during pause, the ready phase and the boss intro. It also handles scheduled tasks (`runEvery`, `runAfter`) and hit-stop.
+**Game loop.** `classes/game-loop.class.js` runs a fixed 60 Hz timestep with an accumulator and renders once per `requestAnimationFrame`. It keeps its own game time (`gameLoop.now()`), which stops during pause, the ready phase and the boss intro. It also handles scheduled tasks (`runEvery`, `runAfter`) and hit-stop.
 
 **World.** The world is split into three layers:
 

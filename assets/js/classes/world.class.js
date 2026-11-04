@@ -1,5 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
-import { Enemy } from "./enemies.class.js";
+import { Enemy } from "../enemies.js";
 import { createLevel, loadLevelAssets, preloadLevelSprites, releaseLevelAssets } from "../level/level-loader.js";
 import { LEVEL_COUNT } from "../data.js";
 import { placeOnEntity } from "./level.class.js";

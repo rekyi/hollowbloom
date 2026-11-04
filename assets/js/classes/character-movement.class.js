@@ -1,7 +1,7 @@
 import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterBase } from "./character-base.class.js";
-import { moveX } from "./tile-collision.js";
+import { moveX } from "../tile-collision.js";
 
 const COYOTE_TIME_MS = 100;
 const JUMP_BUFFER_MS = 100;

@@ -7,8 +7,8 @@ import { setupDialogs } from "./assets/js/dialogs.js";
 import { setupFullscreen } from "./assets/js/fullscreen.js";
 import { setupTouchControls } from "./assets/js/touch-controls.js";
 import { setupEffectSettings } from "./assets/js/effect-settings.js";
-import { Keyboard } from "./assets/js/models/keyboard.class.js";
-import { FemaleCharacter } from "./assets/js/models/female-character.class.js";
+import { Keyboard } from "./assets/js/classes/keyboard.class.js";
+import { FemaleCharacter } from "./assets/js/classes/female-character.class.js";
 
 /** Initializes app state and sets up all game systems and UI listeners. */
 function init() {

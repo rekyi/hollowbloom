@@ -2,7 +2,7 @@ import { ENTITY_SCALE, EXTRA_ATTACK_COIN_COST, HIT_FEEDBACK } from "../data.js";
 import { playSfx } from "../sfx.js";
 import { gameLoop } from "./game-loop.class.js";
 import { CharacterMovement } from "./character-movement.class.js";
-import { moveX } from "./tile-collision.js";
+import { moveX } from "../tile-collision.js";
 
 const HAZARD_BOUNCE_SPEED = 8 * ENTITY_SCALE;
 const KNOCKBACK_SPEED_Y = 5.2 * ENTITY_SCALE;

@@ -1,12 +1,12 @@
-import { ChargeItem } from "../models/charge-item.class.js";
-import { DarkElf, Boar, Skeleton } from "../models/enemies.class.js";
-import { ExitPortal } from "../models/exit-portal.class.js";
-import { Checkpoint } from "../models/checkpoint.class.js";
-import { HealingPlant } from "../models/healing-plant.class.js";
-import { KeyItem } from "../models/key-item.class.js";
-import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
-import { VerdanBoss } from "../models/verdan-boss.class.js";
-import { preloadVerdanSheets } from "../models/verdan-base.class.js";
+import { ChargeItem } from "../classes/charge-item.class.js";
+import { DarkElf, Boar, Skeleton } from "../enemies.js";
+import { ExitPortal } from "../classes/exit-portal.class.js";
+import { Checkpoint } from "../classes/checkpoint.class.js";
+import { HealingPlant } from "../classes/healing-plant.class.js";
+import { KeyItem } from "../classes/key-item.class.js";
+import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../classes/level.class.js";
+import { VerdanBoss } from "../classes/verdan-boss.class.js";
+import { preloadVerdanSheets } from "../classes/verdan-base.class.js";
 import { LEVEL_COUNT, LEVEL_FOLDERS } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };

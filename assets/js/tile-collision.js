@@ -1,4 +1,4 @@
-import { TILE_SIZE } from "./level.class.js";
+import { TILE_SIZE } from "./classes/level.class.js";
 
 export const TILE_SOLID = 1;
 export const TILE_HAZARD = 2;

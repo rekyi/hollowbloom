@@ -25,6 +25,26 @@ const TEXTS = {
   "imprint.contact": { en: "Contact", de: "Kontakt" },
   "imprint.phone": { en: "Phone", de: "Telefon" },
   "imprint.email": { en: "Email", de: "E-Mail" },
+  "imprint.liabilityContentTitle": { en: "Liability for content", de: "Haftung für Inhalte" },
+  "imprint.liabilityContent": {
+    en: "The content of this site was created with care. However, I cannot guarantee that it is correct, complete or up to date.",
+    de: "Die Inhalte dieser Seite wurden mit Sorgfalt erstellt. Für ihre Richtigkeit, Vollständigkeit und Aktualität kann ich jedoch keine Gewähr übernehmen.",
+  },
+  "imprint.liabilityLinksTitle": { en: "Liability for links", de: "Haftung für Links" },
+  "imprint.liabilityLinks": {
+    en: "This site contains links to external websites, for example in the credits. I have no influence on their content; the respective provider is responsible for it. No legal violations were apparent at the time of linking.",
+    de: "Diese Seite enthält Links zu externen Websites, zum Beispiel in den Credits. Auf deren Inhalte habe ich keinen Einfluss, verantwortlich ist der jeweilige Anbieter. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar.",
+  },
+  "imprint.copyrightTitle": { en: "Copyright", de: "Urheberrecht" },
+  "imprint.copyright": {
+    en: "Third-party graphics, music and sounds belong to the authors named in the credits and are subject to their licenses. They may only be reused under the terms of those licenses.",
+    de: "Grafiken, Musik und Sounds von Dritten gehören den in den Credits genannten Urhebern und unterliegen deren Lizenzen. Eine Weiterverwendung ist nur im Rahmen dieser Lizenzen erlaubt.",
+  },
+  "imprint.usageTitle": { en: "Terms of use", de: "Nutzung" },
+  "imprint.usage": {
+    en: "Hollowbloom is a non-commercial hobby and learning project and can be played for free in the browser. There is no claim to availability.",
+    de: "Hollowbloom ist ein nicht-kommerzielles Hobby- und Lernprojekt und kann kostenlos im Browser gespielt werden. Ein Anspruch auf Verfügbarkeit besteht nicht.",
+  },
   "imprint.noteTitle": { en: "Note", de: "Hinweis" },
   "imprint.note": {
     en: "This is a private, non-commercial hobby project. All details above are placeholder data.",

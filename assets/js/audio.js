@@ -1,6 +1,6 @@
 import { appState, bossIntroMusic, bossMusic, bossRageMusic, deathScreenMusic, gameplayMusic, startScreenMusic, victoryScreenMusic } from "./data.js";
-import { AudioError } from "./models/audio-error.class.js";
-import { gameLoop } from "./models/game-loop.class.js";
+import { AudioError } from "./classes/audio-error.class.js";
+import { gameLoop } from "./classes/game-loop.class.js";
 import { cancelMusicFade, fadeMusic, setMusicFadeLevel, updateMusicVolume } from "./music-fade.js";
 import { applySfxSettings } from "./sfx.js";
 import { onLanguageChange, translate } from "./translation.js";
