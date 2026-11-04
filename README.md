@@ -4,7 +4,6 @@ A 2D action platformer built with vanilla JavaScript and the HTML5 Canvas, featu
 
 ![Hollowbloom start screen](assets/images/background/readme.webp)
 
-https://hollowbloom.pages.dev/
 
 ## About the game
 
