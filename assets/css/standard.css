@@ -34,7 +34,7 @@ p, h1, h2, h3, h4, h5, h6 {
 /* #endregion */
 
 :root {
-    --color-accent: #ffe27a;
+    --color-accent: #fae59a;
     --color-text: #e2e8e4;
     --color-white: #fff;
     --font-base: system-ui, -apple-system, sans-serif;
