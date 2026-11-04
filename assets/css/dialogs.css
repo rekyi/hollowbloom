@@ -84,15 +84,59 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     max-height: calc(100dvh - 1rem);
 }
 
-.imprint-panel .imprint-section {
+.credits-panel {
+    width: min(36rem, calc(100vw - 2rem));
+    max-height: min(32rem, calc(100dvh - 1rem));
+}
+
+.credits-note {
+    margin-block: 0 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+    font-style: italic;
+    text-align: left;
+}
+
+.imprint-panel .imprint-section,
+.credits-panel .credits-section {
     margin-block-end: 1rem;
     text-align: left;
 }
 
-.imprint-panel h2 {
+.imprint-panel h2,
+.credits-panel h2 {
     margin-block: 0 0.375rem;
     color: var(--color-accent);
     font-size: 1rem;
+}
+
+.credits-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    display: grid;
+    gap: 0.5rem;
+}
+
+.credits-list li {
+    display: flex;
+    flex-direction: column;
+}
+
+.credits-list a {
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.credits-list a:hover,
+.credits-list a:focus-visible {
+    color: var(--color-accent);
+}
+
+.credits-author {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
 }
 
 .imprint-panel address {

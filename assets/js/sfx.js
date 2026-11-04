@@ -1,3 +1,4 @@
+import { getAudioPath } from "./audio-format.js";
 import { appState } from "./data.js";
 
 const SFX_FILES = {
@@ -44,13 +45,13 @@ const SFX_FILES = {
   verdanDeathSprout: getSfxPaths("boss", "verdan_death_sprout", 2),
   verdanWalk: getSfxPaths("boss", "verdan_walk", 2),
   // World and UI
-  coinCollect: ["world/coin_collect.ogg"],
-  keyPickup: ["world/key_pickup.ogg"],
-  ancientKeyPickup: ["world/ancient_key_pickup.ogg"],
-  checkpointReached: ["world/checkpoint_reached.ogg"],
-  exitPortalNormalLevel: ["world/exit_portal_normal_level.ogg"],
-  exitPortalBossLevel: ["world/exit_portal_boss_level.ogg"],
-  buttonClick: ["ui/button_click.ogg"],
+  coinCollect: ["world/coin_collect"],
+  keyPickup: ["world/key_pickup"],
+  ancientKeyPickup: ["world/ancient_key_pickup"],
+  checkpointReached: ["world/checkpoint_reached"],
+  exitPortalNormalLevel: ["world/exit_portal_normal_level"],
+  exitPortalBossLevel: ["world/exit_portal_boss_level"],
+  buttonClick: ["ui/button_click"],
 };
 
 const sounds = new Map();
@@ -97,13 +98,13 @@ function playButtonClickSfx(event) {
 }
 
 /**
- * Creates a Howl for a sound effect file.
- * @param {string} file - Path relative to assets/audio/sfx/.
+ * Creates a Howl for a sound effect file in the audio format of this browser.
+ * @param {string} file - Path relative to assets/audio/sfx/ without file extension.
  * @returns {Howl} The sound instance.
  */
 function createSfx(file) {
   return new Howl({
-    src: [`assets/audio/sfx/${file}`],
+    src: [getAudioPath(`assets/audio/sfx/${file}`)],
     onloaderror: (soundId, error) => console.error(`Sound effect could not be loaded: ${file}`, error),
   });
 }
@@ -125,11 +126,10 @@ function playHowl(sound, volume, rate) {
  * @param {string} directory - Subfolder inside assets/audio/sfx/.
  * @param {string} prefix - File name prefix.
  * @param {number} count - Number of variants.
- * @param {string} [extension="ogg"] - File extension.
- * @returns {string[]} Paths like "directory/prefix_0.ogg".
+ * @returns {string[]} Paths without file extension like "directory/prefix_0".
  */
-function getSfxPaths(directory, prefix, count, extension = "ogg") {
-  return Array.from({ length: count }, (_, index) => `${directory}/${prefix}_${index}.${extension}`);
+function getSfxPaths(directory, prefix, count) {
+  return Array.from({ length: count }, (_, index) => `${directory}/${prefix}_${index}`);
 }
 
 /**

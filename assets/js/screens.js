@@ -5,7 +5,7 @@ import { MaleCharacter } from "./models/male-character.class.js";
 import { World } from "./models/world.class.js";
 import { countLevelCoins, getStartLevelIndex, loadLevelWithFallback } from "./level/level-loader.js";
 import { resetKeyboard, togglePause } from "./input.js";
-import { startDeathScreenMusic, startStartScreenMusic, startVictoryScreenMusic, stopDeathScreenMusic, stopStartScreenMusic, stopVictoryScreenMusic } from "./audio.js";
+import { startDeathScreenMusic, startStartScreenMusic, startVictoryScreenMusic, stopDeathScreenMusic, stopStartScreenMusic, stopVictoryScreenMusic, unlockMusicTracks } from "./audio.js";
 import { translate } from "./translation.js";
 
 const SCREEN_FADE_DURATION_MS = 350;
@@ -35,6 +35,7 @@ function revealStartMenu() {
   document.querySelector(".start-menu").inert = false;
   document.getElementById("character-choices").inert = false;
   document.getElementById("start-button").focus();
+  unlockMusicTracks();
   startStartScreenMusic();
 }
 

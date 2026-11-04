@@ -19,6 +19,23 @@ export function setupStartScreenMusic() {
   startScreenMusic.addEventListener("ended", handleStartScreenMusicEnded);
 }
 
+/**
+ * Unlocks every music track except the start screen music during the first click.
+ * iOS Safari only lets an audio element start later (e.g. from a timer) once it was played inside a click.
+ */
+export function unlockMusicTracks() {
+  MUSIC_TRACKS.filter((track) => track !== startScreenMusic && track.paused).forEach(unlockTrack);
+}
+
+/**
+ * Starts and immediately pauses a track, which unlocks it without making a sound.
+ * @param {HTMLAudioElement} track - Music track to unlock.
+ */
+function unlockTrack(track) {
+  track.play().catch(() => {});
+  track.pause();
+}
+
 /** Starts the start screen music from silence with a fade-in. */
 export function startStartScreenMusic() {
   isStartScreenMusicWanted = true;

@@ -1,3 +1,5 @@
+import { getAudioPath } from "./audio-format.js";
+
 export const ENTITY_SCALE = 0.7;
 export const LEVEL_FOLDERS = ["level_01", "level_02", "level_boss"];
 export const LEVEL_COUNT = LEVEL_FOLDERS.length;
@@ -224,13 +226,13 @@ export const KNOCKBACK_FRICTION = 0.8;
 export const KNOCKBACK_MIN_SPEED = 0.2;
 
 export const BOSS_INTRO_MUSIC_MS = 4833;
-export const startScreenMusic = new Audio("assets/audio/music/start_screen.ogg");
-export const deathScreenMusic = new Audio("assets/audio/music/death_screen.ogg");
-export const victoryScreenMusic = new Audio("assets/audio/music/win_screen.ogg");
-export const gameplayMusic = new Audio("assets/audio/music/gameplay.ogg");
-export const bossIntroMusic = new Audio("assets/audio/music/verdan_bg_intro.ogg");
-export const bossMusic = new Audio("assets/audio/music/verdan_bg.ogg");
-export const bossRageMusic = new Audio("assets/audio/music/verdan_bg_rage.ogg");
+export const startScreenMusic = new Audio(getAudioPath("assets/audio/music/start_screen"));
+export const deathScreenMusic = new Audio(getAudioPath("assets/audio/music/death_screen"));
+export const victoryScreenMusic = new Audio(getAudioPath("assets/audio/music/win_screen"));
+export const gameplayMusic = new Audio(getAudioPath("assets/audio/music/gameplay"));
+export const bossIntroMusic = new Audio(getAudioPath("assets/audio/music/verdan_bg_intro"));
+export const bossMusic = new Audio(getAudioPath("assets/audio/music/verdan_bg"));
+export const bossRageMusic = new Audio(getAudioPath("assets/audio/music/verdan_bg_rage"));
 export const pressedKeys = new Set();
 export const appState = {
   canvasRef: null,
