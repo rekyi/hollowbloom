@@ -1,11 +1,11 @@
 import { gameLoop } from "./game-loop.class.js";
+import { getSharedImage } from "./drawable-object.class.js";
 import { drawGlow } from "../glow-sprite.js";
 import { LEVEL_THEMES } from "../level-themes.js";
 
 const CANVAS_WIDTH = 1280;
 const CANVAS_HEIGHT = 720;
 const PARTICLE_FACTOR = 0.8;
-const layerImages = new Map();
 
 /** Themed parallax background with sky fill, floating particles and vignette. */
 export class Background {
@@ -32,17 +32,12 @@ export class Background {
   }
 
   /**
-   * Gets a cached layer image, loading it on first use.
+   * Gets a shared layer image, loading it on first use.
    * @param {string} src - Image path.
    * @returns {HTMLImageElement} The layer image.
    */
   getLayerImage(src) {
-    if (!layerImages.has(src)) {
-      const image = new Image();
-      image.src = src;
-      layerImages.set(src, image);
-    }
-    return layerImages.get(src);
+    return getSharedImage(src);
   }
 
   /**

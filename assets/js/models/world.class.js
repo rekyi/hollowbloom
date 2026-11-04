@@ -1,6 +1,6 @@
 import { gameLoop } from "./game-loop.class.js";
 import { Enemy } from "./enemies.class.js";
-import { createLevel, loadLevelAssets, releaseLevelAssets } from "../level/level-loader.js";
+import { createLevel, loadLevelAssets, preloadLevelSprites, releaseLevelAssets } from "../level/level-loader.js";
 import { LEVEL_COUNT } from "../data.js";
 import { placeOnEntity } from "./level.class.js";
 import { FemaleCharacter } from "./female-character.class.js";
@@ -11,6 +11,7 @@ import { WorldRendering } from "./world-rendering.class.js";
 import { CAMERA_INTRO_TOTAL_MS } from "../camera-intro.js";
 import { getLevelTheme } from "../level-themes.js";
 import { prepareLevelLighting } from "./lighting.class.js";
+import { waitForPendingImages } from "./drawable-object.class.js";
 
 const READY_DURATION_MS = 1500;
 const PRELOAD_DELAY_MS = 2000;
@@ -19,7 +20,7 @@ const GAMEPLAY_MUSIC_DELAY_MS = 1000;
 /** Game world that owns the character and the current level, loads levels, and runs the game loop. */
 export class World extends WorldRendering {
   /**
-   * Creates the world, enters the first level and starts the game loop.
+   * Creates the world and enters the first level; the game loop starts with start().
    * @param {HTMLCanvasElement} canvasRef - Canvas to render on.
    * @param {Keyboard} keyboard - Keyboard state used by the character.
    * @param {Function} onGameOver - Called when the game is over.
@@ -42,6 +43,14 @@ export class World extends WorldRendering {
     this.onGameOver = onGameOver;
     this.onVictory = onVictory;
     this.enterLevel(levelAssets, levelIndex);
+  }
+
+  /**
+   * Waits until all requested sprites are loaded, then starts the game loop and schedules the level music.
+   * @returns {Promise<void>}
+   */
+  async start() {
+    await waitForPendingImages();
     this.run();
     this.startLevelMusic(READY_DURATION_MS);
   }
@@ -95,7 +104,17 @@ export class World extends WorldRendering {
     const nextLevelIndex = this.levelIndex + 1;
     releaseLevelAssets([this.levelIndex, nextLevelIndex]);
     if (nextLevelIndex >= LEVEL_COUNT) return;
-    setTimeout(() => loadLevelAssets(nextLevelIndex).then(prepareLevelLighting).catch(() => {}), PRELOAD_DELAY_MS);
+    setTimeout(() => loadLevelAssets(nextLevelIndex).then((levelAssets) => this.preloadLevel(levelAssets)).catch(() => {}), PRELOAD_DELAY_MS);
+  }
+
+  /**
+   * Starts loading the boss sprites of a level and prepares its lighting.
+   * @param {Object} levelAssets - Loaded assets of the level.
+   * @returns {Promise} Resolves when the lighting is prepared.
+   */
+  preloadLevel(levelAssets) {
+    preloadLevelSprites(levelAssets);
+    return prepareLevelLighting(levelAssets);
   }
 
   /** Applies the theme of the current level to background, fireflies and lighting. */
@@ -151,13 +170,25 @@ export class World extends WorldRendering {
     if (isLastLevel) return this.triggerVictory();
     this.isLevelLoading = true;
     try {
-      this.enterLevel(await loadLevelAssets(nextLevelIndex), nextLevelIndex);
-      this.startLevelMusic(0);
+      await this.enterLoadedLevel(nextLevelIndex);
       this.isLevelLoading = false;
     } catch (error) {
       console.error(error);
       alert(translate("message.nextLevelLoadFailed"));
     }
+  }
+
+  /**
+   * Waits for the assets and sprites of a level, then enters it and starts its music.
+   * @param {number} levelIndex - Index of the level to enter.
+   * @returns {Promise<void>}
+   */
+  async enterLoadedLevel(levelIndex) {
+    const levelAssets = await loadLevelAssets(levelIndex);
+    preloadLevelSprites(levelAssets);
+    await waitForPendingImages();
+    this.enterLevel(levelAssets, levelIndex);
+    this.startLevelMusic(0);
   }
 
   /** Places the character on the player start entity of the level. */

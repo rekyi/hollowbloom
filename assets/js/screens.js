@@ -151,20 +151,23 @@ function setLevelLoadStatus(text) {
 }
 
 /**
- * Hides all overlays and creates the world while the screen is black.
+ * Hides all overlays, creates the world while the screen is black and starts it once all sprites are loaded.
  * @param {Object} levelAssets - Loaded level data, layers and collision grid.
  * @param {number} levelIndex - Zero-based index of the loaded level.
  * @param {Object} carryOver - Run stats to keep.
+ * @returns {Promise<void>}
  */
-function startGameAtBlackout(levelAssets, levelIndex, carryOver) {
+async function startGameAtBlackout(levelAssets, levelIndex, carryOver) {
   document.getElementById("start-screen").hidden = true;
   document.getElementById("pause-screen").hidden = true;
   document.getElementById("game-over").hidden = true;
   document.getElementById("victory-screen").hidden = true;
   appState.canvasRef.classList.add("ready");
-  document.getElementById("level-load-status").hidden = true;
-  appState.world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets, levelIndex, carryOver);
+  const world = new World(appState.canvasRef, appState.keyboard, showGameOver, appState.selectedCharacterClass, showVictory, levelAssets, levelIndex, carryOver);
   stopStartScreenMusic();
+  await world.start();
+  appState.world = world;
+  document.getElementById("level-load-status").hidden = true;
 }
 
 /** Transitions to the game over screen. */

@@ -6,6 +6,7 @@ import { HealingPlant } from "../models/healing-plant.class.js";
 import { KeyItem } from "../models/key-item.class.js";
 import { Level, COLLISION_TILE_SIZE, TILE_SIZE, getEntityBox, placeOnEntity } from "../models/level.class.js";
 import { VerdanBoss } from "../models/verdan-boss.class.js";
+import { preloadVerdanSheets } from "../models/verdan-base.class.js";
 import { LEVEL_COUNT, LEVEL_FOLDERS } from "../data.js";
 
 const ENEMY_CLASSES = { Boar, DarkElf, Skeleton };
@@ -37,6 +38,14 @@ export function releaseLevelAssets(keptLevelIndexes) {
     levelAssetsPromises.delete(levelIndex);
     levelAssetsPromise.then(({ layers }) => layers.forEach(({ image }) => image.close())).catch(() => {});
   });
+}
+
+/**
+ * Starts loading the boss sprites if the level contains a boss, so entering the level does not wait for them.
+ * @param {{data: Object}} levelAssets - Loaded level assets.
+ */
+export function preloadLevelSprites({ data }) {
+  if (data.entities.Boss?.length) preloadVerdanSheets();
 }
 
 /**

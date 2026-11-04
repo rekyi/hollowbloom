@@ -1,4 +1,5 @@
 import { gameLoop } from "./game-loop.class.js";
+import { getSharedImage } from "./drawable-object.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 import { VERDAN_SETTINGS } from "../data.js";
 import { playSfx } from "../sfx.js";
@@ -8,6 +9,20 @@ const VERDAN_FRAME_WIDTH = 360;
 const VERDAN_FRAME_HEIGHT = 336;
 const MAX_SHEET_COLUMNS = 8;
 const IS_SMOOTHING_ENABLED = true;
+
+/** Starts loading all boss sprite sheets before the boss is created. */
+export function preloadVerdanSheets() {
+  Object.values(VERDAN_SETTINGS).filter((settings) => settings.file).forEach(({ file }) => getSharedImage(getVerdanSheetPath(file)));
+}
+
+/**
+ * Builds the path of a boss sprite sheet.
+ * @param {string} file - Sheet name from VERDAN_SETTINGS.
+ * @returns {string} Sheet path.
+ */
+function getVerdanSheetPath(file) {
+  return `${VERDAN_PATH}${file}.webp`;
+}
 
 /** Base of the Verdan boss: sprite loading, phase lookup, time-based animation and sounds. */
 export class VerdanBase extends MoveableObject {
@@ -51,13 +66,13 @@ export class VerdanBase extends MoveableObject {
   }
 
   /**
-   * Loads a boss sprite sheet.
+   * Loads a boss sprite sheet whose frames are drawn straight from the sheet to save memory.
    * @param {{file: string, frames: number, width?: number, height?: number}} sheet - Sheet settings.
    * @returns {string[]} Image cache keys of the frames.
    */
   loadSheet({ file, frames, width = VERDAN_FRAME_WIDTH, height = VERDAN_FRAME_HEIGHT }) {
     const columns = Math.min(frames, MAX_SHEET_COLUMNS);
-    return this.loadSpriteSheet(`${VERDAN_PATH}${file}.webp`, frames, width, height, null, columns);
+    return this.loadSpriteSheetRegions(getVerdanSheetPath(file), frames, width, height, columns);
   }
 
   /**
