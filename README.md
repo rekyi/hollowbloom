@@ -154,7 +154,7 @@ Levels are built in [LDtk](https://ldtk.io) at a 1:1 scale on a 32 px grid and e
 | Enemies        | [Wild Boar](https://hsdsz.itch.io/wild-boar-2d-animated-beast-enemy-pack), [Dark Elf Rogue](https://hsdsz.itch.io/dark-elf-rogue-fantasy-rpg-001-2d-animated-character-pack)                              | hsdsz                           |
 | Enemies        | [Skeleton Axe](https://spritekitchen.itch.io/skeleton-axe-animated-enemy-sprite-pack)                                                                                                                     | spritekitchen                   |
 | Level graphics | [Mossy Cavern](https://maaot.itch.io/mossy-cavern)                                                                                                                                                        | Maaot                           |
-| Status bar     | [Hearts and health bar](https://fliflifly.itch.io/hearts-and-health-bar) (CC0)                                                                                                                            | VampireGirl                     |
+| Status bar     | [Hearts and health bar](https://fliflifly.itch.io/hearts-and-health-bar)                                                                                                                                  | VampireGirl                     |
 | Icons          | [Loot Essentials](https://spritekitchen.itch.io/loot-essentials-free-pixel-art-item-pack)                                                                                                                 | spritekitchen                   |
 | Music          | [Hyper Ultra-Racing](https://opengameart.org/content/hyper-ultra-racing)                                                                                                                                  | The Cynic Project               |
 | Sounds         | [Magic Spell SFX Soundpack](https://thesoundrack.itch.io/freemagicspellsfx)                                                                                                                               | Leonardo Calvo                  |
@@ -164,4 +164,4 @@ Some graphics and sounds were created with AI. All assets belong to their respec
 
 ---
 
-A private, non-commercial hobby and learning project.
+A non-commercial hobby and learning project.
