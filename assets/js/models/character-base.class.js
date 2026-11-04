@@ -2,6 +2,7 @@ import { CHARACTER_SETTING_KEYS, ENTITY_SCALE, MALE_CHARACTER_CONFIG, SCALED_SET
 import { gameLoop } from "./game-loop.class.js";
 import { MoveableObject } from "./movable-object.class.js";
 
+/** Base of the playable character: settings, sprite loading and state machine. */
 export class CharacterBase extends MoveableObject {
   width;
   height;
@@ -58,6 +59,11 @@ export class CharacterBase extends MoveableObject {
   isBubbleVisible = false;
   coins = 0;
 
+  /**
+   * Merges a character config with the male defaults, including nested objects.
+   * @param {Object} config - Character-specific settings.
+   * @returns {Object} The merged settings.
+   */
   mergeSettings(config) {
     return {
       ...MALE_CHARACTER_CONFIG,
@@ -68,6 +74,10 @@ export class CharacterBase extends MoveableObject {
     };
   }
 
+  /**
+   * Copies the settings onto the character and scales size-related values.
+   * @param {Object} settings - Merged character settings.
+   */
   applySettings(settings) {
     CHARACTER_SETTING_KEYS.forEach((key) => {
       this[key] = settings[key];
@@ -79,6 +89,12 @@ export class CharacterBase extends MoveableObject {
     this.speed = this.walkSpeed;
   }
 
+  /**
+   * Loads one character animation from its sprite sheet.
+   * @param {Object} settings - Merged character settings.
+   * @param {string} name - Sprite name, e.g. "walking".
+   * @returns {string[]} Image cache keys, or an empty array if the sprite is missing.
+   */
   loadCharacterSprites(settings, name) {
     const sprite = settings.sprites[name];
     if (!sprite) return [];
@@ -86,6 +102,10 @@ export class CharacterBase extends MoveableObject {
     return this.loadSpriteSheet(settings.spritePath + sprite.file, sprite.count, frameSize, sprite.frameHeight);
   }
 
+  /**
+   * Loads the walk, run, idle, jump and standing animations.
+   * @param {Object} settings - Merged character settings.
+   */
   loadMovementSprites(settings) {
     this.IMAGES_WALKING = this.loadCharacterSprites(settings, "walking");
     this.IMAGES_RUNNING = this.loadCharacterSprites(settings, "running");
@@ -95,6 +115,10 @@ export class CharacterBase extends MoveableObject {
     this.IMAGES_STANDING = settings.sprites.standing ? this.loadCharacterSprites(settings, "standing") : this.IMAGES_JUMPING;
   }
 
+  /**
+   * Loads the attack, hurt, death and bubble animations.
+   * @param {Object} settings - Merged character settings.
+   */
   loadCombatSprites(settings) {
     this.IMAGES_ATTACK = this.loadCharacterSprites(settings, "attack");
     this.IMAGES_EXTRA_ATTACK = this.loadCharacterSprites(settings, "extraAttack");
@@ -104,10 +128,15 @@ export class CharacterBase extends MoveableObject {
     this.IMAGES_BUBBLE = this.loadCharacterSprites(settings, "bubble");
   }
 
+  /** Updates the current state from the character's situation. */
   updateState() {
     this.state = this.getState();
   }
 
+  /**
+   * Determines the current state by priority.
+   * @returns {string} "dead", "hurt", "attack", "jump", "run" or "idle".
+   */
   getState() {
     if (this.isDead()) return "dead";
     if (this.gettingHit()) return "hurt";
@@ -117,6 +146,11 @@ export class CharacterBase extends MoveableObject {
     return "idle";
   }
 
+  /**
+   * Checks whether the current state allows an action.
+   * @param {string} action - "move", "jump" or "attack".
+   * @returns {boolean} True if the action is allowed.
+   */
   canPerformAction(action) {
     return this.stateActions[this.state].includes(action);
   }

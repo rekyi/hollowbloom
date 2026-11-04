@@ -6,6 +6,7 @@ import { moveXOnGround } from "./tile-collision.js";
 const AGGRO_MAX_FOOT_DIFF_HEIGHTS = 0.6;
 const FACE_DEAD_ZONE = 12 * ENTITY_SCALE;
 
+/** Enemy movement AI: patrol, aggro, chase, knockback, status effects and return to spawn. */
 export class EnemyBehavior extends MoveableObject {
   IMAGES_IDLE = [];
   IMAGES_MOVING = [];
@@ -43,6 +44,16 @@ export class EnemyBehavior extends MoveableObject {
   knockbackDirection = 0;
   knockbackSpeed = 0;
 
+  /**
+   * Sets position, size, speed and patrol bounds and stores the first call as spawn.
+   * @param {number} x - X position.
+   * @param {number} y - Y position.
+   * @param {number} width - Width.
+   * @param {number} height - Height.
+   * @param {number} speed - Patrol speed.
+   * @param {number} minX - Left patrol bound.
+   * @param {number} maxX - Right patrol bound.
+   */
   setPosition(x, y, width, height, speed, minX, maxX) {
     if (!this.spawnArgs) this.spawnArgs = [x, y, width, height, speed, minX, maxX];
     this.x = x;
@@ -54,11 +65,19 @@ export class EnemyBehavior extends MoveableObject {
     this.maxX = maxX;
   }
 
+  /**
+   * Places the enemy and sets this position as its new spawn.
+   * @param {number} x - X position.
+   * @param {number} y - Y position.
+   * @param {number} minX - Left patrol bound.
+   * @param {number} maxX - Right patrol bound.
+   */
   placeAt(x, y, minX, maxX) {
     this.spawnArgs = null;
     this.setPosition(x, y, this.width, this.height, this.speed, minX, maxX);
   }
 
+  /** Shows the first idle frame and starts movement, animation and attack loops. */
   start() {
     this.attackHitEndFrame = this.IMAGES_ATTACK.length - 1;
     this.img = this.imageCache[this.IMAGES_IDLE[0]];
@@ -67,15 +86,24 @@ export class EnemyBehavior extends MoveableObject {
     this.startAttackCycle();
   }
 
+  /** Starts the movement loop at 60 fps and the animation loop. */
   animation() {
     gameLoop.runEvery(1000 / 60, () => this.updateMovement());
     gameLoop.runEvery(this.getAnimationSchedulerInterval(), () => this.updateAnimationByInterval());
   }
 
+  /**
+   * Gets how often the animation loop checks for a new frame.
+   * @returns {number} Shortest animation interval in milliseconds.
+   */
   getAnimationSchedulerInterval() {
     return Math.min(this.animationInterval, this.attackAnimationInterval, this.runAnimationInterval, this.deathAnimationInterval);
   }
 
+  /**
+   * Gets the frame interval of the current animation.
+   * @returns {number} Interval in milliseconds.
+   */
   getAnimationInterval() {
     if (this.currentAnimation === "dead") return this.deathAnimationInterval;
     if (this.currentAnimation === "attack") return this.attackAnimationInterval;
@@ -83,17 +111,23 @@ export class EnemyBehavior extends MoveableObject {
     return this.animationInterval;
   }
 
+  /**
+   * Checks whether the hurt phase is still running, at least as long as the hurt animation.
+   * @returns {boolean} True while hurt.
+   */
   gettingHit() {
     const hurtDuration = Math.max(500, (this.IMAGES_HURT.length + 1) * this.animationInterval);
     return gameLoop.now() - this.lastHit < hurtDuration;
   }
 
+  /** Advances the animation once the current frame interval has passed. */
   updateAnimationByInterval() {
     if (gameLoop.now() - this.lastAnimationAt < this.getAnimationInterval()) return;
     this.lastAnimationAt = gameLoop.now();
     this.updateAnimation();
   }
 
+  /** Updates aggro and then knockback, chase, return or patrol movement. */
   updateMovement() {
     this.updateAggro();
     if (this.getActiveStatus()) {
@@ -106,16 +140,26 @@ export class EnemyBehavior extends MoveableObject {
     else this.patrol();
   }
 
+  /**
+   * Checks whether the enemy currently ignores hit stun and knockback.
+   * @returns {boolean} True while an armored enemy attacks.
+   */
   isAttackArmored() {
     return this.hasAttackArmor && this.isAttacking && !this.isDead();
   }
 
+  /**
+   * Starts a knockback unless a status effect or attack armor prevents it.
+   * @param {number} direction - 1 for right, -1 for left.
+   * @param {number} speed - Initial knockback speed.
+   */
   startKnockback(direction, speed) {
     if (this.getActiveStatus() || this.isAttackArmored()) return;
     this.knockbackDirection = direction;
     this.knockbackSpeed = speed;
   }
 
+  /** Pushes the enemy along the ground and stops at edges or walls. */
   applyKnockback() {
     const isStepDone = moveXOnGround(this, this.world.level, this.knockbackDirection * this.knockbackSpeed);
     this.isMoving = false;
@@ -123,10 +167,12 @@ export class EnemyBehavior extends MoveableObject {
     else this.knockbackSpeed = 0;
   }
 
+  /** Chases the target unless attacking or hurt. */
   updateChase() {
     if (!this.isAttacking && !this.gettingHit()) this.chase();
   }
 
+  /** Walks back and forth between the patrol bounds. */
   patrol() {
     if (!this.isMovable || !this.isMoving || this.isDead() || this.isAttacking) return;
     this.isOppositeDirection = this.movementDirection < 0;
@@ -134,12 +180,14 @@ export class EnemyBehavior extends MoveableObject {
     if (!isStepDone || this.x <= this.minX || this.x >= this.maxX) this.turnAtPatrolEnd();
   }
 
+  /** Clamps to the patrol bounds and turns around. */
   turnAtPatrolEnd() {
     this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
     this.movementDirection *= -1;
     this.isOppositeDirection = this.movementDirection < 0;
   }
 
+  /** Enters aggro when the target is near and reachable, and leaves it when out of range. */
   updateAggro() {
     if (!this.target || this.isDead()) return;
     const isInRange = this.getDistanceToTarget() <= this.aggroRange;
@@ -151,15 +199,28 @@ export class EnemyBehavior extends MoveableObject {
     }
   }
 
+  /**
+   * Checks whether the target stands roughly on the same height.
+   * @returns {boolean} True if the foot difference is within tolerance.
+   */
   isTargetReachable() {
     const feetDifference = Math.abs(this.target.y + this.target.height - (this.y + this.height));
     return feetDifference <= (this.aggroFootTolerance ?? this.height * AGGRO_MAX_FOOT_DIFF_HEIGHTS);
   }
 
+  /**
+   * Gets the active status effect.
+   * @returns {?string} "frozen", "shock" or null.
+   */
   getActiveStatus() {
     return gameLoop.now() < this.statusUntil ? this.status : null;
   }
 
+  /**
+   * Applies a status effect that stops movement, attacks and knockback.
+   * @param {string} status - "frozen" or "shock".
+   * @param {number} duration - Duration in milliseconds.
+   */
   applyStatus(status, duration) {
     this.status = status;
     this.statusUntil = gameLoop.now() + duration;
@@ -170,12 +231,17 @@ export class EnemyBehavior extends MoveableObject {
     this.currentImage = 0;
   }
 
+  /**
+   * Gets the distance between the centers of enemy and target.
+   * @returns {number} Distance in pixels.
+   */
   getDistanceToTarget() {
     const dx = this.target.x + this.target.width / 2 - (this.x + this.width / 2);
     const dy = this.target.y + this.target.height / 2 - (this.y + this.height / 2);
     return Math.hypot(dx, dy);
   }
 
+  /** Faces the target and moves until it is inside the attack hitbox horizontally. */
   chase() {
     this.faceTarget();
     const targetHitbox = this.target.getHitbox();
@@ -187,10 +253,21 @@ export class EnemyBehavior extends MoveableObject {
     this.moveTowards(targetHitbox, attackHitbox);
   }
 
+  /**
+   * Checks whether two boxes overlap horizontally.
+   * @param {{x: number, width: number}} a - First box.
+   * @param {{x: number, width: number}} b - Second box.
+   * @returns {boolean} True if they overlap on the x axis.
+   */
   isHorizontallyAligned(a, b) {
     return a.x < b.x + b.width && a.x + a.width > b.x;
   }
 
+  /**
+   * Moves toward the target by at most the chase speed.
+   * @param {Object} targetHitbox - Target hitbox.
+   * @param {Object} attackHitbox - Own attack hitbox.
+   */
   moveTowards(targetHitbox, attackHitbox) {
     const direction = this.isOppositeDirection ? -1 : 1;
     const distance = direction < 0 ? attackHitbox.x - (targetHitbox.x + targetHitbox.width) : targetHitbox.x - (attackHitbox.x + attackHitbox.width);
@@ -199,6 +276,7 @@ export class EnemyBehavior extends MoveableObject {
     this.x += direction * movement;
   }
 
+  /** Turns toward the target unless it is almost directly above or below. */
   faceTarget() {
     const enemyCenter = this.x + this.width / 2;
     const offsetX = this.target.x + this.target.width / 2 - enemyCenter;
@@ -206,12 +284,14 @@ export class EnemyBehavior extends MoveableObject {
     this.isOppositeDirection = offsetX < 0;
   }
 
+  /** Leaves aggro and starts returning to the spawn. */
   resetToSpawn() {
     this.isAggro = false;
     this.isAttacking = false;
     this.isReturning = true;
   }
 
+  /** Moves one step toward the spawn or arrives there. */
   returnToSpawn() {
     const [spawnX, spawnY] = this.spawnArgs;
     const dx = spawnX - this.x;
@@ -222,16 +302,28 @@ export class EnemyBehavior extends MoveableObject {
     else this.stepToSpawn(dx, dy, distance, returnSpeed);
   }
 
+  /**
+   * Gets the speed used to return to the spawn.
+   * @returns {number} Speed per tick.
+   */
   getReturnSpeed() {
     return this.speed;
   }
 
+  /** Snaps to the spawn and resumes patrolling. */
   arriveAtSpawn() {
     this.setPosition(...this.spawnArgs);
     this.isReturning = false;
     this.isMoving = this.isMovable;
   }
 
+  /**
+   * Moves one step along the direction to the spawn.
+   * @param {number} dx - X distance to the spawn.
+   * @param {number} dy - Y distance to the spawn.
+   * @param {number} distance - Total distance to the spawn.
+   * @param {number} speed - Step length.
+   */
   stepToSpawn(dx, dy, distance, speed) {
     this.isMoving = true;
     this.isOppositeDirection = dx < 0;

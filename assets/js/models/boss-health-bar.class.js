@@ -27,6 +27,7 @@ const COLORS = {
   rage: { dark: "143, 31, 20", light: "255, 179, 107", glow: "255, 122, 61" },
 };
 
+/** Animated boss health bar with damage trail, hit flash, glowing head and embers. */
 export class BossHealthBar {
   boss = null;
   shownHp = 0;
@@ -34,6 +35,11 @@ export class BossHealthBar {
   diedAt = null;
   embers = [];
 
+  /**
+   * Moves the shown health and trail toward the boss health and updates embers.
+   * @param {?VerdanBoss} boss - Current boss, or null.
+   * @param {number} dt - Time step in seconds.
+   */
   update(boss, dt) {
     if (boss !== this.boss) this.reset(boss);
     if (!boss) return;
@@ -46,6 +52,10 @@ export class BossHealthBar {
     this.updateEmbers(dt);
   }
 
+  /**
+   * Resets the bar for a new boss so it fills up from empty.
+   * @param {?VerdanBoss} boss - New boss, or null.
+   */
   reset(boss) {
     this.boss = boss;
     this.shownHp = 0;
@@ -54,6 +64,10 @@ export class BossHealthBar {
     this.embers = [];
   }
 
+  /**
+   * Moves and ages embers and randomly spawns new ones.
+   * @param {number} dt - Time step in seconds.
+   */
   updateEmbers(dt) {
     this.embers.forEach((ember) => {
       ember.x += ember.drift * dt;
@@ -65,6 +79,7 @@ export class BossHealthBar {
     if (this.shownHp > 0 && Math.random() < emberChance) this.spawnEmber();
   }
 
+  /** Spawns an ember at a random point on the filled bar. */
   spawnEmber() {
     this.embers.push({
       x: BAR_X + Math.random() * this.getWidth(this.shownHp),
@@ -75,16 +90,29 @@ export class BossHealthBar {
     });
   }
 
+  /**
+   * Converts hit points to a bar width.
+   * @param {number} hp - Hit points.
+   * @returns {number} Width in pixels.
+   */
   getWidth(hp) {
     return BAR_WIDTH * clamp01(hp / this.boss.maxHp);
   }
 
+  /**
+   * Gets the bar opacity, hidden during start and intro and fading out after death.
+   * @returns {number} Opacity between 0 and 1.
+   */
   getAlpha() {
     if (!this.boss || gameLoop.isStarting || gameLoop.isIntroPlaying) return 0;
     if (this.diedAt === null) return 1;
     return clamp01(1 - (gameLoop.now() - this.diedAt - DEATH_FADE_DELAY_MS) / DEATH_FADE_MS);
   }
 
+  /**
+   * Draws the bar, head and embers and syncs the boss name opacity.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   draw(ctx) {
     const alpha = this.getAlpha();
     bossNameRef.style.opacity = alpha;
@@ -101,6 +129,12 @@ export class BossHealthBar {
     ctx.restore();
   }
 
+  /**
+   * Draws the bar background, trail, fill, hit flash and outline.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{dark: string, light: string, glow: string}} colors - Phase colors.
+   * @param {number} fillWidth - Width of the health fill.
+   */
   drawBar(ctx, colors, fillWidth) {
     ctx.save();
     this.traceBar(ctx);
@@ -120,6 +154,10 @@ export class BossHealthBar {
     ctx.stroke();
   }
 
+  /**
+   * Traces the pointed bar shape.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   traceBar(ctx) {
     ctx.beginPath();
     ctx.moveTo(BAR_X, BAR_MIDDLE_Y);
@@ -131,6 +169,12 @@ export class BossHealthBar {
     ctx.closePath();
   }
 
+  /**
+   * Creates the horizontal fill gradient.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{dark: string, light: string}} colors - Phase colors.
+   * @returns {CanvasGradient} The gradient.
+   */
   createFillGradient(ctx, colors) {
     const gradient = ctx.createLinearGradient(BAR_X, 0, BAR_X + BAR_WIDTH, 0);
     gradient.addColorStop(0, `rgb(${colors.dark})`);
@@ -138,10 +182,21 @@ export class BossHealthBar {
     return gradient;
   }
 
+  /**
+   * Gets the fading strength of the hit flash.
+   * @returns {number} Value from 1 (just hit) to 0.
+   */
   getHitFlash() {
     return clamp01(1 - (gameLoop.now() - this.boss.lastHit) / HIT_FLASH_MS);
   }
 
+  /**
+   * Draws the pulsing glow at the end of the fill.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{glow: string}} colors - Phase colors.
+   * @param {number} x - Head x position.
+   * @param {number} alpha - Bar opacity.
+   */
   drawHead(ctx, colors, x, alpha) {
     const pulse = 0.75 + 0.25 * Math.sin(gameLoop.now() / 180);
     drawGlow(ctx, colors.glow, x, BAR_MIDDLE_Y, HEAD_GLOW_SIZE * pulse, alpha);
@@ -149,10 +204,22 @@ export class BossHealthBar {
   }
 }
 
+/**
+ * Moves a value toward a target by at most a step.
+ * @param {number} current - Current value.
+ * @param {number} target - Target value.
+ * @param {number} maxStep - Maximum change.
+ * @returns {number} The new value.
+ */
 function moveToward(current, target, maxStep) {
   return current < target ? Math.min(target, current + maxStep) : Math.max(target, current - maxStep);
 }
 
+/**
+ * Clamps a value to 0..1.
+ * @param {number} value - Value to clamp.
+ * @returns {number} Clamped value.
+ */
 function clamp01(value) {
   return Math.min(Math.max(value, 0), 1);
 }

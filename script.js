@@ -10,6 +10,7 @@ import { setupEffectSettings } from "./assets/js/effect-settings.js";
 import { Keyboard } from "./assets/js/models/keyboard.class.js";
 import { FemaleCharacter } from "./assets/js/models/female-character.class.js";
 
+/** Initializes app state and sets up all game systems and UI listeners. */
 function init() {
   appState.canvasRef = document.getElementById("canvas");
   appState.keyboard = new Keyboard();

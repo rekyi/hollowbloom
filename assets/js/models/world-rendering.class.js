@@ -27,16 +27,22 @@ const BEHIND_ENTITIES_LAYERS = ["Ground", "Platforms"];
 const FRONT_LAYERS = ["Hanging"];
 const COLLISION_OVERLAY_COLORS = { 1: "rgba(255, 0, 0, 0.35)", 2: "rgba(255, 165, 0, 0.5)", 3: "rgba(0, 128, 255, 0.5)" };
 
+/** Camera, screen effects and scene drawing of the world. */
 export class WorldRendering extends WorldLogic {
   background = new Background();
   fireflies = new Fireflies();
   lighting = new Lighting();
 
+  /** Disables image smoothing and resets the canvas transform. */
   setupCanvasContext() {
     this.ctx.imageSmoothingEnabled = false;
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
+  /**
+   * Moves the camera towards the character, clamped to the level bounds.
+   * @param {boolean} [isInstant=false] - Jump to the target without smoothing.
+   */
   updateCamera(isInstant = false) {
     const { x, y, width, height } = this.character;
     this.updateCameraLookAhead(isInstant);
@@ -48,17 +54,32 @@ export class WorldRendering extends WorldLogic {
     this.cameraY = this.getSmoothedValue(this.cameraY, -targetY, CAMERA_SMOOTHING_Y, isInstant);
   }
 
+  /**
+   * Returns the current camera view, blended with the level overview during the intro.
+   * @returns {{zoom: number, x: number, y: number}} Camera view.
+   */
   getCameraView() {
     const gameplayView = { zoom: CAMERA_ZOOM, x: this.cameraX, y: this.cameraY };
     if (!gameLoop.isIntroPlaying) return gameplayView;
     return this.blendCameraViews(gameplayView, this.getOverviewView(), getIntroBlend(gameLoop.introElapsedMs));
   }
 
+  /**
+   * Returns a view that shows the whole level centered.
+   * @returns {{zoom: number, x: number, y: number}} Overview view.
+   */
   getOverviewView() {
     const zoom = Math.min(CANVAS_WIDTH / this.level.width, CANVAS_HEIGHT / this.level.height);
     return { zoom, x: (CANVAS_WIDTH / zoom - this.level.width) / 2, y: (CANVAS_HEIGHT / zoom - this.level.height) / 2 };
   }
 
+  /**
+   * Interpolates between two camera views, with exponential zoom.
+   * @param {{zoom: number, x: number, y: number}} from - Start view.
+   * @param {{zoom: number, x: number, y: number}} to - End view.
+   * @param {number} blend - Blend factor from 0 to 1.
+   * @returns {{zoom: number, x: number, y: number}} Blended view.
+   */
   blendCameraViews(from, to, blend) {
     const zoom = from.zoom * (to.zoom / from.zoom) ** blend;
     const fromCenter = this.getViewCenter(from);
@@ -68,19 +89,37 @@ export class WorldRendering extends WorldLogic {
     return { zoom, x: CANVAS_WIDTH / (2 * zoom) - centerX, y: CANVAS_HEIGHT / (2 * zoom) - centerY };
   }
 
+  /**
+   * Returns the level point at the center of a view.
+   * @param {{zoom: number, x: number, y: number}} view - Camera view.
+   * @returns {{x: number, y: number}} Center in level coordinates.
+   */
   getViewCenter({ zoom, x, y }) {
     return { x: CANVAS_WIDTH / (2 * zoom) - x, y: CANVAS_HEIGHT / (2 * zoom) - y };
   }
 
+  /**
+   * Smoothly shifts the camera look-ahead in the character's facing direction.
+   * @param {boolean} isInstant - Jump to the target without smoothing.
+   */
   updateCameraLookAhead(isInstant) {
     const targetLookAhead = this.character.isOppositeDirection ? -CAMERA_LOOK_AHEAD_PX : CAMERA_LOOK_AHEAD_PX;
     this.cameraLookAhead = this.getSmoothedValue(this.cameraLookAhead, targetLookAhead, CAMERA_LOOK_AHEAD_SMOOTHING, isInstant);
   }
 
+  /**
+   * Moves a value towards a target by a smoothing factor.
+   * @param {number} current - Current value.
+   * @param {number} target - Target value.
+   * @param {number} smoothing - Fraction of the distance covered per call.
+   * @param {boolean} isInstant - Return the target directly.
+   * @returns {number} New value.
+   */
   getSmoothedValue(current, target, smoothing, isInstant) {
     return isInstant ? target : current + (target - current) * smoothing;
   }
 
+  /** Draws the scene, screen effects, HUD, timer and ready message for one frame. */
   draw() {
     const shake = this.getShakeOffset();
     const view = this.getCameraView();
@@ -93,6 +132,7 @@ export class WorldRendering extends WorldLogic {
     this.drawReadyMessage();
   }
 
+  /** Draws the red vignette flash while a damage flash is active. */
   drawDamageFlash() {
     const progress = (performance.now() - this.damageFlashStartedAt) / this.damageFlashDurationMs;
     if (!(progress >= 0 && progress < 1)) return;
@@ -100,6 +140,11 @@ export class WorldRendering extends WorldLogic {
     this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   }
 
+  /**
+   * Creates the radial gradient of the damage flash.
+   * @param {number} alpha - Opacity at the screen edge.
+   * @returns {CanvasGradient} Gradient from transparent center to red edge.
+   */
   getDamageFlashGradient(alpha) {
     const centerX = CANVAS_WIDTH / 2;
     const centerY = CANVAS_HEIGHT / 2;
@@ -109,6 +154,10 @@ export class WorldRendering extends WorldLogic {
     return gradient;
   }
 
+  /**
+   * Computes the current screen shake offset.
+   * @returns {{x: number, y: number}} Offset in pixels, zero when no shake is active.
+   */
   getShakeOffset() {
     const elapsedMs = performance.now() - this.shakeStartedAt;
     const { shakeDurationMs, shakeMagnitude } = this.activeShake;
@@ -120,11 +169,23 @@ export class WorldRendering extends WorldLogic {
     };
   }
 
+  /**
+   * Computes the short horizontal kick at the start of a shake.
+   * @param {number} elapsedMs - Time since the shake started.
+   * @param {number} magnitude - Shake magnitude in pixels.
+   * @returns {number} Horizontal kick in pixels.
+   */
   getShakeKick(elapsedMs, magnitude) {
     const kickIntensity = Math.max(0, 1 - elapsedMs / SHAKE_KICK_MS) ** 2;
     return this.shakeDirection * magnitude * SHAKE_KICK_FACTOR * kickIntensity;
   }
 
+  /**
+   * Returns smooth noise for the shake by interpolating pseudo-random values.
+   * @param {number} elapsedMs - Time since the shake started.
+   * @param {number} seed - Offset to decorrelate axes.
+   * @returns {number} Noise value between -1 and 1.
+   */
   getShakeNoise(elapsedMs, seed) {
     const position = (elapsedMs * SHAKE_NOISE_HZ) / 1000 + seed;
     const index = Math.floor(position);
@@ -132,11 +193,22 @@ export class WorldRendering extends WorldLogic {
     return start + (this.getNoiseValue(index + 1) - start) * (position - index);
   }
 
+  /**
+   * Returns a deterministic pseudo-random value for a noise index.
+   * @param {number} index - Noise sample index.
+   * @returns {number} Value between -1 and 1.
+   */
   getNoiseValue(index) {
     const value = Math.sin((index + this.shakeSeed) * 12.9898) * 43758.5453;
     return (value - Math.floor(value)) * 2 - 1;
   }
 
+  /**
+   * Draws background, level layers, objects and effects with the given camera transform.
+   * @param {number} zoom - Camera zoom.
+   * @param {number} offsetX - Horizontal camera offset in level pixels.
+   * @param {number} offsetY - Vertical camera offset in level pixels.
+   */
   drawScene(zoom, offsetX, offsetY) {
     this.ctx.save();
     this.ctx.imageSmoothingEnabled = zoom !== CAMERA_ZOOM;
@@ -161,19 +233,34 @@ export class WorldRendering extends WorldLogic {
     this.ctx.restore();
   }
 
+  /**
+   * Returns the visible area in level coordinates.
+   * @param {number} zoom - Camera zoom.
+   * @param {number} offsetX - Horizontal camera offset.
+   * @param {number} offsetY - Vertical camera offset.
+   * @returns {{left: number, top: number, width: number, height: number}} Visible rectangle.
+   */
   getViewRect(zoom, offsetX, offsetY) {
     return { left: -offsetX, top: -offsetY, width: CANVAS_WIDTH / zoom, height: CANVAS_HEIGHT / zoom };
   }
 
+  /** Shows or hides the collision overlay. */
   toggleCollisionOverlay() {
     this.isCollisionOverlayVisible = !this.isCollisionOverlayVisible;
   }
 
+  /** Draws the collision grid when the overlay is visible. */
   drawCollisionOverlay() {
     if (!this.isCollisionOverlayVisible) return;
     this.level.collisionGrid.forEach((cells, row) => cells.forEach((value, column) => this.drawCollisionTile(value, column, row)));
   }
 
+  /**
+   * Draws one colored collision tile.
+   * @param {number} value - Collision type of the tile.
+   * @param {number} column - Tile column.
+   * @param {number} row - Tile row.
+   */
   drawCollisionTile(value, column, row) {
     const color = COLLISION_OVERLAY_COLORS[value];
     if (!color) return;
@@ -181,16 +268,26 @@ export class WorldRendering extends WorldLogic {
     this.ctx.fillRect(column * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
   }
 
+  /**
+   * Draws several level layers in order.
+   * @param {Array<string>} layerNames - Names of the layers.
+   */
   drawLayers(layerNames) {
     layerNames.forEach((layerName) => this.drawLayer(layerName));
   }
 
+  /**
+   * Draws one level layer scaled to level size.
+   * @param {string} layerName - Name of the layer.
+   * @throws {Error} If the level has no layer with that name.
+   */
   drawLayer(layerName) {
     const layer = this.level.layers.find((levelLayer) => levelLayer.name === layerName);
     if (!layer) throw new Error(`Missing level layer: ${layerName}`);
     this.ctx.drawImage(layer.image, 0, 0, layer.image.width * LEVEL_SCALE, layer.image.height * LEVEL_SCALE);
   }
 
+  /** Draws the centered "ready" text during the game start. */
   drawReadyMessage() {
     if (!gameLoop.isStarting) return;
     this.ctx.save();
@@ -206,6 +303,10 @@ export class WorldRendering extends WorldLogic {
     this.ctx.restore();
   }
 
+  /**
+   * Formats the elapsed run time.
+   * @returns {string} Time as "MM:SS:mmm".
+   */
   getTimerText() {
     const elapsedMs = this.getElapsedMs();
     const totalSeconds = Math.floor(elapsedMs / 1000);
@@ -215,6 +316,7 @@ export class WorldRendering extends WorldLogic {
     return `${minutes}:${seconds}:${millis}`;
   }
 
+  /** Draws the run timer in the top right corner. */
   drawTimer() {
     const text = this.getTimerText();
     this.ctx.save();
@@ -229,12 +331,20 @@ export class WorldRendering extends WorldLogic {
     this.ctx.restore();
   }
 
+  /**
+   * Draws a list of objects.
+   * @param {Array<DrawableObject>} objects - Objects to draw.
+   */
   addObjectsToMap(objects) {
     objects.forEach((object) => {
       this.addToMap(object);
     });
   }
 
+  /**
+   * Draws an object, mirrored if its facing differs from its sprite direction.
+   * @param {DrawableObject} movableObject - Object to draw.
+   */
   addToMap(movableObject) {
     if (movableObject.isOppositeDirection !== movableObject.isSpriteDirectionInverted) {
       this.drawFlipped(movableObject);
@@ -243,6 +353,10 @@ export class WorldRendering extends WorldLogic {
     }
   }
 
+  /**
+   * Draws an object mirrored horizontally around its center.
+   * @param {DrawableObject} movableObject - Object to draw.
+   */
   drawFlipped(movableObject) {
     const centerX = movableObject.x + movableObject.width / 2;
     this.ctx.save();

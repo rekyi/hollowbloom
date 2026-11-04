@@ -25,6 +25,11 @@ export const LEVEL_THEMES = {
   },
 };
 
+/**
+ * Picks the visual theme for a level.
+ * @param {Level} level - The loaded level.
+ * @returns {Object} The ember theme for boss levels, otherwise the forest theme.
+ */
 export function getLevelTheme(level) {
   return level.getEntities("Boss").length > 0 ? LEVEL_THEMES.ember : LEVEL_THEMES.forest;
 }

@@ -5,6 +5,7 @@ import { gameLoop } from "./game-loop.class.js";
 const FROZEN_DURATION_MS = 2000;
 const SHOCK_DURATION_MS = 1000;
 
+/** Enemy built from a settings object with attack variants, hurt variants and status effects. */
 export class ConfigurableEnemy extends Enemy {
   attackAnimations = [];
   hurtAnimations = [];
@@ -18,6 +19,11 @@ export class ConfigurableEnemy extends Enemy {
   frozenAnimationInterval = 120;
   shockAnimationInterval = 120;
 
+  /**
+   * Loads all animations and sounds from the settings and starts the enemy.
+   * @param {Object} settings - Enemy settings with sprites, hitboxes, sounds and position.
+   * @param {Object} [positionOverrides={}] - Values that override the position settings.
+   */
   constructor(settings, positionOverrides = {}) {
     super();
     this.animationInterval = settings.animationInterval ?? 120;
@@ -48,6 +54,10 @@ export class ConfigurableEnemy extends Enemy {
     this.start();
   }
 
+  /**
+   * Applies position, size, hitboxes and combat values from the settings.
+   * @param {Object} settings - Enemy settings.
+   */
   setEnemySettings(settings) {
     const { x, y, width, height, speed, minX, maxX } = settings.position;
     const scale = settings.pixelScale ?? ENTITY_SCALE * (settings.scale ?? 1);
@@ -63,15 +73,30 @@ export class ConfigurableEnemy extends Enemy {
     this.attackHitStartFrames = (settings.sprites.attack ?? []).map((sprite) => sprite.hitStartFrame ?? this.attackHitStartFrame);
   }
 
+  /**
+   * Loads an animation from a sprite config.
+   * @param {?Object} sprite - Sprite config, or nothing.
+   * @returns {string[]} Image cache keys, or an empty array.
+   */
   loadAnimation(sprite) {
     if (!sprite) return [];
     return this.loadSpriteSheet(sprite.path, sprite.frameCount, sprite.frameSize, sprite.frameHeight, sprite.placement, sprite.columns);
   }
 
+  /**
+   * Loads several animation variants.
+   * @param {Object[]} [sprites=[]] - Sprite configs.
+   * @returns {string[][]} Image cache keys per variant.
+   */
   loadAnimationVariants(sprites = []) {
     return sprites.map((sprite) => this.loadAnimation(sprite));
   }
 
+  /**
+   * Applies a hit, keeps attacking if armored, picks a hurt animation and applies status effects.
+   * @param {{character: string, attackType: string}} [source] - Attacker info.
+   * @returns {boolean} True if the hit was applied.
+   */
   hit(source) {
     const isArmored = this.isAttackArmored();
     const previousLastHit = this.lastHit;
@@ -82,6 +107,10 @@ export class ConfigurableEnemy extends Enemy {
     return true;
   }
 
+  /**
+   * Freezes or shocks the enemy depending on the special attack that hit it.
+   * @param {{character: string, attackType: string}} [source] - Attacker info.
+   */
   applyHitStatus(source) {
     if (this.isDead() || !source) return;
     if (source.character === "female" && source.attackType === "attack_4" && this.IMAGES_FROZEN.length) {
@@ -91,6 +120,11 @@ export class ConfigurableEnemy extends Enemy {
     }
   }
 
+  /**
+   * Applies a status effect long enough for its animation and shows it immediately.
+   * @param {string} status - "frozen" or "shock".
+   * @param {number} duration - Minimum duration in milliseconds.
+   */
   applyStatus(status, duration) {
     const statusDuration = status === "frozen" ? Math.max(duration, this.IMAGES_FROZEN.length * this.frozenAnimationInterval) : duration;
     super.applyStatus(status, statusDuration);
@@ -98,22 +132,32 @@ export class ConfigurableEnemy extends Enemy {
     this.updateAnimation();
   }
 
+  /**
+   * Gets the scheduler interval, short enough for status animations.
+   * @returns {number} Interval in milliseconds.
+   */
   getAnimationSchedulerInterval() {
     return Math.min(super.getAnimationSchedulerInterval(), this.frozenAnimationInterval, this.shockAnimationInterval);
   }
 
+  /**
+   * Gets the frame interval of the current animation.
+   * @returns {number} Interval in milliseconds.
+   */
   getAnimationInterval() {
     if (this.currentAnimation === "frozen") return this.frozenAnimationInterval;
     if (this.currentAnimation === "shock") return this.shockAnimationInterval;
     return super.getAnimationInterval();
   }
 
+  /** Starts an attack if possible and picks its variant. */
   tryStartAttack() {
     const wasAttacking = this.isAttacking;
     super.tryStartAttack();
     if (!wasAttacking && this.isAttacking) this.selectAttackAnimation();
   }
 
+  /** Sets frames, sound and damage frames of the picked attack variant. */
   selectAttackAnimation() {
     const variantIndex = this.pickAttackVariant();
     this.IMAGES_ATTACK = this.attackAnimations[variantIndex] ?? [];
@@ -123,6 +167,10 @@ export class ConfigurableEnemy extends Enemy {
     this.attackHitEndFrame = this.attackHitEndFrameOverride ?? this.IMAGES_ATTACK.length - 1;
   }
 
+  /**
+   * Picks the next attack variant from a weighted bag, avoiding three identical picks in a row.
+   * @returns {number} Index of the attack variant.
+   */
   pickAttackVariant() {
     if (this.attackAnimations.length < 2) return 0;
     if (!this.attackBag.length) this.attackBag = this.createAttackBag();
@@ -138,6 +186,10 @@ export class ConfigurableEnemy extends Enemy {
     return variantIndex;
   }
 
+  /**
+   * Creates a shuffled bag of attack variant indexes based on their weights.
+   * @returns {number[]} Shuffled variant indexes.
+   */
   createAttackBag() {
     const bag = this.attackWeights.flatMap((weight, index) => Array(Math.max(0, Math.round(weight))).fill(index));
     for (let i = bag.length - 1; i > 0; i--) {
@@ -147,6 +199,11 @@ export class ConfigurableEnemy extends Enemy {
     return bag.length ? bag : [0];
   }
 
+  /**
+   * Picks a random animation variant.
+   * @param {string[][]} animations - Animation variants.
+   * @returns {string[]} The picked animation, or an empty array.
+   */
   selectRandomAnimation(animations) {
     if (!animations.length) return [];
     return animations[Math.floor(Math.random() * animations.length)];

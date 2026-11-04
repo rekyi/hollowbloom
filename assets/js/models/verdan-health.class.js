@@ -4,6 +4,7 @@ import { VerdanAttacks } from "./verdan-attacks.class.js";
 import { BOSS_HIT_PROTECTION_MS, VERDAN_SETTINGS } from "../data.js";
 import { gameMusic } from "./game-music.class.js";
 
+/** Verdan boss damage handling: hit protection, stagger, rage transition and death. */
 export class VerdanHealth extends VerdanAttacks {
   hp = 12;
   maxHp = 12;
@@ -13,10 +14,18 @@ export class VerdanHealth extends VerdanAttacks {
   isDeathAnimationFinished = false;
   hitProtectedUntil = Number.NEGATIVE_INFINITY;
 
+  /**
+   * Checks whether the boss is protected from hits.
+   * @returns {boolean} True shortly after a hit.
+   */
   isHitProtected() {
     return gameLoop.now() < this.hitProtectedUntil;
   }
 
+  /**
+   * Applies a hit unless transitioning or protected, then reacts to it.
+   * @returns {boolean} True if the hit was applied.
+   */
   hit() {
     if (this.state === "transition" || this.isHitProtected()) return false;
     if (!super.hit()) return false;
@@ -26,6 +35,7 @@ export class VerdanHealth extends VerdanAttacks {
     return true;
   }
 
+  /** Starts death, rage, hurt or a counter depending on health and state. */
   handleHitReaction() {
     if (this.isDead()) this.startDeath();
     else if (this.state === "attack") this.isRagePending = this.shouldEnterRage();
@@ -34,6 +44,10 @@ export class VerdanHealth extends VerdanAttacks {
     else this.prepareCounter();
   }
 
+  /**
+   * Draws the boss, blinking while hit protected.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   draw(ctx) {
     ctx.save();
     if (this.isHitProtected() && !this.isDead() && Math.floor(gameLoop.now() / 80) % 2 === 0) ctx.globalAlpha = 0.5;
@@ -41,37 +55,51 @@ export class VerdanHealth extends VerdanAttacks {
     ctx.restore();
   }
 
+  /**
+   * Checks whether the boss should enter rage.
+   * @returns {boolean} True at half health or below if not yet in rage.
+   */
   shouldEnterRage() {
     return !this.isRage && this.hp <= this.maxHp / 2;
   }
 
+  /**
+   * Starts an attack and allows staggering again.
+   * @param {string} key - Attack settings key.
+   * @param {Function} onAction - Called with the attack settings at the action frame.
+   */
   startAttack(key, onAction) {
     this.canStagger = true;
     super.startAttack(key, onAction);
   }
 
+  /** Cancels all attacks and a pending rage. */
   cancelAttacks() {
     super.cancelAttacks();
     this.isRagePending = false;
   }
 
+  /** Starts the hurt animation; the next hit cannot stagger. */
   startHurt() {
     this.canStagger = false;
     this.startAnimation("hurt");
   }
 
+  /** Plays the hurt animation and then waits for a counter attack. */
   playHurt() {
     const frame = this.getElapsedFrame(this.getPhaseSettings("hurt").frameDuration);
     if (frame < this.IMAGES_HURT.length) this.setFrame(this.IMAGES_HURT, frame);
     else this.startCounterIdle();
   }
 
+  /** Cancels attacks and starts the rage transition with its music. */
   startTransition() {
     this.cancelAttacks();
     this.startAnimation("transition");
     gameMusic.startRageTransition();
   }
 
+  /** Plays the transition animation with sounds and roar, then enters rage. */
   playTransition() {
     const { frameDuration, roarFrame } = VERDAN_SETTINGS.phaseTransition;
     const frame = this.getElapsedFrame(frameDuration);
@@ -81,6 +109,7 @@ export class VerdanHealth extends VerdanAttacks {
     if (frame >= roarFrame) this.triggerRoarShake();
   }
 
+  /** Plays the roar and shakes the screen once. */
   triggerRoarShake() {
     if (this.isRoarTriggered || !this.world) return;
     this.isRoarTriggered = true;
@@ -88,6 +117,7 @@ export class VerdanHealth extends VerdanAttacks {
     this.world.triggerHitFeedback("bossRoar");
   }
 
+  /** Switches to rage sprites, speed and music. */
   enterRage() {
     this.isRage = true;
     this.IMAGES_IDLE = this.IMAGES_IDLE_RAGE;
@@ -98,11 +128,13 @@ export class VerdanHealth extends VerdanAttacks {
     gameMusic.playRageMusic();
   }
 
+  /** Cancels attacks and starts the death animation. */
   startDeath() {
     this.cancelAttacks();
     this.startAnimation("death");
   }
 
+  /** Plays the death animation with sounds and holds the last frame. */
   playDeath() {
     const frame = this.getElapsedFrame(VERDAN_SETTINGS.death.frameDuration);
     this.setFrame(this.IMAGES_DEATH, Math.min(frame, this.IMAGES_DEATH.length - 1));

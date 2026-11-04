@@ -1,4 +1,4 @@
-import { appState, bossIntroMusic, bossMusic, bossRageMusic, deathScreenMusic, gameplayMusic, startScreenMusic } from "./data.js";
+import { appState, bossIntroMusic, bossMusic, bossRageMusic, deathScreenMusic, gameplayMusic, startScreenMusic, victoryScreenMusic } from "./data.js";
 import { AudioError } from "./models/audio-error.class.js";
 import { gameLoop } from "./models/game-loop.class.js";
 import { cancelMusicFade, fadeMusic, setMusicFadeLevel, updateMusicVolume } from "./music-fade.js";
@@ -8,16 +8,18 @@ import { onLanguageChange, translate } from "./translation.js";
 const AUDIO_SETTINGS_STORAGE_KEY = "audio-settings";
 const START_SCREEN_MUSIC_PAUSE_MS = 3000;
 const START_SCREEN_MUSIC_FADE_IN_MS = 2000;
-const MUSIC_TRACKS = [startScreenMusic, deathScreenMusic, gameplayMusic, bossIntroMusic, bossMusic, bossRageMusic];
+const MUSIC_TRACKS = [startScreenMusic, deathScreenMusic, victoryScreenMusic, gameplayMusic, bossIntroMusic, bossMusic, bossRageMusic];
 let isStartScreenMusicWanted = false;
 let startScreenMusicTimeout = null;
 let wasGameplayMusicPlaying = false;
 
+/** Configures the start screen music to replay after a pause when it ends. */
 export function setupStartScreenMusic() {
   startScreenMusic.loop = false;
   startScreenMusic.addEventListener("ended", handleStartScreenMusicEnded);
 }
 
+/** Starts the start screen music from silence with a fade-in. */
 export function startStartScreenMusic() {
   isStartScreenMusicWanted = true;
   clearTimeout(startScreenMusicTimeout);
@@ -26,6 +28,7 @@ export function startStartScreenMusic() {
   fadeMusic(startScreenMusic, 1, START_SCREEN_MUSIC_FADE_IN_MS);
 }
 
+/** Stops the start screen music and cancels any pending replay or fade. */
 export function stopStartScreenMusic() {
   isStartScreenMusicWanted = false;
   clearTimeout(startScreenMusicTimeout);
@@ -33,25 +36,42 @@ export function stopStartScreenMusic() {
   AudioError.stop(startScreenMusic);
 }
 
+/** Plays the death screen music once from the beginning. */
 export function startDeathScreenMusic() {
   deathScreenMusic.loop = false;
   AudioError.stop(deathScreenMusic);
   AudioError.play(deathScreenMusic);
 }
 
+/** Stops the death screen music. */
 export function stopDeathScreenMusic() {
   AudioError.stop(deathScreenMusic);
 }
 
+/** Plays the victory screen music once from the beginning. */
+export function startVictoryScreenMusic() {
+  victoryScreenMusic.loop = false;
+  AudioError.stop(victoryScreenMusic);
+  AudioError.play(victoryScreenMusic);
+}
+
+/** Stops the victory screen music. */
+export function stopVictoryScreenMusic() {
+  AudioError.stop(victoryScreenMusic);
+}
+
+/** Schedules the start screen music to restart after a short pause. */
 function handleStartScreenMusicEnded() {
   startScreenMusicTimeout = setTimeout(startStartScreenMusic, START_SCREEN_MUSIC_PAUSE_MS);
 }
 
+/** Pauses or resumes audio when the tab visibility changes. */
 function handleVisibilityChange() {
   if (document.hidden) pauseAudioForHiddenTab();
   else resumeAudioForVisibleTab();
 }
 
+/** Pauses all music while the tab is hidden and remembers whether gameplay music was playing. */
 function pauseAudioForHiddenTab() {
   wasGameplayMusicPlaying = Boolean(appState.world?.isGameplayMusicPlaying());
   clearTimeout(startScreenMusicTimeout);
@@ -59,12 +79,14 @@ function pauseAudioForHiddenTab() {
   appState.world?.pauseGameplayMusic();
 }
 
+/** Resumes the music that was playing before the tab was hidden. */
 function resumeAudioForVisibleTab() {
   if (isStartScreenMusicWanted) startStartScreenMusic();
   if (wasGameplayMusicPlaying && !gameLoop.isPaused) appState.world?.resumeGameplayMusic();
   wasGameplayMusicPlaying = false;
 }
 
+/** Loads saved audio settings, syncs the settings UI and registers its listeners. */
 export function setupAudioSettings() {
   loadAudioSettings();
   setVolumeSlider("master-volume", appState.masterVolume);
@@ -81,6 +103,10 @@ export function setupAudioSettings() {
   onLanguageChange(updateAudioMuteButton);
 }
 
+/**
+ * Applies and saves a new master volume from the slider.
+ * @param {Event} event - Input event of the master volume slider.
+ */
 function handleMasterVolumeInput(event) {
   appState.masterVolume = Number(event.target.value) / 100;
   showVolumeValue("master-volume-value", event.target.value);
@@ -89,6 +115,10 @@ function handleMasterVolumeInput(event) {
   saveAudioSettings();
 }
 
+/**
+ * Applies and saves a new music volume from the slider.
+ * @param {Event} event - Input event of the music volume slider.
+ */
 function handleMusicVolumeInput(event) {
   appState.musicVolume = Number(event.target.value) / 100;
   showVolumeValue("music-volume-value", event.target.value);
@@ -96,6 +126,10 @@ function handleMusicVolumeInput(event) {
   saveAudioSettings();
 }
 
+/**
+ * Applies and saves a new sound effects volume from the slider.
+ * @param {Event} event - Input event of the sound effects volume slider.
+ */
 function handleSoundEffectsVolumeInput(event) {
   appState.soundEffectsVolume = Number(event.target.value) / 100;
   showVolumeValue("sound-effects-volume-value", event.target.value);
@@ -103,6 +137,7 @@ function handleSoundEffectsVolumeInput(event) {
   saveAudioSettings();
 }
 
+/** Toggles global audio mute and saves the setting. */
 function toggleAudioMute() {
   appState.isAudioMuted = !appState.isAudioMuted;
   updateAudioMuteButton();
@@ -111,6 +146,7 @@ function toggleAudioMute() {
   saveAudioSettings();
 }
 
+/** Syncs the mute button state, its label and the volume sliders with the mute setting. */
 function updateAudioMuteButton() {
   const muteButtonRef = document.getElementById("audio-mute-button");
   const settingsAudioRef = document.querySelector(".settings-audio");
@@ -122,20 +158,32 @@ function updateAudioMuteButton() {
   });
 }
 
+/** Applies the current volume settings to all music tracks. */
 export function applyMusicVolume() {
   MUSIC_TRACKS.forEach(updateMusicVolume);
 }
 
+/**
+ * Sets a volume slider and its value output to the given volume.
+ * @param {string} sliderId - Id of the range input.
+ * @param {number} volume - Volume between 0 and 1.
+ */
 function setVolumeSlider(sliderId, volume) {
   const percent = Math.round(volume * 100);
   document.getElementById(sliderId).value = percent;
   showVolumeValue(`${sliderId}-value`, percent);
 }
 
+/**
+ * Displays a volume percentage in an output element.
+ * @param {string} outputId - Id of the output element.
+ * @param {number|string} value - Volume in percent.
+ */
 function showVolumeValue(outputId, value) {
   document.getElementById(outputId).value = `${value}%`;
 }
 
+/** Saves the current audio settings to localStorage. */
 function saveAudioSettings() {
   localStorage.setItem(
     AUDIO_SETTINGS_STORAGE_KEY,
@@ -148,6 +196,7 @@ function saveAudioSettings() {
   );
 }
 
+/** Loads valid audio settings from localStorage into the app state. */
 function loadAudioSettings() {
   try {
     const settings = JSON.parse(localStorage.getItem(AUDIO_SETTINGS_STORAGE_KEY));
@@ -160,6 +209,11 @@ function loadAudioSettings() {
   }
 }
 
+/**
+ * Checks whether a value is a valid volume.
+ * @param {*} volume - Value to check.
+ * @returns {boolean} True if the value is a number between 0 and 1.
+ */
 function isValidVolume(volume) {
   return typeof volume === "number" && volume >= 0 && volume <= 1;
 }

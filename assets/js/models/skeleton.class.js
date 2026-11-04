@@ -2,6 +2,12 @@ import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const SKELETON_PATH = "assets/images/3_enemies/skeleton/";
 const SKELETON_FRAME = { frameSize: 196, frameHeight: 117 };
+/**
+ * Builds the sprite config of a skeleton animation.
+ * @param {string} name - Animation name in the file name.
+ * @param {number} frameCount - Number of frames.
+ * @returns {Object} Sprite path, frame count, frame size and columns.
+ */
 function getSkeletonSprite(name, frameCount) {
   return { path: `${SKELETON_PATH}skeleton_${name}.webp`, frameCount, ...SKELETON_FRAME, columns: Math.min(10, frameCount) };
 }
@@ -34,13 +40,21 @@ const SKELETON_SETTINGS = {
   },
 };
 
+/** Armored skeleton enemy with slow, long attack animations. */
 export class Skeleton extends ConfigurableEnemy {
   isSpriteDirectionInverted = true;
 
+  /**
+   * @param {Object} [positionOverrides={}] - Values that override the default position settings.
+   */
   constructor(positionOverrides = {}) {
     super(SKELETON_SETTINGS, positionOverrides);
   }
 
+  /**
+   * Gets the animation scheduler interval.
+   * @returns {number} Interval in milliseconds (60 fps).
+   */
   getAnimationSchedulerInterval() {
     return 1000 / 60;
   }

@@ -1,10 +1,15 @@
 import { gameLoop } from "./game-loop.class.js";
 import { DrawableObject } from "./drawable-object.class.js";
 
+/** Animated coin that charges the special attack when collected. */
 export class ChargeItem extends DrawableObject {
   static FRAME_COUNT = 5;
   isCollected = false;
 
+  /**
+   * @param {number} centerX - Coin center x.
+   * @param {number} centerY - Coin center y.
+   */
   constructor(centerX, centerY) {
     super();
     this.loadImage("assets/images/8_items/item_charge.webp");
@@ -14,6 +19,10 @@ export class ChargeItem extends DrawableObject {
     this.y = centerY - this.height / 2;
   }
 
+  /**
+   * Draws the current animation frame of the coin.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   draw(ctx) {
     if (!this.img || !this.img.complete || this.img.naturalWidth === 0) return;
     const frameWidth = this.img.naturalWidth / ChargeItem.FRAME_COUNT;

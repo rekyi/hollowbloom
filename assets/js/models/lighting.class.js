@@ -18,14 +18,26 @@ const CHECKPOINT_GLOW = { color: "80, 226, 196", size: 170, alpha: 0.5, pulseSpe
 const HEALING_PLANT_GLOW = { color: "255, 110, 150", size: 110, alpha: 0.45, pulseSpeed: 0.0045 };
 const budCache = new WeakMap();
 
+/**
+ * Detects the glowing buds of a loaded level in advance, so they are cached before the level starts.
+ * @param {Object} levelAssets - Loaded level assets.
+ * @param {Object} levelAssets.data - Level data with width and height.
+ * @param {Array<Object>} levelAssets.layers - Level layers with their images.
+ * @returns {Promise<Array<Object>>} Detected buds.
+ */
 export function prepareLevelLighting({ data, layers }) {
   return getBuds({ width: data.width * LEVEL_SCALE, height: data.height * LEVEL_SCALE, layers });
 }
 
+/** Draws additive glows for glowing level plants, pickups, checkpoints, healing plants and portals. */
 export class Lighting {
   buds = [];
   level = null;
 
+  /**
+   * Sets the level and detects its glowing buds asynchronously.
+   * @param {Level} level - Level to light.
+   */
   setLevel(level) {
     this.level = level;
     this.buds = [];
@@ -34,6 +46,12 @@ export class Lighting {
     });
   }
 
+  /**
+   * Draws all glows of the level.
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
+   * @param {Level} level - Level whose objects glow.
+   * @param {boolean} isExitOpen - Whether the exit portals are unlocked.
+   */
   drawGlows(ctx, level, isExitOpen) {
     const now = gameLoop.now();
     ctx.save();
@@ -48,16 +66,37 @@ export class Lighting {
     ctx.restore();
   }
 
+  /**
+   * Draws the pulsing glow of a bud.
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
+   * @param {{x: number, y: number, radius: number, color: string, phase: number}} bud - Detected bud.
+   * @param {number} now - Current game time in milliseconds.
+   */
   drawBudGlow(ctx, { x, y, radius, color, phase }, now) {
     const pulse = 0.8 + 0.2 * Math.sin(now * BUD_GLOW.pulseSpeed + phase);
     drawGlow(ctx, color, x, y, radius * BUD_GLOW.sizeFactor * pulse, BUD_GLOW.alpha * pulse);
   }
 
+  /**
+   * Draws a pulsing glow at a fixed size.
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
+   * @param {{x: number, y: number}} center - Center of the glow.
+   * @param {{color: string, size: number, alpha: number, pulseSpeed: number}} glow - Glow settings.
+   * @param {number} now - Current game time in milliseconds.
+   */
   drawPulsingGlow(ctx, { x, y }, { color, size, alpha, pulseSpeed }, now) {
     const pulse = 0.85 + 0.15 * Math.sin(now * pulseSpeed);
     drawGlow(ctx, color, x, y, size * pulse, alpha * pulse);
   }
 
+  /**
+   * Draws a pulsing glow centered on an object and sized relative to it.
+   * @param {CanvasRenderingContext2D} ctx - Canvas context.
+   * @param {DrawableObject} object - Object to glow.
+   * @param {{color: string, sizeFactor: number, alpha: number}} glow - Glow settings.
+   * @param {number} now - Current game time in milliseconds.
+   * @param {number} [strength=1] - Alpha multiplier.
+   */
   drawObjectGlow(ctx, object, { color, sizeFactor, alpha }, now, strength = 1) {
     const centerX = object.x + object.width / 2;
     const centerY = object.y + object.height / 2;
@@ -66,6 +105,11 @@ export class Lighting {
   }
 }
 
+/**
+ * Returns the buds of a level, detecting them only once per layer image.
+ * @param {{width: number, height: number, layers: Array<Object>}} level - Level or level assets.
+ * @returns {Promise<Array<Object>>} Detected buds.
+ */
 function getBuds(level) {
   const cacheKey = level.layers[0]?.image;
   if (!cacheKey) return Promise.resolve([]);
@@ -73,6 +117,11 @@ function getBuds(level) {
   return budCache.get(cacheKey);
 }
 
+/**
+ * Merges the level layers at reduced size and looks for bright blobs.
+ * @param {{width: number, height: number, layers: Array<Object>}} level - Level or level assets.
+ * @returns {Promise<Array<Object>>} Detected buds, empty on failure.
+ */
 async function findBuds(level) {
   try {
     const width = Math.ceil(level.width * DETECTION_SCALE);
@@ -95,6 +144,11 @@ async function findBuds(level) {
   }
 }
 
+/**
+ * Finds connected bright pixel groups that are large enough to count as buds.
+ * @param {ImageData} imageData - Merged level image.
+ * @returns {Array<Object>} Described buds.
+ */
 function findBrightBlobs({ data, width, height }) {
   const isBright = new Uint8Array(width * height);
   for (let i = 0; i < isBright.length; i++) {
@@ -111,6 +165,13 @@ function findBrightBlobs({ data, width, height }) {
   return buds;
 }
 
+/**
+ * Collects all pixels connected to the start pixel and marks them as visited.
+ * @param {Uint8Array} isBright - Pixel flags: 1 = bright, 2 = visited.
+ * @param {number} start - Index of the first pixel.
+ * @param {number} width - Image width in pixels.
+ * @returns {Array<number>} Pixel indices of the blob.
+ */
 function collectBlob(isBright, start, width) {
   const pixels = [start];
   isBright[start] = 2;
@@ -128,6 +189,13 @@ function collectBlob(isBright, start, width) {
   return pixels;
 }
 
+/**
+ * Computes center, radius and average color of a blob in level coordinates.
+ * @param {Array<number>} pixels - Pixel indices of the blob.
+ * @param {Uint8ClampedArray} data - RGBA image data.
+ * @param {number} width - Image width in pixels.
+ * @returns {{x: number, y: number, radius: number, color: string, phase: number}} Bud description.
+ */
 function describeBlob(pixels, data, width) {
   let sumX = 0, sumY = 0, sumR = 0, sumG = 0, sumB = 0;
   pixels.forEach((index) => {

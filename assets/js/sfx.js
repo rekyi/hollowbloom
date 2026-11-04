@@ -55,6 +55,7 @@ const SFX_FILES = {
 
 const sounds = new Map();
 
+/** Creates all sound effects, applies the volume settings and enables button click sounds. */
 export function setupSfx() {
   Object.entries(SFX_FILES).forEach(([name, files]) => {
     sounds.set(name, files.map(createSfx));
@@ -63,6 +64,13 @@ export function setupSfx() {
   document.addEventListener("click", playButtonClickSfx);
 }
 
+/**
+ * Plays a random variant of a sound effect with slight pitch variation.
+ * @param {string} name - Sound effect name from SFX_FILES.
+ * @param {Object} [options] - Playback options.
+ * @param {number} [options.volume=0.5] - Playback volume between 0 and 1.
+ * @param {number} [options.pitchVariation=0.05] - Maximum random rate deviation.
+ */
 export function playSfx(name, { volume = 0.5, pitchVariation = 0.05 } = {}) {
   const soundVariants = sounds.get(name);
   if (!soundVariants) {
@@ -73,16 +81,26 @@ export function playSfx(name, { volume = 0.5, pitchVariation = 0.05 } = {}) {
   playHowl(sound, volume, getRandomRate(pitchVariation));
 }
 
+/** Applies the current volume and mute settings to all sound effects. */
 export function applySfxSettings() {
   Howler.volume(appState.masterVolume * appState.soundEffectsVolume);
   Howler.mute(appState.isAudioMuted);
 }
 
+/**
+ * Plays the click sound when a non-touch button is clicked.
+ * @param {MouseEvent} event - Document click event.
+ */
 function playButtonClickSfx(event) {
   const buttonRef = event.target.closest("button");
   if (buttonRef && !buttonRef.classList.contains("touch-button")) playSfx("buttonClick", { pitchVariation: 0 });
 }
 
+/**
+ * Creates a Howl for a sound effect file.
+ * @param {string} file - Path relative to assets/audio/sfx/.
+ * @returns {Howl} The sound instance.
+ */
 function createSfx(file) {
   return new Howl({
     src: [`assets/audio/sfx/${file}`],
@@ -90,16 +108,35 @@ function createSfx(file) {
   });
 }
 
+/**
+ * Plays a Howl with the given volume and rate.
+ * @param {Howl} sound - Sound to play.
+ * @param {number} volume - Playback volume between 0 and 1.
+ * @param {number} rate - Playback rate.
+ */
 function playHowl(sound, volume, rate) {
   const soundId = sound.play();
   sound.volume(volume, soundId);
   sound.rate(rate, soundId);
 }
 
+/**
+ * Builds the file paths of numbered sound effect variants.
+ * @param {string} directory - Subfolder inside assets/audio/sfx/.
+ * @param {string} prefix - File name prefix.
+ * @param {number} count - Number of variants.
+ * @param {string} [extension="ogg"] - File extension.
+ * @returns {string[]} Paths like "directory/prefix_0.ogg".
+ */
 function getSfxPaths(directory, prefix, count, extension = "ogg") {
   return Array.from({ length: count }, (_, index) => `${directory}/${prefix}_${index}.${extension}`);
 }
 
+/**
+ * Gets a random playback rate around 1.
+ * @param {number} pitchVariation - Maximum deviation from 1.
+ * @returns {number} Random rate in [1 - pitchVariation, 1 + pitchVariation].
+ */
 function getRandomRate(pitchVariation) {
   return 1 + (Math.random() * 2 - 1) * pitchVariation;
 }

@@ -6,9 +6,13 @@ const FRAME_DURATION_MS = 130;
 const GROUND_SINK_PX = 4;
 const FRUIT_HEIGHT_PX = 44;
 
+/** Animated plant whose fruit heals the character when collected. */
 export class HealingPlant extends DrawableObject {
   isCollected = false;
 
+  /**
+   * @param {{x: number, y: number, width: number, height: number}} box - Position and size of the plant.
+   */
   constructor({ x, y, width, height }) {
     super();
     this.loadImages(FRAME_PATHS);
@@ -18,10 +22,18 @@ export class HealingPlant extends DrawableObject {
     this.height = height;
   }
 
+  /**
+   * Gets the center of the plant's fruit.
+   * @returns {{x: number, y: number}} Fruit center.
+   */
   getFruitCenter() {
     return { x: this.x + this.width / 2, y: this.y + this.height + GROUND_SINK_PX - FRUIT_HEIGHT_PX };
   }
 
+  /**
+   * Draws the current frame centered and slightly sunk into the ground.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   draw(ctx) {
     const frame = this.imageCache[FRAME_PATHS[Math.floor(gameLoop.now() / FRAME_DURATION_MS) % FRAME_PATHS.length]];
     if (!frame.complete || frame.naturalWidth === 0) return;

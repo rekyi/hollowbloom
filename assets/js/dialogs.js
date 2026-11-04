@@ -1,3 +1,4 @@
+/** Wires up the credits, imprint and settings dialogs. */
 export function setupDialogs() {
   setupDialog("credits-button", "credits-overlay", "credits-title", "credits-back-button");
   setupDialogButton("victory-credits-button", document.getElementById("credits-overlay"), "credits-title");
@@ -9,6 +10,7 @@ export function setupDialogs() {
   setupSettingsTabs();
 }
 
+/** Adds click and arrow key navigation to the settings tabs. */
 function setupSettingsTabs() {
   document.querySelectorAll(".settings-tab").forEach((tabRef) => {
     tabRef.addEventListener("click", () => selectSettingsTab(tabRef));
@@ -16,6 +18,11 @@ function setupSettingsTabs() {
   });
 }
 
+/**
+ * Selects a settings tab and shows only its panel.
+ * @param {HTMLElement} selectedTabRef - Tab to select.
+ * @param {boolean} [shouldFocus=false] - Whether to focus the selected tab.
+ */
 function selectSettingsTab(selectedTabRef, shouldFocus = false) {
   document.querySelectorAll(".settings-tab").forEach((tabRef) => {
     const isSelected = tabRef === selectedTabRef;
@@ -26,6 +33,10 @@ function selectSettingsTab(selectedTabRef, shouldFocus = false) {
   if (shouldFocus) selectedTabRef.focus();
 }
 
+/**
+ * Moves the tab selection with the left and right arrow keys.
+ * @param {KeyboardEvent} event - Keydown event on a settings tab.
+ */
 function onSettingsTabKeydown(event) {
   if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return;
   event.preventDefault();
@@ -35,6 +46,13 @@ function onSettingsTabKeydown(event) {
   selectSettingsTab(tabRefs[nextIndex], true);
 }
 
+/**
+ * Wires up a dialog with an open button, a back button and backdrop closing.
+ * @param {string} buttonId - Id of the button that opens the dialog.
+ * @param {string} dialogId - Id of the dialog element.
+ * @param {string} titleId - Id of the title focused on open.
+ * @param {string} backId - Id of the button that closes the dialog.
+ */
 function setupDialog(buttonId, dialogId, titleId, backId) {
   const dialogRef = document.getElementById(dialogId);
   setupDialogButton(buttonId, dialogRef, titleId);
@@ -42,23 +60,40 @@ function setupDialog(buttonId, dialogId, titleId, backId) {
   dialogRef.addEventListener("click", onBackdropClick);
 }
 
+/**
+ * Makes a button open a dialog.
+ * @param {string} buttonId - Id of the button.
+ * @param {HTMLDialogElement} dialogRef - Dialog to open.
+ * @param {string} titleId - Id of the title focused on open.
+ */
 function setupDialogButton(buttonId, dialogRef, titleId) {
   document.getElementById(buttonId).addEventListener("click", () => openDialog(dialogRef, titleId));
 }
 
+/**
+ * Opens a dialog modally and focuses its title.
+ * @param {HTMLDialogElement} dialogRef - Dialog to open.
+ * @param {string} titleId - Id of the title to focus.
+ */
 function openDialog(dialogRef, titleId) {
   dialogRef.showModal();
   document.getElementById(titleId).focus();
 }
 
+/** Opens the settings dialog. */
 function openSettings() {
   openDialog(document.getElementById("settings-overlay"), "settings-title");
 }
 
+/** Closes the settings dialog. */
 function closeSettings() {
   document.getElementById("settings-overlay").close();
 }
 
+/**
+ * Closes a dialog when its backdrop is clicked.
+ * @param {MouseEvent} event - Click event on the dialog.
+ */
 function onBackdropClick(event) {
   const dialogRef = event.currentTarget;
 

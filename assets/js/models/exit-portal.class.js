@@ -7,14 +7,24 @@ const GROUND_SINK_PX = 8;
 const NORMAL_FRAME_PATHS = getFramePaths("normal");
 const BOSS_FRAME_PATHS = getFramePaths("boss");
 
+/**
+ * Builds the frame paths of a portal animation.
+ * @param {string} type - "normal" or "boss".
+ * @returns {string[]} Frame image paths.
+ */
 function getFramePaths(type) {
   return Array.from({ length: FRAME_COUNT }, (_, index) => `assets/images/exit/portal_${type}_${index + 1}.webp`);
 }
 
+/** Animated exit portal that leads to the next level or ends the game. */
 export class ExitPortal extends DrawableObject {
   isBossExit = false;
   framePaths = NORMAL_FRAME_PATHS;
 
+  /**
+   * @param {{x: number, y: number, width: number, height: number}} box - Position and size of the portal.
+   * @param {boolean} [isBossExit=false] - Whether this is the boss level exit.
+   */
   constructor({ x, y, width, height }, isBossExit = false) {
     super();
     this.isBossExit = isBossExit;
@@ -26,11 +36,19 @@ export class ExitPortal extends DrawableObject {
     this.height = height;
   }
 
+  /**
+   * Gets the current animation frame.
+   * @returns {HTMLImageElement} The frame image.
+   */
   getCurrentFrame() {
     const frameIndex = Math.floor(gameLoop.now() / FRAME_DURATION_MS) % this.framePaths.length;
     return this.imageCache[this.framePaths[frameIndex]];
   }
 
+  /**
+   * Draws the current frame centered and slightly sunk into the ground.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   draw(ctx) {
     const frame = this.getCurrentFrame();
     if (!frame.complete || frame.naturalWidth === 0) return;

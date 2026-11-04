@@ -13,10 +13,16 @@ const DRIFT = { amplitude: [40, 110], speed: [0.00015, 0.0004] };
 const FLUTTER = { amplitude: [4, 12], speed: [0.001, 0.002] };
 const FLASH = { attack: [180, 300], hold: [80, 160], release: [500, 900], pause: [1200, 3800], doubleChance: 0.3, doubleDelay: [220, 320] };
 
+/** Drifting, flashing fireflies placed above level surfaces, drawn behind or in front of the level. */
 export class Fireflies {
   fireflies = [];
   colors = null;
 
+  /**
+   * Creates fireflies for a level based on its area.
+   * @param {Level} level - Current level.
+   * @param {Object} theme - Level theme with firefly colors.
+   */
   populate(level, theme) {
     this.colors = theme.fireflies;
     this.fireflies = [];
@@ -27,6 +33,11 @@ export class Fireflies {
     }
   }
 
+  /**
+   * Finds a random spot in the air above a surface.
+   * @param {number[][]} grid - Collision grid.
+   * @returns {?{x: number, y: number}} Home position, or null if none was found.
+   */
   findHome(grid) {
     if (!grid?.length) return null;
     for (let attempt = 0; attempt < MAX_SPAWN_TRIES; attempt++) {
@@ -40,6 +51,12 @@ export class Fireflies {
     return null;
   }
 
+  /**
+   * Gets all rows in a column where a solid tile has air above it.
+   * @param {number[][]} grid - Collision grid.
+   * @param {number} column - Column index.
+   * @returns {number[]} Surface rows.
+   */
   getSurfaceRows(grid, column) {
     const rows = [];
     for (let row = 1; row < grid.length; row++) {
@@ -48,10 +65,21 @@ export class Fireflies {
     return rows;
   }
 
+  /**
+   * Checks whether a point lies in an empty tile.
+   * @param {number[][]} grid - Collision grid.
+   * @param {{x: number, y: number}} point - Point in pixels.
+   * @returns {boolean} True if the tile is empty.
+   */
   isAir(grid, { x, y }) {
     return grid[Math.floor(y / TILE_SIZE)]?.[Math.floor(x / TILE_SIZE)] === 0;
   }
 
+  /**
+   * Creates a firefly with random layer, size, motion and flash timing.
+   * @param {{x: number, y: number}} home - Center of its movement.
+   * @returns {Object} The firefly.
+   */
   createFirefly(home) {
     const isInFront = Math.random() < FRONT_SHARE;
     return {
@@ -63,10 +91,21 @@ export class Fireflies {
     };
   }
 
+  /**
+   * Creates a random sine wave for firefly movement.
+   * @param {{amplitude: number[], speed: number[]}} ranges - Amplitude and speed ranges.
+   * @param {number} [amplitudeScale=1] - Factor for the amplitude.
+   * @returns {{amplitude: number, speed: number, phase: number}} The wave.
+   */
   createWave({ amplitude, speed }, amplitudeScale = 1) {
     return { amplitude: this.randomBetween(amplitude) * amplitudeScale, speed: this.randomBetween(speed), phase: Math.random() * Math.PI * 2 };
   }
 
+  /**
+   * Creates a random flash, sometimes a double flash.
+   * @param {number} startAt - Game time when the flash starts.
+   * @returns {Object} Flash timing.
+   */
   createFlash(startAt) {
     return {
       startAt,
@@ -78,18 +117,39 @@ export class Fireflies {
     };
   }
 
+  /**
+   * Gets a random number in a range.
+   * @param {number[]} range - [min, max].
+   * @returns {number} Random number between min and max.
+   */
   randomBetween([min, max]) {
     return min + Math.random() * (max - min);
   }
 
+  /**
+   * Draws the fireflies behind the level.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   */
   drawBehind(ctx, view) {
     this.draw(ctx, view, false);
   }
 
+  /**
+   * Draws the fireflies in front of the level.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   */
   drawFront(ctx, view) {
     this.draw(ctx, view, true);
   }
 
+  /**
+   * Draws the fireflies of one layer additively.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @param {boolean} isInFront - Which layer to draw.
+   */
   draw(ctx, view, isInFront) {
     const now = gameLoop.now();
     ctx.save();
@@ -101,6 +161,13 @@ export class Fireflies {
     ctx.restore();
   }
 
+  /**
+   * Draws one firefly with halo and core if it glows and is visible.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {Object} firefly - Firefly to draw.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @param {number} now - Current game time.
+   */
   drawFirefly(ctx, firefly, view, now) {
     const brightness = this.getBrightness(firefly, now);
     if (brightness <= 0.01) return;
@@ -112,14 +179,33 @@ export class Fireflies {
     drawGlow(ctx, this.colors.coreColor, x, y, CORE_SIZE * firefly.scale, brightness);
   }
 
+  /**
+   * Sums several sine waves at a time.
+   * @param {Array<{amplitude: number, speed: number, phase: number}>} waves - Waves to sum.
+   * @param {number} now - Current game time.
+   * @returns {number} Combined offset.
+   */
   sumWaves(waves, now) {
     return waves.reduce((sum, { amplitude, speed, phase }) => sum + amplitude * Math.sin(now * speed + phase), 0);
   }
 
+  /**
+   * Checks whether a point is inside the view plus a margin.
+   * @param {number} x - Point x.
+   * @param {number} y - Point y.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @returns {boolean} True if visible.
+   */
   isInView(x, y, view) {
     return x > view.left - VIEW_MARGIN && x < view.left + view.width + VIEW_MARGIN && y > view.top - VIEW_MARGIN && y < view.top + view.height + VIEW_MARGIN;
   }
 
+  /**
+   * Gets the current flash brightness and schedules the next flash when one ends.
+   * @param {Object} firefly - Firefly to check.
+   * @param {number} now - Current game time.
+   * @returns {number} Brightness between 0 and 1.
+   */
   getBrightness(firefly, now) {
     const flash = firefly.flash;
     const repeatOffset = flash.attack + flash.hold + flash.repeatDelay;
@@ -133,6 +219,12 @@ export class Fireflies {
     return Math.max(first, second);
   }
 
+  /**
+   * Gets the brightness of one flash pulse with eased rise and fall.
+   * @param {{attack: number, hold: number, release: number}} flash - Pulse timing.
+   * @param {number} elapsed - Time since the pulse started.
+   * @returns {number} Brightness between 0 and 1.
+   */
   getPulse({ attack, hold, release }, elapsed) {
     if (elapsed < 0) return 0;
     if (elapsed < attack) return (elapsed / attack) ** 2;

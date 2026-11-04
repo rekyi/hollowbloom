@@ -86,6 +86,7 @@ const TEXTS = {
 let currentLanguage = DEFAULT_LANGUAGE;
 const languageChangeListeners = [];
 
+/** Loads the saved language, binds the language select and translates the page. */
 export function setupTranslation() {
   currentLanguage = loadLanguage();
   const languageSelectRef = document.getElementById("language-select");
@@ -94,16 +95,29 @@ export function setupTranslation() {
   applyTranslation();
 }
 
+/**
+ * Translates a text key into the current language.
+ * @param {string} key - Translation key.
+ * @returns {string} The translated text, the English fallback, or the key itself if unknown.
+ */
 export function translate(key) {
   const entry = TEXTS[key];
   if (!entry) return key;
   return entry[currentLanguage] ?? entry[DEFAULT_LANGUAGE];
 }
 
+/**
+ * Registers a callback that runs after the language changes.
+ * @param {Function} listener - Callback without arguments.
+ */
 export function onLanguageChange(listener) {
   languageChangeListeners.push(listener);
 }
 
+/**
+ * Switches to the selected language, saves it and notifies listeners.
+ * @param {Event} event - Change event of the language select.
+ */
 function handleLanguageChange(event) {
   currentLanguage = event.target.value;
   saveLanguage();
@@ -111,6 +125,7 @@ function handleLanguageChange(event) {
   languageChangeListeners.forEach((listener) => listener());
 }
 
+/** Translates all elements with data-i18n or data-i18n-aria-label attributes. */
 function applyTranslation() {
   document.documentElement.lang = currentLanguage;
   document.documentElement.classList.remove("is-translating");
@@ -122,6 +137,10 @@ function applyTranslation() {
   });
 }
 
+/**
+ * Loads the saved language from localStorage.
+ * @returns {string} A supported language code, defaulting to English.
+ */
 function loadLanguage() {
   try {
     const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
@@ -132,6 +151,7 @@ function loadLanguage() {
   }
 }
 
+/** Saves the current language to localStorage. */
 function saveLanguage() {
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);

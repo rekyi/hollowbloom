@@ -7,16 +7,22 @@ const CANVAS_HEIGHT = 720;
 const PARTICLE_FACTOR = 0.8;
 const layerImages = new Map();
 
+/** Themed parallax background with sky fill, floating particles and vignette. */
 export class Background {
   theme = null;
   layers = [];
   particles = [];
   vignetteGradient = null;
 
+  /** Creates the background with the forest theme. */
   constructor() {
     this.setTheme(LEVEL_THEMES.forest);
   }
 
+  /**
+   * Switches to a theme and rebuilds layers and particles.
+   * @param {Object} theme - Level theme from LEVEL_THEMES.
+   */
   setTheme(theme) {
     if (this.theme === theme) return;
     this.theme = theme;
@@ -25,6 +31,11 @@ export class Background {
     this.vignetteGradient = null;
   }
 
+  /**
+   * Gets a cached layer image, loading it on first use.
+   * @param {string} src - Image path.
+   * @returns {HTMLImageElement} The layer image.
+   */
   getLayerImage(src) {
     if (!layerImages.has(src)) {
       const image = new Image();
@@ -34,6 +45,11 @@ export class Background {
     return layerImages.get(src);
   }
 
+  /**
+   * Creates a randomly placed rising particle.
+   * @param {{riseSpeed: number[], driftSpeed: number, size: number[]}} settings - Particle settings of the theme.
+   * @returns {Object} The particle.
+   */
   createParticle({ riseSpeed, driftSpeed, size }) {
     return {
       x: Math.random() * CANVAS_WIDTH,
@@ -46,15 +62,33 @@ export class Background {
     };
   }
 
+  /**
+   * Gets a random number in a range.
+   * @param {number[]} range - [min, max].
+   * @returns {number} Random number between min and max.
+   */
   randomBetween([min, max]) {
     return min + Math.random() * (max - min);
   }
 
+  /**
+   * Draws all parallax layers and particles behind the level.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @param {number} levelHeight - Level height in pixels.
+   */
   drawBehindLevel(ctx, view, levelHeight) {
     this.layers.forEach((layer) => this.drawParallaxLayer(ctx, layer, view, levelHeight));
     this.drawParticles(ctx, view);
   }
 
+  /**
+   * Draws a horizontally tiled layer with parallax offset, bottom-aligned to the level.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{image: HTMLImageElement, factor: number, isOpaque: boolean}} layer - Layer to draw.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @param {number} levelHeight - Level height in pixels.
+   */
   drawParallaxLayer(ctx, { image, factor, isOpaque }, view, levelHeight) {
     const isLoaded = image.complete && image.naturalWidth > 0;
     const height = isLoaded ? image.height : 0;
@@ -69,6 +103,13 @@ export class Background {
     }
   }
 
+  /**
+   * Fills the visible area above and below the far layer with sky colors.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   * @param {number} layerTop - Top of the layer.
+   * @param {number} layerHeight - Height of the layer.
+   */
   fillSkyAroundLayer(ctx, view, layerTop, layerHeight) {
     const layerBottom = layerTop + layerHeight;
     const viewBottom = view.top + view.height;
@@ -83,6 +124,11 @@ export class Background {
     }
   }
 
+  /**
+   * Draws the twinkling particles with slight parallax.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   */
   drawParticles(ctx, view) {
     const { color, alpha } = this.theme.particles;
     const now = gameLoop.now();
@@ -100,6 +146,16 @@ export class Background {
     ctx.restore();
   }
 
+  /**
+   * Draws a particle repeated across the view in canvas-sized tiles.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @param {string} color - RGB color as "r, g, b".
+   * @param {number} fieldX - Particle x in its tile.
+   * @param {number} fieldY - Particle y in its tile.
+   * @param {number} size - Glow size.
+   * @param {number} brightness - Glow opacity.
+   * @param {{left: number, top: number, width: number, height: number}} view - Visible world area.
+   */
   drawRepeated(ctx, color, fieldX, fieldY, size, brightness, view) {
     const startX = fieldX + Math.ceil((view.left - size - fieldX) / CANVAS_WIDTH) * CANVAS_WIDTH;
     const startY = fieldY + Math.ceil((view.top - size - fieldY) / CANVAS_HEIGHT) * CANVAS_HEIGHT;
@@ -110,16 +166,31 @@ export class Background {
     }
   }
 
+  /**
+   * Wraps a value into 0..size.
+   * @param {number} value - Value to wrap.
+   * @param {number} size - Range size.
+   * @returns {number} Wrapped value.
+   */
   wrap(value, size) {
     return ((value % size) + size) % size;
   }
 
+  /**
+   * Draws the vignette over the whole canvas.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   */
   drawVignette(ctx) {
     this.vignetteGradient ??= this.createVignetteGradient(ctx);
     ctx.fillStyle = this.vignetteGradient;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   }
 
+  /**
+   * Creates the radial vignette gradient in the theme color.
+   * @param {CanvasRenderingContext2D} ctx - Target canvas context.
+   * @returns {CanvasGradient} The gradient.
+   */
   createVignetteGradient(ctx) {
     const centerX = CANVAS_WIDTH / 2;
     const centerY = CANVAS_HEIGHT / 2;

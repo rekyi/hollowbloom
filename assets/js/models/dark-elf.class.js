@@ -2,6 +2,12 @@ import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
 const DARK_ELF_PATH = "assets/images/3_enemies/dark_elf/";
 const DARK_ELF_FRAME = { frameSize: 162, frameHeight: 128 };
+/**
+ * Builds the sprite config of a dark elf animation.
+ * @param {string} name - Animation name in the file name.
+ * @param {number} frameCount - Number of frames.
+ * @returns {Object} Sprite path, frame count, frame size and columns.
+ */
 function getDarkElfSprite(name, frameCount) {
   return { path: `${DARK_ELF_PATH}dark_elf_${name}.webp`, frameCount, ...DARK_ELF_FRAME, columns: Math.min(10, frameCount) };
 }
@@ -30,7 +36,11 @@ const DARK_ELF_SETTINGS = {
   },
 };
 
+/** Fast dark elf enemy with two weighted attack animations. */
 export class DarkElf extends ConfigurableEnemy {
+  /**
+   * @param {Object} [positionOverrides={}] - Values that override the default position settings.
+   */
   constructor(positionOverrides = {}) {
     super(DARK_ELF_SETTINGS, positionOverrides);
   }
