@@ -210,7 +210,7 @@ body:has(#canvas.ready):not(:has(.game-over:not([hidden]), .victory-screen:not([
     position: relative;
     width: min(var(--game-width), 100vw, 177.7778dvh);
     aspect-ratio: 16 / 9;
-    background: url("assets/images/9_screens/game_over_screen.webp") center / 100% 100% no-repeat;
+    background: url("assets/images/screens/game_over_screen.webp") center / 100% 100% no-repeat;
 }
 
 #game-over-character {

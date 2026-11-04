@@ -1,7 +1,7 @@
 import { DrawableObject } from "./drawable-object.class.js";
 
-const KEY_IMAGE = "assets/images/8_items/gold_key.webp";
-const BOSS_KEY_IMAGE = "assets/images/8_items/ancient_key.webp";
+const KEY_IMAGE = "assets/images/items/gold_key.webp";
+const BOSS_KEY_IMAGE = "assets/images/items/ancient_key.webp";
 
 /** Collectible key that unlocks an exit portal. */
 export class KeyItem extends DrawableObject {

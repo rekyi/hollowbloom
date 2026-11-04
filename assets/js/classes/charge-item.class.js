@@ -12,7 +12,7 @@ export class ChargeItem extends DrawableObject {
    */
   constructor(centerX, centerY) {
     super();
-    this.loadImage("assets/images/8_items/item_charge.webp");
+    this.loadImage("assets/images/items/item_charge.webp");
     this.width = 36;
     this.height = 36;
     this.x = centerX - this.width / 2;

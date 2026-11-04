@@ -24,10 +24,10 @@ const LIGHTNING_POINTS = [
 /** HUD showing hearts, coin count and the special attack charge badge. */
 export class StatusBar extends DrawableObject {
   IMAGES = {
-    BACKGROUND: "assets/images/7_statusbars/health_bar/background.webp",
-    HEART: "assets/images/7_statusbars/health_bar/heart.webp",
-    BORDER: "assets/images/7_statusbars/health_bar/border.webp",
-    COIN: "assets/images/8_items/item_charge.webp",
+    BACKGROUND: "assets/images/statusbars/health_bar/background.webp",
+    HEART: "assets/images/statusbars/health_bar/heart.webp",
+    BORDER: "assets/images/statusbars/health_bar/border.webp",
+    COIN: "assets/images/items/item_charge.webp",
   };
   maxHearts = 3;
   hearts = 3;

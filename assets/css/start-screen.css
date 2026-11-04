@@ -2,7 +2,7 @@
     position: relative;
     width: min(var(--game-width), 100vw, 177.7778dvh);
     aspect-ratio: 16 / 9;
-    background: url("../images/9_screens/start_screen.webp") center / 100% 100% no-repeat;
+    background: url("../images/screens/start_screen.webp") center / 100% 100% no-repeat;
 }
 
 .pre-start-prompt {

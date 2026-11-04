@@ -1,6 +1,6 @@
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
-const DARK_ELF_PATH = "assets/images/3_enemies/dark_elf/";
+const DARK_ELF_PATH = "assets/images/enemies/dark_elf/";
 const DARK_ELF_FRAME = { frameSize: 162, frameHeight: 128 };
 /**
  * Builds the sprite config of a dark elf animation.

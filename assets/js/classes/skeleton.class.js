@@ -1,6 +1,6 @@
 import { ConfigurableEnemy } from "./configurable-enemy.class.js";
 
-const SKELETON_PATH = "assets/images/3_enemies/skeleton/";
+const SKELETON_PATH = "assets/images/enemies/skeleton/";
 const SKELETON_FRAME = { frameSize: 196, frameHeight: 117 };
 /**
  * Builds the sprite config of a skeleton animation.

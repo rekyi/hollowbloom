@@ -9,7 +9,7 @@ const DEFENSE_LOWERING_FRAME_LAG = 2;
 const ATTACK_LUNGE_START_FRAME = 16;
 const ATTACK_FRAMES_PER_RISE_FRAME = 5 / 12;
 const DEFENSE_FOLLOW_MAX_GAP = 40;
-const BOAR_PATH = "assets/images/3_enemies/boar/";
+const BOAR_PATH = "assets/images/enemies/boar/";
 const BOAR_FRAME = { frameSize: 248, frameHeight: 97 };
 /**
  * Builds the sprite config of a boar animation.

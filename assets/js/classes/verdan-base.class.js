@@ -4,7 +4,7 @@ import { MoveableObject } from "./movable-object.class.js";
 import { VERDAN_SETTINGS } from "../data.js";
 import { playSfx } from "../sfx.js";
 
-const VERDAN_PATH = "assets/images/4_final_boss/verdan/verdan_";
+const VERDAN_PATH = "assets/images/final_boss/verdan/verdan_";
 const VERDAN_FRAME_WIDTH = 360;
 const VERDAN_FRAME_HEIGHT = 336;
 const MAX_SHEET_COLUMNS = 8;
