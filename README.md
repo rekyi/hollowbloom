@@ -1,9 +1,24 @@
+<div align="center">
+
 # Hollowbloom
+
+**A 2D action platformer in vanilla JavaScript and HTML5 Canvas**
+
+[![Live](https://img.shields.io/badge/Live-hollowbloom.rekyi.de-5f8a4f?style=flat-square)](https://hollowbloom.rekyi.de)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-E34F26?style=flat-square&logo=html5&logoColor=white)
+![LDtk](https://img.shields.io/badge/Levels-LDtk-FFCC00?style=flat-square)
+![howler.js](https://img.shields.io/badge/Audio-howler.js-6A5ACD?style=flat-square)
+
+[Play now](https://hollowbloom.rekyi.de) · [Features](#features) · [Controls](#controls) · [Getting started](#getting-started)
+
+</div>
+
+---
 
 A 2D action platformer built with vanilla JavaScript and the HTML5 Canvas, featuring a custom game loop, levels designed in LDtk and a two-phase final boss.
 
-![Hollowbloom start screen](assets/images/background/readme.webp)
-
+![Hollowbloom start screen](assets/images/readme.webp)
 
 ## About the game
 
@@ -27,6 +42,16 @@ Coins, time, defeated enemies, deaths and restarts carry over between levels and
 - Settings for volume, fullscreen, language (English and German), screen shake and damage flash, all saved in the browser.
 - Touch controls on phones and tablets (landscape only).
 
+## Tech stack
+
+| Area         | Technology                                                |
+| ------------ | --------------------------------------------------------- |
+| Rendering    | HTML5 Canvas with a fixed 60 Hz game loop                 |
+| Logic        | Vanilla JavaScript (ES modules, classes)                  |
+| Level design | [LDtk](https://ldtk.io)                                   |
+| Audio        | howler.js for sound effects, `HTMLAudioElement` for music |
+| Styling      | CSS3                                                      |
+
 ## Controls
 
 | Action          | Keyboard             |
@@ -47,7 +72,7 @@ Key bindings are defined in `assets/js/data.js`.
 The game uses ES modules and loads level data with `fetch`, so it needs a local web server. Opening `index.html` directly won't work.
 
 ```bash
-git clone https://github.com/YOUR-NAME/hollowbloom.git
+git clone https://github.com/rekyi/hollowbloom.git
 cd hollowbloom
 
 npx serve .                  # or
@@ -65,7 +90,6 @@ hollowbloom/
 ├── index.html            canvas, menus, dialogs, touch buttons
 ├── script.js             init(): wires up all systems
 ├── style.css
-├── ROADMAP1.md           tasks, project parameters, level design rules
 └── assets/
     ├── audio/            music/ and sfx/ (each file as .ogg and .m4a)
     ├── css/
@@ -161,6 +185,14 @@ Levels are built in [LDtk](https://ldtk.io) at a 1:1 scale on a 32 px grid and e
 
 Some graphics and sounds were created with AI. All assets belong to their respective authors and are subject to their licenses.
 
+## Contact
+
+[mail@rekyi.de](mailto:mail@rekyi.de) · [GitHub](https://github.com/rekyi) · [Portfolio](https://rekyi.de)
+
 ---
 
-A non-commercial hobby and learning project.
+<div align="center">
+
+A non-commercial learning project. Built from scratch to explore object-oriented JavaScript, game loops and level design.
+
+</div>
