@@ -127,7 +127,8 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     max-height: min(32rem, calc(100dvh - 1rem));
 }
 
-.credits-note {
+.credits-note,
+.imprint-note {
     margin-block: 0 1rem;
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.875rem;
@@ -148,7 +149,8 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     font-size: 1rem;
 }
 
-.credits-list {
+.credits-list,
+.imprint-links {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -157,49 +159,29 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
     gap: 0.5rem;
 }
 
-.credits-list li {
+.credits-list li,
+.imprint-links li {
     display: flex;
     flex-direction: column;
 }
 
-.credits-list a {
+.credits-list a,
+.imprint-links a {
     color: var(--color-text);
     overflow-wrap: anywhere;
 }
 
 .credits-list a:hover,
-.credits-list a:focus-visible {
+.credits-list a:focus-visible,
+.imprint-links a:hover,
+.imprint-links a:focus-visible {
     color: var(--color-accent);
 }
 
-.credits-author {
+.credits-author,
+.imprint-url {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.875rem;
-}
-
-.imprint-panel address {
-    font-style: normal;
-}
-
-.imprint-panel dl {
-    margin: 0;
-
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 0.25rem 1rem;
-}
-
-.imprint-panel dd {
-    margin: 0;
-}
-
-.imprint-panel a {
-    color: var(--color-text);
-}
-
-.imprint-panel a:hover,
-.imprint-panel a:focus-visible {
-    color: var(--color-accent);
 }
 
 .dialog-content {
@@ -677,4 +659,13 @@ body:has(.imprint-panel[open]) .start-menu > button:nth-child(4),
 .imprint-panel::backdrop {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(0.5px);
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }

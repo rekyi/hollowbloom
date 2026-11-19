@@ -28,7 +28,7 @@
         <button id="start-button" type="button" data-i18n="menu.start">Start game</button>
         <button id="settings-button" type="button" data-i18n="menu.settings">Settings</button>
         <button id="credits-button" type="button" data-i18n="menu.credits">Credits</button>
-        <button id="imprint-button" type="button" data-i18n="menu.imprint">Legal notice</button>
+        <button id="imprint-button" type="button" data-i18n="menu.imprint">Legal notice &amp; privacy</button>
       </nav>
       <div id="character-choices" class="character-choices" role="group" aria-label="Choose character" data-i18n-aria-label="character.group" inert>
         <button
@@ -46,25 +46,29 @@
       </div>
       <dialog id="imprint-overlay" class="imprint-panel" aria-labelledby="imprint-title">
         <div class="dialog-content">
-          <h1 id="imprint-title" tabindex="-1" data-i18n="menu.imprint">Legal notice</h1>
+          <h1 id="imprint-title" tabindex="-1" data-i18n="menu.imprint">Legal notice &amp; privacy</h1>
           <section class="imprint-section">
-            <h2 data-i18n="imprint.provider">Information pursuant to § 5 DDG</h2>
-            <address>
-              blub blub<br />
-              blub str.<br />
-              12345 blub<br />
-              <span data-i18n="imprint.country">Germany</span>
-            </address>
+            <p data-i18n="imprint.text">Hollowbloom is part of my portfolio. The legal notice and privacy policy published there also apply to this game.</p>
           </section>
           <section class="imprint-section">
-            <h2 data-i18n="imprint.contact">Contact</h2>
-            <dl>
-              <dt data-i18n="imprint.phone">Phone</dt>
-              <dd><a href="tel:+49blub">+49 blub</a></dd>
-              <dt data-i18n="imprint.email">Email</dt>
-              <dd><a href="mailto:blub@gmail.com">blub@gmail.com</a></dd>
-            </dl>
+            <ul class="imprint-links">
+              <li>
+                <a href="https://rekyi.de/legal-notice" target="_blank" rel="noopener noreferrer">
+                  <span data-i18n="imprint.legalNotice">Legal notice</span>
+                  <span class="visually-hidden" data-i18n="common.newTab">(opens in a new tab)</span>
+                </a>
+                <span class="imprint-url">rekyi.de/legal-notice</span>
+              </li>
+              <li>
+                <a href="https://rekyi.de/privacy-policy" target="_blank" rel="noopener noreferrer">
+                  <span data-i18n="imprint.privacyPolicy">Privacy policy</span>
+                  <span class="visually-hidden" data-i18n="common.newTab">(opens in a new tab)</span>
+                </a>
+                <span class="imprint-url">rekyi.de/privacy-policy</span>
+              </li>
+            </ul>
           </section>
+          <p class="imprint-note" data-i18n="imprint.storageNote">Your settings (language, volume and effects) are only saved in your browser.</p>
           <button id="imprint-back-button" type="button" data-i18n="common.back">Back</button>
         </div>
       </dialog>
